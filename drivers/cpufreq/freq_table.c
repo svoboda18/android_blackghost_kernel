@@ -169,14 +169,14 @@ int cpufreq_frequency_table_target(struct cpufreq_policy *policy,
 				}
 			}
 			break;
-		case CPUFREQ_RELATION_C:
-			diff = abs(freq - target_freq);
-			if (diff < optimal.frequency ||
-			    (diff == optimal.frequency &&
-			     freq > table[optimal.driver_data].frequency)) {
-				optimal.frequency = diff;
-				optimal.driver_data = i;
-			}
+//		case CPUFREQ_RELATION_C:
+//			diff = abs(freq - target_freq);
+//			if (diff < optimal.frequency ||
+//			    (diff == optimal.frequency &&
+//			     freq > table[optimal.driver_data].frequency)) {
+//				optimal.frequency = diff;
+//				optimal.driver_data = i;
+//			}
 			break;
 		}
 	}
