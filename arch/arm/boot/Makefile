@@ -31,12 +31,14 @@ export ZRELADDR INITRD_PHYS PARAMS_PHYS
 targets := Image zImage xipImage bootpImage uImage
 
 DTB_NAMES := $(subst $\",,$(CONFIG_BUILD_ARM_APPENDED_DTB_IMAGE_NAMES))
+DTBO_NAMES := $(subst $\",,$(CONFIG_BUILD_ARM_DTB_OVERLAY_IMAGE_NAMES))
 ifneq ($(DTB_NAMES),)
 DTB_LIST := $(addsuffix .dtb,$(DTB_NAMES))
 else
 DTB_LIST := $(dtb-y)
 endif
 DTB_OBJS := $(addprefix $(obj)/dts/,$(DTB_LIST))
+DTBO_OBJS := $(addsuffix .dtb,$(addprefix $(obj)/dts/,$(DTBO_NAMES)))
 
 ifeq ($(CONFIG_XIP_KERNEL),y)
 
@@ -61,7 +63,7 @@ $(obj)/Image: vmlinux FORCE
 $(obj)/compressed/vmlinux: $(obj)/Image FORCE
 	$(Q)$(MAKE) $(build)=$(obj)/compressed $@
 
-$(obj)/zImage:	$(obj)/compressed/vmlinux $(obj)/mtk.dtb FORCE
+$(obj)/zImage:	$(obj)/compressed/vmlinux $(obj)/mtk.dtb $(obj)/dtbo.img FORCE
 	$(call if_changed,objcopy)
 
 $(obj)/zImage-dtb:	$(obj)/zImage $(DTB_OBJS) FORCE
@@ -71,6 +73,10 @@ $(obj)/zImage-dtb:	$(obj)/zImage $(DTB_OBJS) FORCE
 $(obj)/mtk.dtb: $(DTB_OBJS) FORCE
 	$(call if_changed,cat)
 
+ifneq ($(CONFIG_BUILD_ARM_DTB_OVERLAY_IMAGE_NAMES),)
+$(obj)/dtbo.img: $(DTBO_OBJS) FORCE
+	$(call if_changed,mkdtimg)
+endif
 endif
 
 ifneq ($(LOADADDR),)

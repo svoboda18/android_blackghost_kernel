@@ -316,6 +316,11 @@ $(obj)/%.dtb: $(src)/%.dts FORCE
 
 dtc-tmp = $(subst $(comma),_,$(dot-target).dts.tmp)
 
+# mkdtimg
+#----------------------------------------------------------------------------
+quiet_cmd_mkdtimg = DTBOIMG $@
+cmd_mkdtimg = $(srctree)/scripts/ufdt/libufdt/utils/src/mkdtboimg.py create $@ --page_size=4096 $(filter-out FORCE,$^)
+
 # cat
 # ---------------------------------------------------------------------------
 # Concatentate multiple files together
@@ -362,7 +367,7 @@ cmd_lzo = (cat $(filter-out FORCE,$^) | \
 
 quiet_cmd_lz4 = LZ4     $@
 cmd_lz4 = (cat $(filter-out FORCE,$^) | \
-	lz4 -c -l -12 --favor-decSpeed stdin stdout && \
+	lz4 -c -l -12 --favor-decSpeed stdin && \
 	$(call size_append, $(filter-out FORCE,$^))) > $@ || \
 	(rm -f $@ ; false)
 
