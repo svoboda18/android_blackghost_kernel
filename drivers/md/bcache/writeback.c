@@ -447,6 +447,16 @@ static int bch_writeback_thread(void *arg)
 			cached_dev_put(dc);
 			SET_BDEV_STATE(&dc->sb, BDEV_STATE_CLEAN);
 			bch_write_bdev_super(dc, NULL);
+			/*
+			 * If bcache device is detaching via sysfs interface,
+			 * writeback thread should stop after there is no dirty
+			 * data on cache. BCACHE_DEV_DETACHING flag is set in
+			 * bch_cached_dev_detach().
+			 */
+			if (test_bit(BCACHE_DEV_DETACHING, &dc->disk.flags)) {
+				up_write(&dc->writeback_lock);
+				break;
+			}
 		}
 
 		up_write(&dc->writeback_lock);
