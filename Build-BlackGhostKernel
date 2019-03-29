@@ -120,8 +120,9 @@ else
         echo "${GRN} #    SUCCESSFULLY BUILDED KERNEL    #"
         echo "${GRN} #                                   #"
         echo "${GRN} #####################################"
-        mv ${OIMAGE} boot.img-zImage
-        zip -r9 BlackGHostKernel-${VERSION}-${BUILD_DATE}.zip boot.img-zImage >> /dev/null
+        mv ${OIMAGE} zImage
+        zip -r9 BlackGHostKernel-${VERSION}-${BUILD_DATE}.zip zImage >> /dev/null
+	rm zImage
         echo " "
         echo "${GRN} #      Do You Want To Upload?       #"
         echo " "
