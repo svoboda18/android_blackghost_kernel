@@ -1,0 +1,76 @@
+config MT_SND_SOC_6570
+	bool "MT_SND_SOC_6570"
+	default n
+	help
+	  If you say Y, enable MT_SND_SOC_6570_driver.
+	  Must enable this to use medatek audio driver.
+	  The default value is n for MT6570.
+	  It is recommended not to change this.
+
+config MT_SND_SOC_6580
+	bool "MT_SND_SOC_6580"
+	default n
+	help
+	  If you say Y, enable MT_SND_SOC_6580_driver.
+
+config MT_SND_SOC_CODEC
+	string "String for Mediatek audio codec"
+	help
+	  Specify Mediatek audio codec.
+	  Say "mt6351" if you have mt6351 audio codec.
+
+config MTK_SPEAKER
+	bool "MTK_SPEAKER"
+	default n
+	help
+	  If you say Y, enable MTK_SPEAKER_AMP
+
+config MTK_NXP_TFA9890
+	bool "MTK_NXP_TFA9890"
+	default n
+	help
+	  If you say Y, enable MTK_NXP_TFA9890 driver.
+
+config MTK_SPKGPIO_REWORK
+	bool "MTK_SPKGPIO_REWORK"
+	default n
+	help
+	  This is only for MTK internal phone only
+	  Enable SPKGPIO REWORK check functionality
+	  Will choose the correct GPIO for external AMP
+	  If you say Y, enable MTK_SPKGPIO_REWORK
+
+config MTK_HP_ANASWITCH
+	bool "MTK_HP_ANASWITCH"
+	default n
+	help
+	  This will enable headphone analog switch control
+	  for de-pop functionality
+	  Only enable this when you have headphone analog switch
+	  If you say Y, enable MTK_HP_ANASWITCH
+
+config MTK_BTCVSD_ALSA
+	bool "MTK_BTCVSD_ALSA"
+	default n
+	help
+	  If you say Y, enable MTK_BTCVSD_ALSA.
+
+config MTK_SND_SOC_NEW_ARCH
+	bool "Support new audio architecture"
+	help
+	  If you say Y, enable MTK_SND_SOC_NEW_ARCH.
+	  Only enable this when you use refactored audio driver architecture.
+
+config MTK_AUDIO_TUNNELING_SUPPORT
+	bool "Audio playback through dsp"
+	help
+	  Only enable this when we have DSP.
+	  This makes audio output pass bitstream without any post processing.
+	  The decoding process is done in DSP.
+          Select Y to enable MTK_AUDIO_TUNNELING_SUPPORT for DSP playback.
+
+config MTK_SND_HYBRID_DRE_SUPPORT
+	bool "Audio Hybrid DRE support"
+	help
+	  If you say Y, enable MTK_SND_HYBRID_DRE_SUPPORT.
+	  Only enable this when we have Hybrid DRE feature.
