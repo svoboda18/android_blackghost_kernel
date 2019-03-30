@@ -1,3 +1,9 @@
+# ***********************************************************************
+# *
+# * Copyright (C) By svoboda18: custom kernel blackgjost  3.18.y
+# *
+# ***********************************************************************
+
 CONFIG_CROSS_COMPILE="arm-eabi-"
 CONFIG_LOCALVERSION="-BlackGHost-O-V2.0-STABLE"
 # CONFIG_LOCALVERSION_AUTO is not set

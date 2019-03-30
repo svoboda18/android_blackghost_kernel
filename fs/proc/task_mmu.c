@@ -297,14 +297,10 @@ static int do_maps_open(struct inode *inode, struct file *file,
  * Indicate if the VMA is a stack for the given task; for
  * /proc/PID/maps that is the stack of the main task.
  */
+
 static int is_stack(struct proc_maps_private *priv,
 		    struct vm_area_struct *vma)
 {
-	/*
-	 * We make no effort to guess what a given thread considers to be
-	 * its "stack".  It's not even well-defined for programs written
-	 * languages like Go.
-	 */
 	return vma->vm_start <= vma->vm_mm->start_stack &&
 		vma->vm_end >= vma->vm_mm->start_stack;
 }
@@ -376,28 +372,25 @@ show_map_vma(struct seq_file *m, struct vm_area_struct *vma, int is_pid)
 		if (is_stack(priv, vma)) {
 			name = "[stack]";
 		}
-
+/*
 		tid = pid_of_stack(priv, vma, is_pid);
 		if (tid != 0) {
-			/*
 			 * Thread stack in /proc/PID/task/TID/maps or
 			 * the main process stack.
-			 */
 			if (!is_pid || (vma->vm_start <= mm->start_stack &&
 			    vma->vm_end >= mm->start_stack)) {
 				name = "[stack]";
 			} else {
-				/* Thread stack in /proc/PID/maps */
 				seq_pad(m, ' ');
 				seq_printf(m, "[stack:%d]", tid);
 			}
 			goto done;
-		}
+i		}	
 
 		if (vma_get_anon_name(vma)) {
 			seq_pad(m, ' ');
 			seq_print_vma_name(m, vma);
-		}
+		}	*/
 	}
 
 done:

@@ -5,6 +5,10 @@
  *
  *******************************************************************************
  *
+ * Copyright (C) By nik-ks: v1.0: adapted to work on .79, x,y axia work.
+ * Copyright (C) By svoboda18: v2.0: fixed z axis, reading data is more faster.
+ *
+ *******************************************************************************
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
@@ -45,7 +49,8 @@
 
 #define I2C_DRIVERID_MXC400X		120
 #define SW_CALIBRATION
-#define DRIVER_VERSION				"V60.97.05.01"
+#define DRIVER_VERSION			"V2"
+
 #define GSE_DEBUG_ON          		0
 #define GSE_DEBUG_FUNC_ON     		0
 /* Log define */
