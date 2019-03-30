@@ -38,17 +38,16 @@ void *ion_heap_map_kernel(struct ion_heap *heap,
 	struct page **pages = vmalloc(sizeof(struct page *) * npages);
 	struct page **tmp = pages;
 
-<<<<<<< HEAD
 	if (!pages) {
 		IONMSG("%s vmalloc failed pages is null.\n", __func__);
 		return ERR_PTR(-ENOMEM);
 	}
 
-	if (buffer->flags & ION_FLAG_CACHED)
+	if (buffer->flags & ION_FLAG_CACHED) {
 		pgprot = PAGE_KERNEL;
-	else
+	} else {
 		pgprot = pgprot_writecombine(PAGE_KERNEL);
-
+	}
 	for_each_sg(table->sgl, sg, table->nents, i) {
 		int npages_this_entry = PAGE_ALIGN(sg->length) / PAGE_SIZE;
 		struct page *page = sg_page(sg);
