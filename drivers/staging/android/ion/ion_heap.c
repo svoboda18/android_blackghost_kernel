@@ -38,7 +38,6 @@ void *ion_heap_map_kernel(struct ion_heap *heap,
 	struct page **pages = vmalloc(sizeof(struct page *) * npages);
 	struct page **tmp = pages;
 
-<<<<<<< HEAD
 	if (!pages) {
 		IONMSG("%s vmalloc failed pages is null.\n", __func__);
 		return ERR_PTR(-ENOMEM);
