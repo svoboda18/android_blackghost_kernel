@@ -198,11 +198,7 @@ static long long read_indexes(struct super_block *sb, int n,
 		}
 
 		for (i = 0; i < blocks; i++) {
-			int size = squashfs_block_size(blist[i]);
-			if (size < 0) {
-				err = size;
-				goto failure;
-			}
+			int size = le32_to_cpu(blist[i]);
 			block += SQUASHFS_COMPRESSED_SIZE_BLOCK(size);
 		}
 		n -= blocks;
@@ -375,7 +371,7 @@ static int read_blocklist(struct inode *inode, int index, u64 *block)
 			sizeof(size));
 	if (res < 0)
 		return res;
-	return squashfs_block_size(size);
+	return le32_to_cpu(size);
 }
 
 /* Copy data into page cache  */

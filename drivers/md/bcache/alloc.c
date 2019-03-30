@@ -285,10 +285,8 @@ do {									\
 			break;						\
 									\
 		mutex_unlock(&(ca)->set->bucket_lock);			\
-		if (kthread_should_stop()) {				\
-			set_current_state(TASK_RUNNING);		\
+		if (kthread_should_stop())				\
 			return 0;					\
-		}							\
 									\
 		try_to_freeze();					\
 		schedule();						\

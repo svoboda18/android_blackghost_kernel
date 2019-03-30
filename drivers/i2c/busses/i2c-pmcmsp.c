@@ -592,10 +592,10 @@ static int pmcmsptwi_master_xfer(struct i2c_adapter *adap,
 		 * TODO: We could potentially loop and retry in the case
 		 * of MSP_TWI_XFER_TIMEOUT.
 		 */
-		return -EIO;
+		return -1;
 	}
 
-	return num;
+	return 0;
 }
 
 static u32 pmcmsptwi_i2c_func(struct i2c_adapter *adapter)

@@ -106,7 +106,7 @@ void expr_free(struct expr *e)
 		break;
 	case E_NOT:
 		expr_free(e->left.expr);
-		break;
+		return;
 	case E_EQUAL:
 	case E_UNEQUAL:
 		break;

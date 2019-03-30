@@ -915,10 +915,8 @@ static int azx_attach_pcm_stream(struct hda_bus *bus, struct hda_codec *codec,
 		return err;
 	strlcpy(pcm->name, cpcm->name, sizeof(pcm->name));
 	apcm = kzalloc(sizeof(*apcm), GFP_KERNEL);
-	if (apcm == NULL) {
-		snd_device_free(chip->card, pcm);
+	if (apcm == NULL)
 		return -ENOMEM;
-	}
 	apcm->chip = chip;
 	apcm->pcm = pcm;
 	apcm->codec = codec;

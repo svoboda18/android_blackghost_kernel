@@ -781,7 +781,6 @@ static struct sk_buff *__skb_clone(struct sk_buff *n, struct sk_buff *skb)
 	n->cloned = 1;
 	n->nohdr = 0;
 	n->peeked = 0;
-	C(pfmemalloc);
 	n->destructor = NULL;
 	C(tail);
 	C(end);
@@ -4131,18 +4130,13 @@ EXPORT_SYMBOL_GPL(skb_gso_transport_seglen);
 
 static struct sk_buff *skb_reorder_vlan_header(struct sk_buff *skb)
 {
-	int mac_len;
-
 	if (skb_cow(skb, skb_headroom(skb)) < 0) {
 		kfree_skb(skb);
 		return NULL;
 	}
 
-	mac_len = skb->data - skb_mac_header(skb);
-	if (likely(mac_len > VLAN_HLEN + ETH_TLEN)) {
-		memmove(skb_mac_header(skb) + VLAN_HLEN, skb_mac_header(skb),
-			mac_len - VLAN_HLEN - ETH_TLEN);
-	}
+	memmove(skb->data - ETH_HLEN, skb->data - skb->mac_len - VLAN_HLEN,
+		2 * ETH_ALEN);
 	skb->mac_header += VLAN_HLEN;
 	return skb;
 }

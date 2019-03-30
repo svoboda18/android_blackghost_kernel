@@ -520,8 +520,7 @@ static ssize_t watchdog_write(struct file *file, const char __user *buf,
 				char c;
 				if (get_user(c, buf + i))
 					return -EFAULT;
-				if (c == 'V')
-					expect_close = true;
+				expect_close = (c == 'V');
 			}
 
 			/* Properly order writes across fork()ed processes */

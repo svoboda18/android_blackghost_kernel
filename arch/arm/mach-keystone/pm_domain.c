@@ -59,7 +59,6 @@ static struct dev_pm_domain keystone_pm_domain = {
 
 static struct pm_clk_notifier_block platform_domain_notifier = {
 	.pm_domain = &keystone_pm_domain,
-	.con_ids = { NULL },
 };
 
 static struct of_device_id of_keystone_table[] = {

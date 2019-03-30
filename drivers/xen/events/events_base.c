@@ -636,6 +636,8 @@ static void __unbind_from_irq(unsigned int irq)
 		xen_irq_info_cleanup(info);
 	}
 
+	BUG_ON(info_for_irq(irq)->type == IRQT_UNBOUND);
+
 	xen_free_irq(irq);
 }
 
@@ -761,8 +763,8 @@ out:
 	mutex_unlock(&irq_mapping_update_lock);
 	return irq;
 error_irq:
-	while (nvec--)
-		__unbind_from_irq(irq + nvec);
+	for (; i >= 0; i--)
+		__unbind_from_irq(irq + i);
 	mutex_unlock(&irq_mapping_update_lock);
 	return ret;
 }

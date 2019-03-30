@@ -1,9 +1,6 @@
 /*
  * Author: yucong xiong <yucong.xion@mediatek.com>
  *
- * Copyright (C) By snowcat6: v1.0: adapted to work on .79, wotks, but buggy.
- * Copyright (C) By svoboda18: v1.0: fixed als/ps data reading, als works better, ps works anywhere.
- *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
  * may be copied, distributed, and modified under those terms.

@@ -4890,8 +4890,7 @@ static void perf_output_read_group(struct perf_output_handle *handle,
 	if (read_format & PERF_FORMAT_TOTAL_TIME_RUNNING)
 		values[n++] = running;
 
-	if ((leader != event) &&
-	    (leader->state == PERF_EVENT_STATE_ACTIVE))
+	if (leader != event)
 		leader->pmu->read(leader);
 
 	values[n++] = perf_event_count(leader);
