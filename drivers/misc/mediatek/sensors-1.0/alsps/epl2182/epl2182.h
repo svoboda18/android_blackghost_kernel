@@ -1,6 +1,6 @@
-/* drivers/hwmon/mt6516/amit/epl2182.c - EPL2182 ALS/PS driver
+/*  EPL2182 ALS/PS driver
  *
- * Author: MingHsien Hsieh <minghsien.hsieh@mediatek.com>
+ *Author: yucong xiong <yucong.xion@mediatek.com>
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -169,3 +169,4 @@ union EPL2182_CUST_DATA {
 extern struct platform_device *get_alsps_platformdev(void);
 
 #endif
+
