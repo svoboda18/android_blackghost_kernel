@@ -18,8 +18,13 @@ This is 3.18.x MT6580 costum blackghost kernel source made to DOOGEE X5.
 | Accdet | `mt6580-accdet` | - | Yes |
 | Other | `kd_camera_hw (i2c 0-0036)` | - | Yes |
 
-## Acknowledgements
+## Build process
+* Clone thos repo, by running:
+`git clone https://github.com/svoboda18/android_blackghost_kernel kernel`
+* Start the build:
+`cd kernel ; bash Build-BlackGhostKernel`
 
+## Acknowledgements
 * [snowcat (4pda.ru)](https://4pda.ru/forum/index.php?showuser=188334) [(@SnowCat6)](https://github.com/SnowCat6)
 * [nik-kst (4pda.ru)](https://4pda.ru/forum/index.php?showuser=4052130) [(@nik124seleznev)](https://github.com/nik124seleznev)
 

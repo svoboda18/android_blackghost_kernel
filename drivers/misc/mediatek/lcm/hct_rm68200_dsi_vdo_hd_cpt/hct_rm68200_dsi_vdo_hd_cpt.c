@@ -503,7 +503,7 @@ static void lcm_init(void)
 
 static void lcm_suspend(void)
 {
-/*	unsigned int array[16];
+	unsigned int array[16];
 	array[0] = 0x00FE1500;
 	dsi_set_cmdq(array, 1, 1);
 	MDELAY(50);
@@ -518,16 +518,14 @@ static void lcm_suspend(void)
 	MDELAY(50);
 	array[0] = 0x014F1500;
 	dsi_set_cmdq(array, 1, 1);
-	MDELAY(50);			*/
-	push_table(lcm_sleep_in_setting, sizeof(lcm_sleep_in_setting) / sizeof(struct LCM_setting_table), 1);   //wqtao. enable
-  
+	MDELAY(50); 
 }
 
 
 static void lcm_resume(void)
 {   
-	//lcm_init();
-	 push_table(lcm_sleep_out_setting, sizeof(lcm_sleep_out_setting) / sizeof(struct LCM_setting_table), 1);
+	lcm_init();
+	push_table(lcm_sleep_out_setting, sizeof(lcm_sleep_out_setting) / sizeof(struct LCM_setting_table), 1);
 }
 
 static unsigned int lcm_compare_id(void)
