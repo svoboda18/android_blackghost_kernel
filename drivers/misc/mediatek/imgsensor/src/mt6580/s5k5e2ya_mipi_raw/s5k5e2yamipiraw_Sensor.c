@@ -67,7 +67,7 @@ static imgsensor_info_struct imgsensor_info = {
 		.grabwindow_width = 1280,		//record different mode's width of grabwindow
 		.grabwindow_height = 960,		//record different mode's height of grabwindow
 		/*	 following for MIPIDataLowPwr2HighSpeedSettleDelayCount by different scenario	*/
-		.mipi_data_lp2hs_settle_dc = 23,
+		.mipi_data_lp2hs_settle_dc = 46,
 		/*	 following for GetDefaultFramerateByScenario()	*/
 		.max_framerate = 300,	
 	},
@@ -79,7 +79,7 @@ static imgsensor_info_struct imgsensor_info = {
 		.starty = 0,
 		.grabwindow_width = 2560,
 		.grabwindow_height = 1920,
-		.mipi_data_lp2hs_settle_dc = 23,
+		.mipi_data_lp2hs_settle_dc = 46,
 		.max_framerate = 300,
 	},
 	.cap1 = {
@@ -90,7 +90,7 @@ static imgsensor_info_struct imgsensor_info = {
 		.starty = 0,
 		.grabwindow_width = 2560,
 		.grabwindow_height = 1920,
-		.mipi_data_lp2hs_settle_dc = 23,
+		.mipi_data_lp2hs_settle_dc = 46,
 		.max_framerate = 150,	
 	},
 	.normal_video = {
@@ -101,7 +101,7 @@ static imgsensor_info_struct imgsensor_info = {
 		.starty = 0,
 		.grabwindow_width = 2560,
 		.grabwindow_height = 1440,
-		.mipi_data_lp2hs_settle_dc = 23,
+		.mipi_data_lp2hs_settle_dc = 46,
 		.max_framerate = 300,
 	},
 	.hs_video = {
@@ -112,7 +112,7 @@ static imgsensor_info_struct imgsensor_info = {
 		.starty = 0,
 		.grabwindow_width = 640,
 		.grabwindow_height = 480,
-		.mipi_data_lp2hs_settle_dc = 23,
+		.mipi_data_lp2hs_settle_dc = 46,
 		.max_framerate = 1200,
 	},
 	.slim_video = {
@@ -123,7 +123,7 @@ static imgsensor_info_struct imgsensor_info = {
 		.starty = 0,
 		.grabwindow_width = 1280,
 		.grabwindow_height = 720,
-		.mipi_data_lp2hs_settle_dc = 23,
+		.mipi_data_lp2hs_settle_dc = 46,
 		.max_framerate = 300,
 	},
 	.margin = 4,
