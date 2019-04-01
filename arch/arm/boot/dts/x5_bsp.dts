@@ -91,7 +91,7 @@
 	gsensor@15 {
 		compatible = "mediatek,mxc400x";
 		i2c_num = <0x2>;
-		i2c_addr = <0x15 0x0 0x0 0x0>;
+		i2c_addr = <0x15 0 0 0>;
 		direction = <0x0>;
 		power_id = <0xffff>;
 		power_vol = <0x0>;
@@ -769,5 +769,5 @@
 };
 /* CONSYS end */
 
-#include <x5_bsp/cust.dtsi>
+#include "cust.dtsi"
 /*End of this file, DO NOT ADD ANYTHING HERE*/
