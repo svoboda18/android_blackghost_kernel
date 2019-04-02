@@ -12,14 +12,14 @@ This BlackGHost custom kernel (3.18.137) source made to DOOGEE X5 (MT6580).
 | Accelerometer | `MXC400X (i2c 2-0015)` | Yes | Yes |
 | ALS/PS | `EPL2182 (i2c 2-0049)` | Yes | Yes |
 | Flash | `Samsung FNX2MB` | Yes | Yes |
-| Lens #1 | `DW9714AF` | Yes | No |
+| Lens | `DW9714AF` | Yes | Yes |
 | RAM | `1 GB LPDDR3_1066` | - | Yes |
 | Sound | `mtsndcard` | - | Yes |
 | Accdet | `mt6580-accdet` | - | Yes |
 | Other | `kd_camera_hw (i2c 0-0036)` | - | Yes |
 
 ## Current kernel features:
-* Overclock CPU Ti 1630MHz.
+* Overclock CPU To 1630MHz (Disabled)
 * Underclock CPU To 260MHz.
 * Added 20+ CPU Governors. (smartmax,smartassV2,dancedance,pegasusq,ondmand_x,ondemandPlus,Blu_active,elementalX,nightmare,zzmoove,intelliactive,impulse,HYPER,barry_alien,darkness,alucard,thunderX,Lionheart,bioshock), ThunderX As Default.
 * Added 6+ i/0 Scheduler. (bfq,fifo,fiops,sio,sioplus,zen), zen As Default.
@@ -29,10 +29,10 @@ This BlackGHost custom kernel (3.18.137) source made to DOOGEE X5 (MT6580).
 * Fixed Kernel Behavior After Sleep (onedemand, conservative). 
 * Removed IO BlockPlugs for Better Performance. 
 * Added Alucard Hotplug. 
-* Added Thunder Charge Control. (Disabled)
+* Added Thunder Charge Control.
 * Added Dynamic Fsync 1.5. 
 * Added Power Suspend V1.8.1.
-* Added WireGuard (NextGen VPN Support).
+* Added WireGuard Support.
 * Collected with Linaro 6. 
 * Many Performance Changes. (crc and other checks are disabled) 
 * Network Tweaks, Responsive Settings. 

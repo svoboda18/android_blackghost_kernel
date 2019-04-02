@@ -24,8 +24,7 @@
 
 #include "lens_info.h"
 
-
-#define AF_DRVNAME "DW9714AF"
+#define AF_DRVNAME "DW9714AF_DRV"
 #define AF_I2C_SLAVE_ADDR        0x18
 
 #define AF_DEBUG

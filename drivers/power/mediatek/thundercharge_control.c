@@ -20,7 +20,7 @@
 #include "thundercharge_control.h"
 
 #define ENABLED             1
-#define AC_CURRENT          2000
+#define AC_CURRENT          1500
 #define USB_CURRENT         1000
 #define MAX_VBUS_CURRENT    2000
 #define MULTIPLIER          50
