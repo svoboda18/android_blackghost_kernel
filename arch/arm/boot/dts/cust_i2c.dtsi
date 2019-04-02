@@ -26,11 +26,6 @@
 		reg = <0x21>;
 		status = "okay";
 	};
-	camera_sub_af_mtk:camera_sub_af@18 {
-		compatible = "mediatek,camera_sub_af";
-		reg = <0x18>;
-		status = "okay";
-	};
 };
 
 &i2c1 {
