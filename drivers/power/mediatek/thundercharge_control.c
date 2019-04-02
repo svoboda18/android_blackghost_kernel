@@ -23,7 +23,7 @@
 #define AC_CURRENT          1500
 #define USB_CURRENT         1000
 #define MAX_VBUS_CURRENT    2000
-#define MULTIPLIER          50
+#define MULTIPLIER          100
 #define THUNDERCHARGE       "thundercharge"
 
 int mswitch = ENABLED;
