@@ -47,17 +47,17 @@
 /**************************************************
  * Define low battery voltage support
  ***************************************************/
-#define MT_GPUFREQ_LOW_BATT_VOLT_PROTECT */
+/* #define MT_GPUFREQ_LOW_BATT_VOLT_PROTECT */
 
 /**************************************************
  * Define low battery volume support
  ***************************************************/
-#define MT_GPUFREQ_LOW_BATT_VOLUME_PROTECT */
+/* #define MT_GPUFREQ_LOW_BATT_VOLUME_PROTECT */
 
 /**************************************************
  * Define oc support
  ***************************************************/
-#define MT_GPUFREQ_OC_PROTECT */
+/* #define MT_GPUFREQ_OC_PROTECT */
 
 /**************************************************
  * GPU DVFS input boost feature
