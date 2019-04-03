@@ -524,25 +524,14 @@ static void lcm_suspend(void)
 
 static void lcm_resume(void)
 {
-	unsigned int array[16];
-	array[0] = 0x00FE1500;
-	dsi_set_cmdq(array, 1, 1);
-	MDELAY(10); 
-	array[0] = 0x00011500;
-	dsi_set_cmdq(array, 1, 1);
-	MDELAY(10); 
-	array[0] = 0x00280500;
-	dsi_set_cmdq(array, 1, 1);
-	MDELAY(10); 
-	array[0] = 0x00100500;
-	dsi_set_cmdq(array, 1, 1);
-	MDELAY(10); 
-	array[0] = 0x014F1500;
-	dsi_set_cmdq(array, 1, 1);
-	MDELAY(10); 
+        SET_RESET_PIN(1);
+	MDELAY(5);
+	SET_RESET_PIN(0);
+	MDELAY(10);
+	SET_RESET_PIN(1);
+	MDELAY(20);
 	push_table(lcm_initialization_setting,sizeof(lcm_initialization_setting) /sizeof(struct LCM_setting_table), 1);
 }
-
 static unsigned int lcm_compare_id(void)
 {
 		int array[4];
