@@ -40,10 +40,6 @@ obj-y		+= entry-armv.o
 endif
 
 obj-y += alucard_hotplug.o
-#obj-y += intelli_plug.o
-obj-y += mako_hotplug.o
-obj-y += blu_plug.o
-obj-y += lazyplug.o
 
 obj-$(CONFIG_OC_ETM)		+= etm.o
 obj-$(CONFIG_CPU_IDLE)		+= cpuidle.o

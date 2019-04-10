@@ -199,6 +199,7 @@ static int ft5x0x_read_Touchdata(struct input_dev *input_dev, struct i2c_client*
 {
  	u8 state = 0;
 	fts_read_reg(i2c_client, 0xd0, &state);
+	printk("%s lsm--state=%x .\n",__func__,state);
 	if(state !=1) return false;
 
 	ft5x0x_read_Touchdata(input_dev, i2c_client);

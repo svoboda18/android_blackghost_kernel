@@ -1,10 +1,11 @@
 # BlakGhost Kernel
-This BlackGHost custom kernel (3.18.137) source made to DOOGEE X5 (MT6580).
+This BlackGHost custom kernel (3.18.138) source made to DOOGEE X5 (MT6580).
 
 ## Known information:
 | Subsystem | Driver name | Availability | Working |
 |-----------|-------------|--------------|---------|
 | LCM driver | `hct_hx8394f_dsi_vdo_hd_cmi` | Yes | Yes |
+| LCM driver2 | `hct_rm68200_dsi_vdo_hd_cpt` | Yes | Yes |
 | Touch panel | `FT5X05 (i2c 1-0038)` | Yes | Yes |
 | GPU | `Mali-400 MP` | Yes | Yes |
 | Camera #1 | `s5k5e2y_mipi_raw` | Yes | Yes |
@@ -19,13 +20,15 @@ This BlackGHost custom kernel (3.18.137) source made to DOOGEE X5 (MT6580).
 | Other | `kd_camera_hw (i2c 0-0036)` | - | Yes |
 
 ## Current kernel features:
+* Add d2w gestuge
 * Overclock CPU To 1630MHz (Disabled)
 * Underclock CPU To 260MHz.
-* Added 20+ CPU Governors. (smartmax,smartassV2,dancedance,pegasusq,ondmand_x,ondemandPlus,Blu_active,elementalX,nightmare,zzmoove,intelliactive,impulse,HYPER,barry_alien,darkness,alucard,thunderX,Lionheart,bioshock), ThunderX As Default.
+* Added 20+ CPU Governors. (smartmax,smartassV3,dancedance,pegasusq,ondmand_x,ondemandPlus,Blu_active,elementalX,nightmare,zzmoove,intelliactive,impulse,HYPER,darkness,alucard,thunderX,Lionheart,bioshock), 
 * Added 6+ i/0 Scheduler. (bfq,fifo,fiops,sio,sioplus,zen), zen As Default.
 * Added Fast Charging Support (For USB 2.0-3.0)
 * Tweaked Mali For More Faster Rendering.
 * MTK Dynamic Boost.
+* Touch Boost. 
 * Fixed Kernel Behavior After Sleep (onedemand, conservative). 
 * Removed IO BlockPlugs for Better Performance. 
 * Added Alucard Hotplug. 
@@ -33,11 +36,10 @@ This BlackGHost custom kernel (3.18.137) source made to DOOGEE X5 (MT6580).
 * Added Dynamic Fsync 1.5. 
 * Added Power Suspend V1.8.1.
 * Added WireGuard Support.
-* Collected with Linaro 6. 
+* Compiled with Linaro 6. 
 * Many Performance Changes. (crc and other checks are disabled) 
 * Network Tweaks, Responsive Settings. 
 * Lock Wakelock for Some Services. 
-* Comperssed With A Optimized LZ4 Compression.
 
 ## Build process:
 * Clone thos repo, by running:

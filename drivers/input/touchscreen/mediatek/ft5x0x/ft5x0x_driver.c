@@ -83,15 +83,16 @@ static int tpd_local_init(void)
 
 static void tpd_resume(struct device *h)
 {
-#if 1
+#ifdef FTS_GESTRUE
 	if (tpd_getsure_resume(i2c_client)) return;
 #endif
 
-#if 0
+#ifdef TPD_CLOSE_POWER_IN_SLEEP
    	TPD_DMESG("TPD wake up\n");
 	ft5x0x_set_rst(false, 5);
 	ft5x0x_power(true);
 	ft5x0x_set_rst(true, 20);
+#else
 
 #endif
 	TPD_DMESG("TPD wake up done\n");
@@ -110,7 +111,7 @@ static void tpd_suspend(struct device *h)
 //	i2c_smbus_write_i2c_block_data(i2c_client, 0xA5, 1, &data);  //TP enter sleep mode
 	fts_write_reg(i2c_client, 0xA5, 0x3);
 
-#if 0
+#ifdef TPD_CLOSE_POWER_IN_SLEEP
 	ft5x0x_power(false);
 #endif
 }
