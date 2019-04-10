@@ -23,7 +23,7 @@ This BlackGHost custom kernel (3.18.138) source made to DOOGEE X5 (MT6580).
 * Add d2w gestuge
 * Overclock CPU To 1630MHz (Disabled)
 * Underclock CPU To 260MHz.
-* Added 20+ CPU Governors. (smartmax,smartassV3,dancedance,pegasusq,ondmand_x,ondemandPlus,Blu_active,elementalX,nightmare,zzmoove,intelliactive,impulse,HYPER,darkness,alucard,thunderX,Lionheart,bioshock), 
+* Added 20+ CPU Governors. (smartmax,smartassV2,dancedance,pegasusq,ondmand_x,ondemandPlus,Blu_active,elementalX,nightmare,zzmoove,intelliactive,impulse,HYPER,barry_alien,darkness,alucard,thunderX,Lionheart,bioshock),
 * Added 6+ i/0 Scheduler. (bfq,fifo,fiops,sio,sioplus,zen), zen As Default.
 * Added Fast Charging Support (For USB 2.0-3.0)
 * Tweaked Mali For More Faster Rendering.
