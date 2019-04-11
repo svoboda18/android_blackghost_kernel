@@ -360,6 +360,8 @@ static void check_gesture(void)
 static void detect_smartwake(int x, int y)
 {
 	int delta_x = 0, delta_y = 0;
+        int i = 0, j = 0, int_count = 0;
+	bool gradient, added_gesture;
 #if SMARTWAKE_DEBUG
 	pr_info(LOGTAG"x,y(%4d,%4d) prev_x: %d\n",
 		x, y, prev_x);
@@ -374,7 +376,7 @@ static void detect_smartwake(int x, int y)
         delta_x = x - prev_x;
         delta_y = prev_y - y;
 
-	bool gradient = (abs(delta_y) < 2 * abs(delta_x) && 2 * abs(delta_y) > abs(delta_x));
+	gradient = (abs(delta_y) < 2 * abs(delta_x) && 2 * abs(delta_y) > abs(delta_x));
                 
         if (gradient && (delta_x * delta_x + delta_y * delta_y > MIN_DELTA * MIN_DELTA)) {
                 if (delta_x > 0 && delta_y > 0)
@@ -463,8 +465,7 @@ static void detect_smartwake(int x, int y)
                         }
                 }
 
-                bool added_gesture = false;
-                int i = 0, j = 0, int_count = 0;
+                added_gesture = false;
                 for (i = 0; i < 3; i++) {
                         if (direction[i] != 0) int_count = i;
                         else break;
@@ -541,8 +542,8 @@ static void smartwake_input_callback(struct work_struct *unused) {
 static void smartwake_input_event(struct input_handle *handle, unsigned int type,
 				unsigned int code, int value) {
 				
-if(!display_off || !smartwake_switch > 0)
-        return;
+	if (!display_off || !(smartwake_switch > 0))
+		return;
 
 #if SMARTWAKE_DEBUG
 	/*pr_info("smartwake: code: %s|%u, val: %i\n",

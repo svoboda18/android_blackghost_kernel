@@ -1,6 +1,6 @@
 # ***********************************************************************
 # *
-# * Copyright (C) By svoboda18: custom kernel blackgjost  3.18.y
+# * Copyright (C) By svoboda18: custom kernel blackghost 3.18.y
 # *
 # ***********************************************************************
 
@@ -486,13 +486,13 @@ CONFIG_CRYPTO_LZO=y
 # CONFIG_CRYPTO_ANSI_CPRNG is not set
 # CONFIG_CRYPTO_HW is not set
 
-# DOOGEE X5 DarkGHost Kernel
+# DOOGEE X5 BlackGHost Kernel
 
 # OC & UC
 #CONFIG_CPU_OC=y
 CONFIG_CPU_UC=y
 
-#Hotplugs
+# Hotplugs
 #CONFIG_PROFILE_CPU is not set
 CONFIG_ALUCARD_HOTPLUG=y
 
@@ -511,14 +511,14 @@ CONFIG_POWERSUSPEND=y
 CONFIG_POWERSUSPEND_DEBUG=y
 
 # BOOST
-#CONFIG_MTK_DYNAMIC_BOOST=y
-#CONFIG_TOUCH_BOOST=y
+CONFIG_MTK_DYNAMIC_BOOST=y
+CONFIG_TOUCH_BOOST=y
 
 # Governers
 CONFIG_CPU_FREQ_GOV_DARKNESS=y
 CONFIG_CPU_FREQ_GOV_PERFORMANCE=y
 CONFIG_CPU_FREQ_GOV_POWERSAVE=y
-#CONFIG_CPU_FREQ_GOV_USERSPACE=y
+CONFIG_CPU_FREQ_GOV_BİOSHOCK=y
 CONFIG_CPU_FREQ_GOV_ONDEMAND=y
 CONFIG_CPU_FREQ_GOV_ALUCARD=y
 CONFIG_CPU_FREQ_GOV_INTERACTIVE=y
@@ -541,7 +541,6 @@ CONFIG_CPU_FREQ_GOV_DANCEDANCE=y
 CONFIG_CPU_FREQ_GOV_THUNDERX=y
 CONFIG_CPU_FREQ_DEFAULT_GOV_INTERACTIVE=y
 
-
 # IO
 CONFIG_IOSCHED_SIOPLUS=y
 CONFIG_IOSCHED_FIFO=y
@@ -553,6 +552,10 @@ CONFIG_IOSCHED_ZEN=y
 CONFIG_DEFAULT_ZEN=y
 CONFIG_DEFAULT_IOSCHED="zen"
 
+# Smartwake
+CONFIG_TOUCHSCREEN_SMARTWAKE=y
+CONFIG_TOUCHSCREEN_DOUBLETAP2WAKE=y
+
 ##########################
 # DOOGEE X5 Drivers
 ##########################
@@ -561,10 +564,6 @@ CONFIG_DEFAULT_IOSCHED="zen"
 CONFIG_LCM_HEIGHT="1280"
 CONFIG_LCM_WIDTH="720"
 CONFIG_CUSTOM_KERNEL_LCM="hct_otm1285a_dsi_vdo_hd_boe hct_ili9881_dsi_vdo_hd_cpt hct_hx8394f_dsi_vdo_hd_cmi hct_otm1282_dsi_vdo_hd_auo hct_rm68200_dsi_vdo_hd_cpt hct_nt35521s_dsi_vdo_hd_boe_50_xld hct_hx8394d_dsi_vdo_hd_cmi"
-
-# Smartwake
-CONFIG_TOUCHSCREEN_SMARTWAKE=y
-CONFIG_TOUCHSCREEN_DOUBLETAP2WAKE=y
 
 # Touch
 CONFIG_TOUCHSCREEN_MTK_FT5X0X=y
