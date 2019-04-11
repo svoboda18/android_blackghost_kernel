@@ -1,3 +1,9 @@
+MTK_CUSTOM_PATH := $(srctree)/drivers/misc/mediatek
+
+subdir-ccflags-y += \
+	-I$(MTK_CUSTOM_PATH)/flashlight/inc \
+	-I$(MTK_CUSTOM_PATH)/include/mt-plat \
+
 # LED Core
 obj-$(CONFIG_NEW_LEDS)			+= led-core.o
 obj-$(CONFIG_LEDS_CLASS)		+= led-class.o
