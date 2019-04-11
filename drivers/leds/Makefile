@@ -1,9 +1,10 @@
-
 # LED Core
 obj-$(CONFIG_NEW_LEDS)			+= led-core.o
 obj-$(CONFIG_LEDS_CLASS)		+= led-class.o
 obj-$(CONFIG_LEDS_TRIGGERS)		+= led-triggers.o
 
+obj-y	+= leds-mtk.o
+#obj-$(CONFIG_MTK_FLASHLIGHT_LEDS)	+= leds-mtk.o
 # LED Platform Drivers
 obj-$(CONFIG_LEDS_88PM860X)		+= leds-88pm860x.o
 obj-$(CONFIG_LEDS_BD2802)		+= leds-bd2802.o
