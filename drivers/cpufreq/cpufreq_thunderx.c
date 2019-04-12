@@ -43,7 +43,7 @@
  * towards the ideal frequency and slower after it has passed it. Similarly,
  * lowering the frequency towards the ideal frequency is faster than below it.
  */
-#define DEFAULT_AWAKE_IDEAL_FREQ 598000
+#define DEFAULT_AWAKE_IDEAL_FREQ 260000
 static unsigned int awake_ideal_freq;
 
 /*
@@ -52,7 +52,7 @@ static unsigned int awake_ideal_freq;
  * that practically when sleep_ideal_freq==0 the awake_ideal_freq is used
  * also when suspended).
  */
-#define DEFAULT_SLEEP_IDEAL_FREQ 598000
+#define DEFAULT_SLEEP_IDEAL_FREQ 260000
 static unsigned int sleep_ideal_freq;
 
 /*
@@ -101,7 +101,7 @@ static unsigned long down_rate_us;
  * The frequency to set when waking up from sleep.
  * When sleep_ideal_freq=0 this will have no effect.
  */
-#define DEFAULT_SLEEP_WAKEUP_FREQ 747000
+#define DEFAULT_SLEEP_WAKEUP_FREQ 403000
 static unsigned int sleep_wakeup_freq;
 
 /*
@@ -732,29 +732,22 @@ static int cpufreq_governor_thunderx(struct cpufreq_policy *new_policy,
 	struct thunderx_info_s *this_thunderx = &per_cpu(thunderx_info, cpu);
 	struct cpufreq_policy *policy = this_thunderx->cur_policy;
 	unsigned int new_freq;
-
 	if (!this_thunderx->enable)
 		return;
-
 	thunderx_update_min_max(this_thunderx,policy,suspend);
 	if (!suspend) { // resume at max speed:
 		new_freq = validate_freq(policy,sleep_wakeup_freq);
-
 		dprintk(THUNDERX_DEBUG_JUMPS,"thunderX: awaking at %d\n",new_freq);
-
 		__cpufreq_driver_target(policy, new_freq,
 					CPUFREQ_RELATION_L);
 	} else {
 		// to avoid wakeup issues with quick sleep/wakeup don't change actual frequency when entering sleep
 		// to allow some time to settle down. Instead we just reset our statistics (and reset the timer).
 		// Eventually, the timer will adjust the frequency if necessary.
-
 		this_thunderx->freq_change_time_in_idle =
 			get_cpu_idle_time_us(cpu,&this_thunderx->freq_change_time);
-
 		dprintk(THUNDERX_DEBUG_JUMPS,"thunderX: suspending at %d\n",policy->cur);
 	}
-
 	reset_timer(cpu,this_thunderx);
 }
 */
@@ -766,7 +759,6 @@ static int cpufreq_governor_thunderx(struct cpufreq_policy *new_policy,
 	for_each_online_cpu(i)
 		thunderx_suspend(i,1);
 }
-
 static void thunderx_late_resume(struct early_suspend *handler) {
 	int i;
 	if (!suspended) // already not suspended so nothing to do
@@ -855,3 +847,4 @@ module_exit(cpufreq_thunderx_exit);
 MODULE_AUTHOR ("Erasmux");
 MODULE_DESCRIPTION ("'cpufreq_thunderx' - A smart cpufreq governor");
 MODULE_LICENSE ("GPL");
+

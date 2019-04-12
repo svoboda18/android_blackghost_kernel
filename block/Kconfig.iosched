@@ -176,6 +176,7 @@ choice
 	config DEFAULT_FIOPS
 		bool "FIOPS" if IOSCHED_FIOPS=y
 
+
 	config DEFAULT_SIO
 		bool "SIO" if IOSCHED_SIO=y
 
@@ -198,8 +199,8 @@ config DEFAULT_IOSCHED
 	default "fiops" if DEFAULT_FIOPS	
 	default "sio" if DEFAULT_SIO
 	default "sioplus" if DEFAULT_SIOPLUS
-        default "bfq" if DEFAULT_BFQ
-        default "zen" if DEFAULT_ZEN
+    default "bfq" if DEFAULT_BFQ
+    default "zen" if DEFAULT_ZEN
 endmenu
 
 endif

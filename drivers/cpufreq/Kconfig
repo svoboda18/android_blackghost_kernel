@@ -508,37 +508,8 @@ config CPU_FREQ_GOV_CONSERVATIVE
 
 	  If in doubt, say N.
 
-config CPU_FREQ_GOV_HELLSACTIVE
-	tristate "'hellsactive' cpufreq policy governor"
-	help
-	  'hellsactive' - This driver adds a dynamic cpufreq policy governor
-	  designed for latency-sensitive workloads.
-
-	  This governor attempts to reduce the latency of clock
-	  increases so that the system is more responsive to
-	  interactive workloads.
-
-	  To compile this driver as a module, choose M here: the
-	  module will be called cpufreq_interactive.
-
-	  For details, take a look at linux/Documentation/cpu-freq.
-
-	  If in doubt, say N.
-
-config CPU_FREQ_GOV_SMARTASSH3
-    tristate "'SmartassH3' cpufreq governor"
-    depends on CPU_FREQ
-    help
-      SmartassH3 - a "smartassV2 with tweaks by H3ROS" governor!
-
-      If in doubt, say N.
-
 config CPU_FREQ_GOV_ALUCARD
 	tristate "'alucard' cpufreq governor"
-	depends on CPU_FREQ
-
-config CPU_FREQ_GOV_MYTHX_PLUG
-	tristate "'mythx_plug' cpufreq governor"
 	depends on CPU_FREQ
 
 config CPU_FREQ_GOV_DARKNESS

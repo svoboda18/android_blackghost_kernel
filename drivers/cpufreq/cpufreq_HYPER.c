@@ -44,9 +44,9 @@
 #define MIN_FREQUENCY_UP_THRESHOLD		(11)
 #define MAX_FREQUENCY_UP_THRESHOLD		(100)
 #define MIN_FREQUENCY_DOWN_DIFFERENTIAL		(1)
-#define FREQ_STEP				(50)
-#define DEFAULT_FREQ_BOOST_TIME			(500000)
-#define MAX_FREQ_BOOST_TIME			(5000000)
+#define FREQ_STEP				(5)
+#define DEFAULT_FREQ_BOOST_TIME			(1100000)
+#define MAX_FREQ_BOOST_TIME			(1300000)
 #define UP_THRESHOLD_AT_MIN_FREQ		(40)
 
 static u64 hyper_freq_boosted_time;
@@ -134,7 +134,7 @@ static struct dbs_tuners {
 	.down_differential = DEF_FREQUENCY_DOWN_DIFFERENTIAL,
 	.micro_freq_up_threshold = MICRO_FREQUENCY_UP_THRESHOLD,
 	.freq_boost_time = DEFAULT_FREQ_BOOST_TIME,
-	.boostfreq = 1209000,
+	.boostfreq = 1300000,
 	.freq_step = FREQ_STEP,
 	.sampling_rate = 20000,
 };
