@@ -336,6 +336,7 @@ config GENEVE
 	  To compile this driver as a module, choose M here: the module
 
 
+
 config INET_AH
 	tristate "IP: AH transformation"
 	select XFRM_ALGO
@@ -638,6 +639,7 @@ choice
 	config DEFAULT_HYBLA
 		bool "Hybla" if TCP_CONG_HYBLA=y
 
+
 	config DEFAULT_VEGAS
 		bool "Vegas" if TCP_CONG_VEGAS=y
 
@@ -669,6 +671,7 @@ config DEFAULT_TCP_CONG
 	default "hybla" if DEFAULT_HYBLA
 	default "vegas" if DEFAULT_VEGAS
 	default "westwood" if DEFAULT_WESTWOOD
+default "cdg" if DEFAULT_CDG
 	default "veno" if DEFAULT_VENO
 	default "reno" if DEFAULT_RENO
 	default "dctcp" if DEFAULT_DCTCP

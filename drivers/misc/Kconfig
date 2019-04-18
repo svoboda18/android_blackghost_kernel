@@ -532,6 +532,7 @@ config THUNDERQUAKE_ENGINE_GPL
    help
    Vibrator Intensity Controller for MTK Vibrator v1.0
 
+
 config UID_SYS_STATS_DEBUG
 	bool "Per-TASK statistics"
 	depends on UID_SYS_STATS

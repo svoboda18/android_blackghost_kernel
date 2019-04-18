@@ -7,8 +7,8 @@
 wm97xx-ts-y := wm97xx-core.o
 #subdir-ccflags-y += -Wno-error # убирает werror
 
-obj-$(CONFIG_TOUCHSCREEN_SMARTWAKE)		+= smartwake.o
 obj-$(CONFIG_TOUCHSCREEN_DOUBLETAP2WAKE)	+= doubletap2wake.o
+obj-$(CONFIG_TOUCHSCREEN_SWEEP2WAKE)		+= sweep2wake.o
 obj-$(CONFIG_OF_TOUCHSCREEN)		+= of_touchscreen.o
 obj-$(CONFIG_TOUCHSCREEN_88PM860X)	+= 88pm860x-ts.o
 obj-$(CONFIG_TOUCHSCREEN_AD7877)	+= ad7877.o

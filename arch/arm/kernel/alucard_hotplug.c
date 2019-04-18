@@ -67,8 +67,12 @@ static struct hotplug_tuners {
 	struct mutex alu_hotplug_mutex;
 #endif
 } hotplug_tuners_ins = {
-	.hotplug_sampling_rate = 50,
+	.hotplug_sampling_rate = 30,
+#ifdef CONFIG_MACH_JF
 	.hotplug_enable = 0,
+#else
+	.hotplug_enable = 0,
+#endif
 	.min_cpus_online = 1,
 	.maxcoreslimit = 4,
 	.maxcoreslimit_sleep = 1,
@@ -832,22 +836,29 @@ static int __init alucard_hotplug_init(void)
 	int ret;
 	unsigned int cpu;
 	unsigned int hotplug_freq[NR_CPUS][2] = {
-		{0, 787200},
-		{300000, 998400},
-		{384000, 1094400},
-		{600000, 0}
+#ifdef CONFIG_MACH_LGE
+		{0, 1497600},
+		{652800, 1190400},
+		{652800, 1190400},
+		{652800, 0}
+#else
+		{0, 1242000},
+		{810000, 1566000},
+		{918000, 1674000},
+		{1026000, 0}
+#endif
 	};
 	unsigned int hotplug_load[NR_CPUS][2] = {
 		{0, 60},
-		{40, 70},
-		{50, 80},
-		{60, 0}
+		{30, 65},
+		{30, 65},
+		{30, 0}
 	};
 	unsigned int hotplug_rq[NR_CPUS][2] = {
 		{0, 100},
-		{100, 150},
-		{150, 200},
-		{200, 0}
+		{100, 200},
+		{200, 300},
+		{300, 0}
 	};
 	unsigned int hotplug_rate[NR_CPUS][2] = {
 		{1, 1},
@@ -897,3 +908,4 @@ MODULE_DESCRIPTION("'alucard_hotplug' - A cpu hotplug driver for "
 MODULE_LICENSE("GPL");
 
 late_initcall(alucard_hotplug_init);
+
