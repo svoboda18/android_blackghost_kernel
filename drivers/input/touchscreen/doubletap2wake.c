@@ -46,9 +46,8 @@
 #endif
 #endif
 
-/* if Smartwake is compiled it will already have taken care of this */
-#ifdef CONFIG_TOUCHSCREEN_SMARTWAKE
-#include <linux/input/smartwake.h>
+/* if Sweep2Wake is compiled it will already have taken care of this */
+#ifdef CONFIG_TOUCHSCREEN_SWEEP2WAKE
 #define ANDROID_TOUCH_DECLARED
 #endif
 
@@ -71,23 +70,13 @@ MODULE_LICENSE("GPLv2");
 #define DT2W_FEATHER      50
 #define DT2W_TIME        600
 
-#define DT2W_DOWN_DEFAULT	1280
-#define DT2W_UP_DEFAULT		0
-#define DT2W_RIGHT_DEFAULT	720
-#define DT2W_LEFT_DEFAULT	0
-
 /* Resources */
 int dt2w_switch = DT2W_DEFAULT;
-
-int dt2w_down = DT2W_DOWN_DEFAULT;
-int dt2w_up = DT2W_UP_DEFAULT;
-int dt2w_right = DT2W_RIGHT_DEFAULT;
-int dt2w_left = DT2W_LEFT_DEFAULT;
-
 static cputime64_t tap_time_pre = 0;
 static int touch_x = 0, touch_y = 0, touch_nr = 0, x_pre = 0, y_pre = 0;
 static bool touch_x_called = false, touch_y_called = false, touch_cnt = true;
 static bool exec_count = true;
+bool dt2w_scr_suspended = false;
 #ifndef WAKE_HOOKS_DEFINED
 #ifndef CONFIG_HAS_EARLYSUSPEND
 static struct notifier_block dt2w_lcd_notif;
@@ -202,12 +191,9 @@ static void detect_doubletap2wake(int x, int y, bool st)
 }
 
 static void dt2w_input_callback(struct work_struct *unused) {
-	if ((touch_y < dt2w_down) &&
-	    (touch_y > dt2w_up) &&
-	    (touch_x < dt2w_right) &&
-	    (touch_x > dt2w_left)) {
+
 	detect_doubletap2wake(touch_x, touch_y, true);
-	}
+
 	return;
 }
 
@@ -220,7 +206,7 @@ static void dt2w_input_event(struct input_handle *handle, unsigned int type,
 		((code==ABS_MT_TRACKING_ID)||
 			(code==330)) ? "ID" : "undef"), code, value);
 #endif
-	if (!display_off)
+	if (!dt2w_scr_suspended)
 		return;
 
 	if (code == ABS_MT_SLOT) {
@@ -466,8 +452,11 @@ static int __init doubletap2wake_init(void)
 	if (rc) {
 		pr_warn("%s: sysfs_create_file failed for doubletap2wake_version\n", __func__);
 	}
+<<<<<<< HEAD
 
 	input_set_capability(doubletap2wake_pwrdev, EV_KEY, KEY_POWER);
+=======
+>>>>>>> 5617efc0b3651ac563676ac770ed23d0098a5870
 
 	return 0;
 }
@@ -489,3 +478,4 @@ static void __exit doubletap2wake_exit(void)
 
 module_init(doubletap2wake_init);
 module_exit(doubletap2wake_exit);
+

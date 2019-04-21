@@ -1,5 +1,5 @@
 /*
- * include/linux/input/doubletap2wake.h
+ * include/linux/input/sweep2wake.h
  *
  * Copyright (c) 2013, Dennis Rassmann <showp1984@gmail.com>
  * Copyright (c) 2015, Vineeth Raj <contact.twn@openmailbox.org>
@@ -19,13 +19,13 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#ifndef _LINUX_DOUBLETAP2WAKE_H
-#define _LINUX_DOUBLETAP2WAKE_H
+#ifndef _LINUX_SWEEP2WAKE_H
+#define _LINUX_SWEEP2WAKE_H
 
-extern int dt2w_switch;
-extern bool dt2w_scr_suspended;
+extern int s2w_switch, s2w_s2sonly;
+extern bool s2w_scr_suspended;
 
-void doubletap2wake_setdev(struct input_dev *);
+void sweep2wake_setdev(struct input_dev *);
 
-#endif	/* _LINUX_DOUBLETAP2WAKE_H */
+#endif	/* _LINUX_SWEEP2WAKE_H */
 

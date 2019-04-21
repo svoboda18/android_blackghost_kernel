@@ -1,7 +1,7 @@
 #
 # Touchscreen driver configuration
 #
-if TOUCHSCREEN_MTK_FT5X0X
+if TOUCHSCREEN_MTK_FT3427_ZAW875
 
 config FT5X0X_FIRMWARE
 	string "FT5X0X for Mediatek firmware"

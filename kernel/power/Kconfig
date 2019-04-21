@@ -43,6 +43,7 @@ config POWERSUSPEND_DEBUG
 config HIBERNATE_CALLBACKS
 	bool
 
+
 config HIBERNATION
 	bool "Hibernation (aka 'suspend to disk')"
 	depends on SWAP && ARCH_HIBERNATION_POSSIBLE
