@@ -871,6 +871,7 @@ static int kpd_pdrv_probe(struct platform_device *pdev)
 			__set_bit(kpd_keymap[i], kpd_input_dev->keybit);
 	}
 
+
 #if KPD_AUTOTEST
 	for (i = 0; i < ARRAY_SIZE(kpd_auto_keymap); i++)
 		__set_bit(kpd_auto_keymap[i], kpd_input_dev->keybit);

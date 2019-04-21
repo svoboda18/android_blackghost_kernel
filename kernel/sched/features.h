@@ -12,6 +12,11 @@ SCHED_FEAT(GENTLE_FAIR_SLEEPERS, false)
 SCHED_FEAT(START_DEBIT, true)
 
 /*
+* Use arch dependent cpu power functions
+ */
+SCHED_FEAT(ARCH_POWER, true)
+
+/*
  * Prefer to schedule the task we woke last (assuming it failed
  * wakeup-preemption), since its likely going to consume data we
  * touched, increases cache locality.

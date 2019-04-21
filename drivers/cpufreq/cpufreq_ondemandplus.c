@@ -99,10 +99,10 @@ static unsigned long up_threshold;
 #define DEFAULT_DOWN_DIFFERENTIAL 62
 static unsigned long down_differential;
 
-#define DEFAULT_INTER_HIFREQ 1300000
+#define DEFAULT_INTER_HIFREQ 950000
 static u64 inter_hifreq;
 
-#define DEFAULT_INTER_LOFREQ 1105000
+#define DEFAULT_INTER_LOFREQ 460000
 static u64 inter_lofreq;
 
 #define DEFAULT_INTER_STAYCYCLES 2

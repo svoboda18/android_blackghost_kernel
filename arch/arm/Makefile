@@ -298,7 +298,7 @@ KBUILD_IMAGE := zImage-dtb
 else
 KBUILD_IMAGE := zImage
 endif
-
+core-$(CONFIG_ALUCARD_HOTPLUG) += arch/arm/hotplug/
 # Build the DT binary blobs if we have OF configured
 ifeq ($(CONFIG_USE_OF),y)
 KBUILD_DTBS := dtbs

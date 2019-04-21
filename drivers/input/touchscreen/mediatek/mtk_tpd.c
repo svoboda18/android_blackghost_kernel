@@ -35,7 +35,6 @@
 #include <linux/slab.h>
 #include <linux/uaccess.h>
 #include <linux/fb.h>
-
 #ifdef CONFIG_COMPAT
 #include <linux/compat.h>
 #endif

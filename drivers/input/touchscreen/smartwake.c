@@ -62,8 +62,8 @@ MODULE_LICENSE("GPLv2");
 #define SMARTWAKE_DEFAULT               1
 #define SMARTWAKE_KEY_DUR               60
 
-#define SMARTWAKE_Y_DISTANCE            800
-#define SMARTWAKE_X_DISTANCE            450
+#define SMARTWAKE_Y_DISTANCE            1280
+#define SMARTWAKE_X_DISTANCE            720
 #define MIN_DELTA                       5
 
 /* directions */
@@ -233,7 +233,7 @@ static bool gesture_is_m(int count)
 		{
 		        sum += passed_gestures[i];
 		        below_part = true;
-		        
+
 		}
 		else if(below_part && 
 		        ((passed_gestures[i] == RIGHT_DOWN && passed_gestures[i + 1] == RIGHT) || 
@@ -244,7 +244,7 @@ static bool gesture_is_m(int count)
 		                below_part = false;
 		        }
 		}		
-		
+
 		if ((sum == 398 && i == 9) || (sum == 394 && i == 8) || (sum == 334 && i == 8) || (sum == 330 && i == 7) ||
 		        (sum == 529 && i == 12) || (sum == 525 && i == 11) || (sum == 465 && i == 11) || (sum == 461 && i == 10))
 		{
@@ -360,8 +360,6 @@ static void check_gesture(void)
 static void detect_smartwake(int x, int y)
 {
 	int delta_x = 0, delta_y = 0;
-        int i = 0, j = 0, int_count = 0;
-	bool gradient, added_gesture;
 #if SMARTWAKE_DEBUG
 	pr_info(LOGTAG"x,y(%4d,%4d) prev_x: %d\n",
 		x, y, prev_x);
@@ -372,12 +370,12 @@ static void detect_smartwake(int x, int y)
         if (prev_y == 0) prev_y = y;
         end_x = x;
         end_y = y;
-        
+
         delta_x = x - prev_x;
         delta_y = prev_y - y;
 
-	gradient = (abs(delta_y) < 2 * abs(delta_x) && 2 * abs(delta_y) > abs(delta_x));
-                
+	bool gradient = (abs(delta_y) < 2 * abs(delta_x) && 2 * abs(delta_y) > abs(delta_x));
+
         if (gradient && (delta_x * delta_x + delta_y * delta_y > MIN_DELTA * MIN_DELTA)) {
                 if (delta_x > 0 && delta_y > 0)
                         direction[0] = RIGHT_UP;
@@ -414,7 +412,7 @@ static void detect_smartwake(int x, int y)
 #if SMARTWAKE_DEBUG
                 pr_info(LOGTAG"direction[0] = %d, old_direction = %d\n", direction[0], old_direction);
 #endif
-                        
+
                 if (((direction[0] > old_direction) && (direction[0] < 32 * old_direction)) || // direction < 32 * old one, because '>' is the other case
                         (direction[0] == 1 && old_direction == 64) ||
                         (direction[0] == 2 && old_direction == 128) ||
@@ -465,12 +463,13 @@ static void detect_smartwake(int x, int y)
                         }
                 }
 
-                added_gesture = false;
+                bool added_gesture = false;
+                int i = 0, j = 0, int_count = 0;
                 for (i = 0; i < 3; i++) {
                         if (direction[i] != 0) int_count = i;
                         else break;
                 }
-                
+
                 for (i = 0; i + int_count < MAX_GESTURES; i++) {
                         if (passed_gestures[i] == 0) {
                                 int added = 0;
@@ -501,7 +500,7 @@ static void detect_smartwake(int x, int y)
 			return;
 	        }   
 	}
-        
+
 	if (!onlyGesture) {
 	        if (abs(start_x - x) >= SMARTWAKE_X_DISTANCE) {
 	                if (direction[0] == RIGHT) {
@@ -509,13 +508,13 @@ static void detect_smartwake(int x, int y)
 	                } else if (direction[0] == LEFT) {
 	                        key_value = KEY_LEFT;
 	                }
-                        
+
 			if (exec_count) {
 				smartwake_keytrigger();
 				exec_count = false;
 			}
 		}
-		
+
 	        if (abs(start_y - y) >= SMARTWAKE_Y_DISTANCE) {
 	                if (direction[0] == UP) {
 	                        key_value = KEY_UP;
@@ -541,9 +540,9 @@ static void smartwake_input_callback(struct work_struct *unused) {
 
 static void smartwake_input_event(struct input_handle *handle, unsigned int type,
 				unsigned int code, int value) {
-				
-	if (!display_off || !(smartwake_switch > 0))
-		return;
+
+if(!display_off || !smartwake_switch > 0)
+        return;
 
 #if SMARTWAKE_DEBUG
 	/*pr_info("smartwake: code: %s|%u, val: %i\n",
@@ -564,7 +563,7 @@ static void smartwake_input_event(struct input_handle *handle, unsigned int type
 		        return;
 		}
 	}
-	
+
 	if (code == ABS_MT_SLOT) {
 #if SMARTWAKE_DEBUG
 	        pr_info(LOGTAG"Resetting: code == ABS_MT_SLOT");
@@ -818,7 +817,7 @@ static int __init smartwake_init(void)
 	if (rc) {
 		pr_warn("%s: sysfs_create_file failed for smartwake_version\n", __func__);
 	}
-	
+
 	for(attr_count=0; attr_count<TPD_GESTRUE_KEY_CNT; attr_count++)
         {
                 input_set_capability(smartwake_pwrdev, EV_KEY, smartwake_gesture_keys[attr_count]);

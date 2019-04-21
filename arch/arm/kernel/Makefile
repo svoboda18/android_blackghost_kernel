@@ -39,7 +39,7 @@ else
 obj-y		+= entry-armv.o
 endif
 
-obj-y += alucard_hotplug.o
+
 
 obj-$(CONFIG_OC_ETM)		+= etm.o
 obj-$(CONFIG_CPU_IDLE)		+= cpuidle.o

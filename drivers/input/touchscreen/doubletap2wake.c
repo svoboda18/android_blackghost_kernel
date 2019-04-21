@@ -466,7 +466,7 @@ static int __init doubletap2wake_init(void)
 	if (rc) {
 		pr_warn("%s: sysfs_create_file failed for doubletap2wake_version\n", __func__);
 	}
-	
+
 	input_set_capability(doubletap2wake_pwrdev, EV_KEY, KEY_POWER);
 
 	return 0;
