@@ -103,15 +103,6 @@
 #define DEFAULT_VOLT_VCORE      (115000)
 
 /* for DVFS OPP table */
-#ifdef CONFIG_CPU_OC
-#define CPU_DVFS_FREQ0   (1612000) /* KHz */
-#define CPU_DVFS_FREQ1   (1456000) /* KHz */
-#define CPU_DVFS_FREQ2   (1300000) /* KHz */
-#define CPU_DVFS_FREQ3   (1157000) /* KHz */
-#define CPU_DVFS_FREQ4   (1001000) /* KHz */
-#define CPU_DVFS_FREQ5   (858000)  /* KHz */
-#define CPU_DVFS_FREQ6   (702000)  /* KHz */
-#else
 #define CPU_DVFS_FREQ0   (1495000) /* KHz */
 #define CPU_DVFS_FREQ1   (1300000) /* KHz */
 #define CPU_DVFS_FREQ2   (1209000) /* KHz */
@@ -119,7 +110,6 @@
 #define CPU_DVFS_FREQ4   (1001000) /* KHz */
 #define CPU_DVFS_FREQ5   (903500)  /* KHz */
 #define CPU_DVFS_FREQ6   (754000)  /* KHz */
-#endif
 #define CPU_DVFS_FREQ7   (604500)  /* KHz */
 #ifdef CONFIG_CPU_UC
 #define CPU_DVFS_FREQ8   (403000)  /* KHz */
@@ -655,24 +645,10 @@ static struct mt_cpu_dvfs *id_to_cpu_dvfs(enum mt_cpu_dvfs_id id)
 #define NR_MAX_OPP_TBL  8
 #define NR_MAX_CPU      8
 
+static struct mt_cpu_freq_info opp_tbl_e1_0[] = {
 #ifdef CONFIG_CPU_OC
-/* CPU LEVEL 0, 1.3GHz segment */
-static struct mt_cpu_freq_info opp_tbl_e1_0[] = {
-	OP(CPU_DVFS_FREQ0, 131000), /* 1612 */
-	OP(CPU_DVFS_FREQ1, 130625), /* 1456 */
-	OP(CPU_DVFS_FREQ2, 122500), /* 1300 */
-	OP(CPU_DVFS_FREQ3, 119375), /* 1157 */
-	OP(CPU_DVFS_FREQ4, 115000), /* 1001 */
-	OP(CPU_DVFS_FREQ5, 115000), /*  858 */
-	OP(CPU_DVFS_FREQ6, 115000), /*  702 */
-	OP(CPU_DVFS_FREQ7, 115000), /*  604 */
-#ifdef CONFIG_CPU_UC
-	OP(CPU_DVFS_FREQ8, 105000), /*  403 */
-	OP(CPU_DVFS_FREQ9, 100000), /*  260 */
+    OP(CPU_DVFS_FREQ0, 131000), /* 1500 */
 #endif
-};
-#else
-static struct mt_cpu_freq_info opp_tbl_e1_0[] = {
 	OP(CPU_DVFS_FREQ1, 130625), /* 1300 */
 	OP(CPU_DVFS_FREQ2, 122500), /* 1209 */
 	OP(CPU_DVFS_FREQ3, 119375), /* 1105 */
@@ -686,7 +662,6 @@ static struct mt_cpu_freq_info opp_tbl_e1_0[] = {
 	OP(CPU_DVFS_FREQ9, 100000), /*  260 */
 #endif
 };
-#endif
 
 /* CPU LEVEL 1, 1.5GHz segment */
 static struct mt_cpu_freq_info opp_tbl_e1_1[] = {
@@ -698,6 +673,10 @@ static struct mt_cpu_freq_info opp_tbl_e1_1[] = {
 	OP(CPU_DVFS_FREQ5, 105000),
 	OP(CPU_DVFS_FREQ6, 105000),
 	OP(CPU_DVFS_FREQ7, 105000),
+#ifdef CONFIG_CPU_UC
+	OP(CPU_DVFS_FREQ8, 105000), /*  403 */
+	OP(CPU_DVFS_FREQ9, 100000), /*  260 */
+#endif
 };
 
 struct opp_tbl_info {
@@ -713,37 +692,6 @@ static struct opp_tbl_info opp_tbls[] = {
 /* for freq change (PLL/MUX) */
 #define PLL_FREQ_STEP		(13000)	/* KHz */
 
-#ifdef CONFIG_CPU_OC
-#define PLL_DIV1_1612_FREQ		(1612000)	/* for 1612MHz */
-#define PLL_DIV1_1456_FREQ		(1456000)	/* for 1456MHz */
-#define PLL_DIV1_1300_FREQ		(1300000)	/* for 1300MHz */
-#define PLL_DIV1_1157_FREQ		(1157000)	/* for 1157MHz */
-#define PLL_DIV1_1001_FREQ		(1001000)	/* for 1001MHz */
-#define PLL_DIV1_858_FREQ		(858000)	/* for 858MHz */
-#define PLL_DIV1_702_FREQ		(702000)	/* for 702MHz */
-#define PLL_DIV1_1209_FREQ		(1209000)	/* for 604MHz */
-#ifdef CONFIG_CPU_UC
-#define PLL_DIV1_910_FREQ		(910000)	/* for 455MHz */
-#define PLL_DIV1_520_FREQ		(520000)	/* for 260MHz */
-#endif
-#define PLL_DIV2_FREQ			(520000)	/* KHz */
-
-#define DDS_DIV1_1612_FREQ		(0x000F8000)	/* 1612MHz 248*13/2 */
-#define DDS_DIV1_1456_FREQ		(0x000E0000)	/* 1456MHz 224*13/2 */
-#define DDS_DIV1_1300_FREQ		(0x000C8000)	/* 1300MHz 200*13/2 */
-#define DDS_DIV1_1157_FREQ		(0x000B2000)	/* 1157MHz 178*13/2 */
-#define DDS_DIV1_1001_FREQ		(0x0009A000)	/* 1001MHz 154*13/2 */
-#define DDS_DIV1_858_FREQ		(0x00084000)	/* 858MHz 132*13/2 */
-#define DDS_DIV1_702_FREQ		(0x0006C000)	/* 702MHz 108*13/2 */
-#define DDS_DIV1_1209_FREQ		(0x000BA000)	/* 1209MHz 186*13/2 */
-#ifdef CONFIG_CPU_UC
-#define DDS_DIV1_910_FREQ		(0x0008C000)	/* 910MHz 140*13/2 */
-#define DDS_DIV1_520_FREQ		(0x00050000)	/* 520MHz 80*13/2 */
-#endif
-#define DDS_DIV1_FREQ			(0x0009A000)	/* 1001MHz */
-#define DDS_DIV2_FREQ			(0x010A0000)	/* 520MHz  */
-#define DDS_DIV1_1000_FREQ		(0x00099D8A)	/* 1000MHz */
-#else
 #define PLL_DIV1_1807_FREQ		(1807000)	/* for 900MHz */
 #define PLL_DIV1_1508_FREQ		(1508000)	/* for 750MHz */
 #define PLL_DIV1_1495_FREQ		(1495000)	/* for 1.5G */
@@ -755,7 +703,6 @@ static struct opp_tbl_info opp_tbls[] = {
 #define PLL_DIV1_520_FREQ		(520000)	/* for 260MHz */
 #endif
 #define PLL_DIV2_FREQ			(520000)	/* KHz */
-
 #define DDS_DIV1_1807_FREQ		(0x00116000)	/* 1807MHz */
 #define DDS_DIV1_1508_FREQ		(0x000E8000)	/* 1508MHz */
 #define DDS_DIV1_1495_FREQ		(0x000E6000)	/* 1495MHz */
@@ -766,10 +713,10 @@ static struct opp_tbl_info opp_tbls[] = {
 #define DDS_DIV1_520_FREQ		(0x00050000)	/* 520MHz */
 #endif
 #define DDS_DIV1_FREQ			(0x0009A000)	/* 1001MHz */
-#define DDS_DIV2_FREQ			(0x010A0000)	/* 520MHz  */
 
+#define DDS_DIV2_FREQ			(0x010A0000)	/* 520MHz  */
 #define DDS_DIV1_1000_FREQ		(0x00099D8A)	/* 1000MHz */
-#endif
+
 
 /* for turbo mode */
 #define TURBO_MODE_BOUNDARY_CPU_NUM	2

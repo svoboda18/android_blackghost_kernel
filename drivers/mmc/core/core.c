@@ -73,11 +73,7 @@ static const unsigned freqs[] = { 400000, 300000, 200000, 100000 };
  * performance cost, and for other reasons may not always be desired.
  * So we allow it it to be disabled.
  */
-<<<<<<< HEAD
-bool use_spi_crc = 1;
-=======
 bool use_spi_crc = 0;
->>>>>>> 5617efc0b3651ac563676ac770ed23d0098a5870
 module_param(use_spi_crc, bool, 0644);
 #ifdef MTK_BKOPS_IDLE_MAYA
 #define MMC_UPDATE_BKOPS_STATS_HPI(stats)\

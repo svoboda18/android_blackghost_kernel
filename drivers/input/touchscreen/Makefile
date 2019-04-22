@@ -5,15 +5,9 @@
 # Each configuration option enables a list of files.
 
 wm97xx-ts-y := wm97xx-core.o
-#subdir-ccflags-y += -Wno-error # убирает werror
-<<<<<<< HEAD
 subdir-ccflags-y += -Wno-error # 
 obj-$(CONFIG_TOUCHSCREEN_SMARTWAKE)		+= smartwake.o
-=======
-
->>>>>>> 5617efc0b3651ac563676ac770ed23d0098a5870
 obj-$(CONFIG_TOUCHSCREEN_DOUBLETAP2WAKE)	+= doubletap2wake.o
-obj-$(CONFIG_TOUCHSCREEN_SWEEP2WAKE)		+= sweep2wake.o
 obj-$(CONFIG_OF_TOUCHSCREEN)		+= of_touchscreen.o
 obj-$(CONFIG_TOUCHSCREEN_88PM860X)	+= 88pm860x-ts.o
 obj-$(CONFIG_TOUCHSCREEN_AD7877)	+= ad7877.o
