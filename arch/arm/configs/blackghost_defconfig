@@ -489,7 +489,7 @@ CONFIG_CRYPTO_LZO=y
 # DOOGEE X5 BlackGHost Kernel
 
 # OC & UC
-CONFIG_CPU_OC=y
+#CONFIG_CPU_OC is not set
 CONFIG_CPU_UC=y
 
 # Hotplugs
