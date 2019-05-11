@@ -10,6 +10,7 @@ menuconfig MTK_FB
 	  If you want to use MediaTek(R) frame buffer diver, say Y here.
 	  If unsure, say N.
 
+
 config MTK_VIDEOX
 	bool CONFIG_MTK_VIDEOX
 	default n

@@ -430,9 +430,10 @@ Setting ending by predefined flag
 {0x35,   0,   {0}},
 {0x11,   1, {0x0}},
 {REGFLAG_DELAY, 120, {}},
-{0x29,   1, {0x0}},
-{REGFLAG_DELAY, 20, {}},
-{REGFLAG_END_OF_TABLE, 0x00, {}}
+{0x29, 1, {}},
+		{REGFLAG_DELAY, 20, {}},
+
+		{REGFLAG_END_OF_TABLE, 0x00, {}}
 };
 
 
