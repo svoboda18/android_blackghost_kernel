@@ -6,6 +6,10 @@ This BlackGHost custom kernel (3.18.138) source made to DOOGEE X5 (MT6580).
 |-----------|-------------|--------------|---------|
 | LCM driver | `hct_hx8394f_dsi_vdo_hd_cmi` | Yes | Yes |
 | LCM driver #2 | `hct_rm68200_dsi_vdo_hd_cpt` | Yes | Yes |
+| LCM driver #3 | `hct_otm1282_dsi_vdo_hd_auo` | Yes | Yes |
+| LCM driver #4 | `hct_ili9881_dsi_vdo_hd_cpt` | Yes | Yes |
+| LCM driver #5 | `hct_otm1285a_dsi_vdo_hd_boe` | Yes | Yes |
+| LCM driver #6 | `hct_ili9881_dsi_vdo_hd_cpt` | Yes | Yes |
 | Touch panel | `FT5X05 (i2c 1-0038)` | Yes | Yes |
 | GPU | `Mali-400 MP2` | Yes | Yes |
 | Camera #1 | `s5k5e2y_mipi_raw` | Yes | Yes |
@@ -20,15 +24,13 @@ This BlackGHost custom kernel (3.18.138) source made to DOOGEE X5 (MT6580).
 | Other | `kd_camera_hw (i2c 0-0036)` | Yes | Yes |
 
 ## Current kernel features:
-* Overclock CPU To 1500MHz.
+* Overclock CPU To 1500MHz (Disabled).
 * Underclock CPU To 260MHz.
-* Added 20+ CPU Governors. (smartmax,dancedance,pegasusq,ondmand_x,ondemandPlus,Blu_active,elementalX,nightmare,zzmoove,intelliactive,impulse,HYPER,bioshock,darkness,thunderX,Lionheart,bioshock),
+* Added 17+ CPU Governors. (smartmax,dancedance,pegasusq,ondmand_x,ondemandPlus,Blu_active,elementalX,nightmare,zzmoove,intelliactive,impulse,HYPER,bioshock,darkness,thunderX,Lionheart,bioshock),bioshock As Default.
 * Added 6+ i/0 Scheduler. (bfq,fifo,fiops,sio,sioplus,zen), zen As Default.
-* Added 13+ TCP Scheduler. (reno,bic,westwood,hispeed,hybla,htcp,vegas,veno,scalable,lp,yeah,illinols,cubic), Cubic As Default.
-* Added ARCH POWER.
+* Added 13+ TCP Scheduler. (reno,bic,westwood,hispeed,hybla,htcp,vegas,veno,scalable,lp,yeah,illinols,cubic), westwood As Default.
 * Optimized SLUB.
 * Added KSM.
-* Added ZSWAP.
 * Added Frandom.
 * Added crc check control. 
 * Added DT2W Gesture.

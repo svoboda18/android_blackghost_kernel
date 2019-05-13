@@ -5,7 +5,7 @@
 # ***********************************************************************
 
 CONFIG_CROSS_COMPILE="arm-eabi-"
-CONFIG_LOCALVERSION="-BlackGHost-O-V2.5-STABLE"
+CONFIG_LOCALVERSION="-BlackGHost-O-V2.6-STABLE"
 # CONFIG_LOCALVERSION_AUTO is not set
 # CONFIG_USELIB is not set
 CONFIG_AUDIT=y
@@ -508,6 +508,7 @@ CONFIG_DYNAMIC_FSYNC=y
 # Power management options
 CONFIG_POWERSUSPEND=y
 CONFIG_POWERSUSPEND_DEBUG=y
+ARCH_POWER=y
 
 # BOOST
 CONFIG_MTK_DYNAMIC_BOOST=y
