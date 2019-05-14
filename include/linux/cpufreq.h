@@ -562,6 +562,7 @@ extern struct cpufreq_governor cpufreq_gov_smartmax;
 #define CPUFREQ_DEFAULT_GOVERNOR	(&cpufreq_gov_smartmax)
 #endif
 
+
 /*********************************************************************
  *                     FREQUENCY TABLE HELPERS                       *
  *********************************************************************/

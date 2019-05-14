@@ -213,6 +213,13 @@ config MTK_DRM_KEY_MNG_SUPPORT
           MTK In-House TEE Support
           or Trustonic TEE Support
 
+config MTK_VIDEOX_CYNGN_LIVEDISPLAY
+	bool CONFIG_MTK_VIDEOX_CYNGN_LIVEDISPLAY
+	default n
+	help
+		Enable the RGB interface for color calibration.
+
+
 config MTK_LCM_PHYSICAL_ROTATION_HW
 	bool "MTK_LCM_PHYSICAL_ROTATION_HW"
 	default n

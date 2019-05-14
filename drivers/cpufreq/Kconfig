@@ -80,6 +80,12 @@ config CPU_FREQ_DEFAULT_GOV_SMARTASS2
 	help
 	  Use the CPUFreq governor 'smartass2' as default.
 
+config CPU_FREQ_DEFAULT_GOV_LIONHEART
+	bool "lionheart"
+	select CPU_FREQ_GOV_LIONHEART
+	help
+	Use the CPUFreq governor 'lionheart' as default.
+
 config CPU_FREQ_DEFAULT_GOV_ONDEMAND_X
 	bool "ondemand_x"
 	select CPU_FREQ_GOV_ONDEMAND_X
@@ -245,6 +251,7 @@ config CPU_FREQ_DEFAULT_GOV_INTERACTIVE
 	  'interactive' governor for latency-sensitive workloads.
 
 endchoice
+
 
 config CPU_FREQ_GOV_ONDEMANDPLUS
 	tristate "'ondemandplus' cpufreq policy governor"

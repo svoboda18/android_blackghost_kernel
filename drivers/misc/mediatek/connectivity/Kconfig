@@ -92,6 +92,12 @@ config MTK_COMBO_CHIP_CONSYS_6592
 	  is
 	  MT6592
 
+config MTK_WIFI_PM_CONTROL
+    tristate "Mediatek Wi-Fi PM Control"
+    default n
+    help
+    Interface to control Wi-Fi Power Saver Modes
+
 config MTK_COMBO_CHIP_CONSYS_8163
 	bool "CONSYS_8163"
 	help

@@ -13,7 +13,7 @@ mediatek-drm-y := mtk_disp_ovl.o \
 ifeq ($(CONFIG_DEBUG_FS),y)
 mediatek-drm-y += mtk_drm_debugfs.o
 endif
-
+mediatek-drm-$(CONFIG_KLAPSE) += sde/klapse.o
 ifeq ($(CONFIG_DEBUG_FS),y)
 mediatek-drm-y += mtk_dsi_debugfs.o
 endif

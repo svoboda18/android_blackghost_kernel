@@ -13,7 +13,12 @@ config DRM_MEDIATEK
 	  The module will be called mediatek-drm
 	  This driver provides kernel mode setting and
 	  buffer management to userspace.
-
+config KLAPSE
+    bool CONFIG_KLAPSE
+    depends on DRM_MEDIATEK
+    default n
+    help
+        A simple rgb dynamic lapsing module similar to LineageOS' livedisplay
 config DRM_MEDIATEK_FBDEV
 	bool "Enable legacy fbdev support for Mediatek DRM"
 	depends on DRM_MEDIATEK
