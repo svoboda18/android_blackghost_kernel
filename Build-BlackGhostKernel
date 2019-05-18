@@ -63,9 +63,9 @@ ${RST} "
 }
 
 function BINFO() {
-        VERSION="V2.5"
+        VERSION="V3"
         BUILD_DATE=$(echo "$(date)" | sed 'y/ /-/')
-        export KBUILD_BUILD_USER=Andrey
+        export KBUILD_BUILD_USER=SaMad
         export KBUILD_BUILD_HOST=BlackHost
 }
 
