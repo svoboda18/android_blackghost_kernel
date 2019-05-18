@@ -305,12 +305,76 @@ MUINT32 constantFlashlightInit(PFLASHLIGHT_FUNCTION_STRUCT *pfFunc)
 	return 0;
 }
 
-
-
-/* LED flash control for high current capture mode*/
-ssize_t strobe_VDIrq(void)
-{
-
+ssize_t strobe_VDIrq(void) {
 	return 0;
 }
+
 EXPORT_SYMBOL(strobe_VDIrq);
+
+/* Varaibles */
+static struct class *flashlight_class = NULL;
+static struct device *flashlight_dev = NULL;
+unsigned int flashlight_status = 0;
+
+/* Functions */
+static ssize_t get_flashlight_status(struct device *dev,
+        struct device_attribute *attr, char *buf) {
+    PK_DBG("[Flashlight] get flashlight status is:%d \n", flashlight_status);
+    return sprintf(buf, "%u\n", flashlight_status);
+}
+
+static ssize_t set_flashlight_status(struct device *dev,
+        struct device_attribute *attr, const char *buf, size_t size)
+{
+    int value = simple_strtoul(buf, NULL, 0);
+    flashlight_status = value;
+
+    if (1 == value || 255 == value) // enable flashlight
+    {
+        PK_DBG("[Flashlight] set flashlight status: on");
+	FL_Enable();
+    }
+    else // disable flashlight
+    {
+        PK_DBG("[Flashlight] set flashlight status: off");
+	FL_Disable();
+    }
+    return size;
+}
+
+/* Main */
+static DEVICE_ATTR(max_brightness, 0664, get_flashlight_status, set_flashlight_status);
+static int __init flashlight_init(void)
+{
+    PK_DBG("[Flashlight] init: Start, driver by svoboda18\n");
+    flashlight_class = class_create(THIS_MODULE , "led");
+    if (IS_ERR(flashlight_class)) {
+        PK_DBG("[Flashlight] init: Error!\n");
+        return 0;
+    }
+
+    flashlight_dev = device_create(flashlight_class, NULL, 0, 0, "flashlight");
+    if(NULL != flashlight_dev){
+        device_create_file(flashlight_dev, &dev_attr_max_brightness);
+        PK_DBG("[Flashlight] init: Done!\n");
+        return 0;
+    } else {
+        PK_DBG("[Flashlight] init: Error!\n");
+        return 0;
+    }
+}
+
+static void __exit flashlight_exit(void)
+{
+    device_remove_file(flashlight_dev, &dev_attr_max_brightness);
+    device_unregister(flashlight_dev);
+    if(flashlight_class!=NULL)
+        class_destroy(flashlight_class);
+}
+
+module_init(flashlight_init);
+module_exit(flashlight_exit);
+
+MODULE_LICENSE("GPL");
+MODULE_AUTHOR("svoboda18");
+MODULE_DESCRIPTION("MTK Flashlight Filesystem Driver");
