@@ -1,7 +1,6 @@
-
-
 extern struct i2c_client *i2c_client;
 extern struct tpd_device *tpd;
+int point_num;
 /***********************************************
 //	SET RESET PIN
 */
@@ -48,9 +47,9 @@ struct touch_info
 };
 static int tpd_touchinfo(struct i2c_client* i2c_client, struct touch_info *cinfo, struct touch_info *pinfo)
 {
-	int i = 0;
+	int i = 0, up_count =0;
 	char data[40] = {0};
-	u8 report_rate = 0;
+	u8 report_rate = 0, touch_point = 0x0f, pointid = 0x0f;;
 	u16 high_byte, low_byte;
 
 	mutex_lock(&i2c_rw_access);
@@ -84,13 +83,27 @@ static int tpd_touchinfo(struct i2c_client* i2c_client, struct touch_info *cinfo
 		cinfo->p[i] = 1;	//Put up
 
 	/*get the number of the touch points*/
+	point_num = data[2] & 0x0f;
 	cinfo->count = data[2] & 0x0f;
 
 	TPD_DEBUG("Number of touch points = %d\n", cinfo->count);
 	TPD_DEBUG("Procss raw data...\n");
 
+	up_count =0;
+	touch_point = 0;
+	for (i = 0; i < cinfo->count; i++) {
+		cinfo->p[i] = 0xff;//event flag
+	}
+
 	for(i = 0; i < cinfo->count; i++)
 	{
+		pointid = data[3+6*i+2]>>4;
+		
+		if(pointid >= 0x0f)
+			break;
+		else		
+			touch_point++;
+
 		cinfo->p[i] = (data[3 + 6 * i] >> 6) & 0x0003; //event flag
 		cinfo->id[i] = data[3 + 6 * i + 2] >> 4; //touch id
 
@@ -111,7 +124,13 @@ static int tpd_touchinfo(struct i2c_client* i2c_client, struct touch_info *cinfo
 		low_byte = data[3 + 6 * i + 3];
 		low_byte &= 0x00FF;
 		cinfo->y[i] = high_byte | low_byte;
+
+		if(cinfo->p[i] == 1)
+			up_count++;
 	}
+
+	if(touch_point == up_count)
+		point_num = 0;
 
 	return true;
 };
@@ -175,11 +194,12 @@ static int touch_event_handler(void* handle)
 		if(tpd_touchinfo(i2c_client, &cinfo, &pinfo) == 0)
 			continue;
 
-		if(cinfo.count > 0)
+		if(point_num > 0)
 		{
-		    for(i =0; i < cinfo.count; i++)
-		         tpd_down(input_dev, cinfo.x[i], cinfo.y[i], cinfo.id[i]);
-		}else{
+		for(i =0; i < point_num; i++)
+		    if((cinfo.p[i]==0)||(cinfo.p[i]==2))		
+		            tpd_down(input_dev, cinfo.x[i], cinfo.y[i], cinfo.id[i]);
+		} else {
 		    tpd_up(input_dev, cinfo.x[0], cinfo.y[0]);
 		}
 	   	input_sync(input_dev);
