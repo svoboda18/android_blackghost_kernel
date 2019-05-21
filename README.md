@@ -1,5 +1,5 @@
 # BlakGhost Kernel
-This BlackGHost custom kernel (3.18.138) source made to DOOGEE X5 (MT6580).
+This BlackGHost custom kernel (3.18.140) source made to DOOGEE X5 (MT6580).
 
 ## Known information:
 | Subsystem | Driver name | Availability | Working |
@@ -9,7 +9,6 @@ This BlackGHost custom kernel (3.18.138) source made to DOOGEE X5 (MT6580).
 | LCM driver #3 | `hct_otm1282_dsi_vdo_hd_auo` | Yes | Yes |
 | LCM driver #4 | `hct_ili9881_dsi_vdo_hd_cpt` | Yes | Yes |
 | LCM driver #5 | `hct_otm1285a_dsi_vdo_hd_boe` | Yes | Yes |
-| LCM driver #6 | `hct_ili9881_dsi_vdo_hd_cpt` | Yes | Yes |
 | Touch panel | `FT5X05 (i2c 1-0038)` | Yes | Yes |
 | GPU | `Mali-400 MP2` | Yes | Yes |
 | Camera #1 | `s5k5e2y_mipi_raw` | Yes | Yes |

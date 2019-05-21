@@ -1181,8 +1181,7 @@ static void ipv4_link_failure(struct sk_buff *skb)
 {
 	struct rtable *rt;
 
-	//ipv4_send_dest_unreach(skb);
-	icmp_send(skb, ICMP_DEST_UNREACH, ICMP_HOST_UNREACH, 0);
+	ipv4_send_dest_unreach(skb);
 
 	rt = skb_rtable(skb);
 	if (rt)
