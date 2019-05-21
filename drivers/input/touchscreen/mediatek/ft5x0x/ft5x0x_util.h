@@ -48,7 +48,9 @@ static void ft5x0x_power(bool bOn)
 		retval = regulator_set_voltage(tpd->reg, 2800000, 2800000);
 	}
 
-	if  (bOn)	{
+	ft5x0x_set_rst(false, 10);
+
+	if  (bOn) {
 		retval = regulator_enable(tpd->reg);
 	}else{
 		retval = regulator_disable(tpd->reg);

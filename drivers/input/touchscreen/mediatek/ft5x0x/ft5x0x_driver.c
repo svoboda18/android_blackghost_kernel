@@ -50,9 +50,9 @@ static int tpd_probe(struct i2c_client *client, const struct i2c_device_id *id)
 	TPD_DMESG("mtk_tpd: tpd_probe ft5x0x \n");
 	for (reset_count = 0; reset_count < TPD_MAX_RESET_COUNT; ++reset_count)
 	{
-		ft5x0x_set_rst(false, 5);
+		ft5x0x_set_rst(false, 10);
 		ft5x0x_power(true);
-		ft5x0x_set_rst(true, 20);
+		ft5x0x_set_rst(true, 30);
 
 		if(i2c_smbus_read_i2c_block_data(client, 0x00, 1, &data) >= 0)
 		{
@@ -140,16 +140,16 @@ static void tpd_resume(struct device *h)
 
 #ifdef TPD_CLOSE_POWER_IN_SLEEP
    	TPD_DMESG("TPD wake up\n");
-	ft5x0x_set_rst(false, 5);
+	ft5x0x_set_rst(false, 20);
 	ft5x0x_power(true);
-	ft5x0x_set_rst(true, 20);
+	ft5x0x_set_rst(true, 150);
 #else
 //	data = 0x00;
 //	i2c_smbus_write_i2c_block_data(i2c_client, 0xd0, 1, &data);
 #endif
 
 //	tpd_up(0,0);
-//	input_sync(tpd->dev);
+	input_sync(tpd->dev);
 	TPD_DMESG("TPD wake up done\n");
 }
 
