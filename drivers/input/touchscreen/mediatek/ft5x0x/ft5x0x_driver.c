@@ -148,8 +148,6 @@ static void tpd_resume(struct device *h)
 //	i2c_smbus_write_i2c_block_data(i2c_client, 0xd0, 1, &data);
 #endif
 
-//	tpd_up(0,0);
-	input_sync(tpd->dev);
 	TPD_DMESG("TPD wake up done\n");
 }
 
