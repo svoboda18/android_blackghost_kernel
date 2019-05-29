@@ -45,7 +45,7 @@ static void ft5x0x_power(bool bOn)
 	if (!tpd->reg)
 	{
 		tpd->reg = regulator_get(tpd->tpd_dev, "vtouch");
-		retval = regulator_set_voltage(tpd->reg, 2800000, 2800000);
+		retval = regulator_set_voltage(tpd->reg, 2000000, 2000000);
 	}
 
 	ft5x0x_set_rst(false, 20);

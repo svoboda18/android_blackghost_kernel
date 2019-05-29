@@ -26,8 +26,6 @@
 
 #include "ft5x0x_util.h"
 
-
-
 extern struct tpd_device *tpd;
 extern int tpd_v_magnify_x;
 extern int tpd_v_magnify_y;
