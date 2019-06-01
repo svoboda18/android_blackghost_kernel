@@ -266,16 +266,22 @@ static void lcm_init(void)
 
 static void lcm_suspend(void)
 {
-// never build lk
-#if 1
-	SET_RESET_PIN(1);  //NOTE:should reset LCM firstly
-	MDELAY(10);
-	SET_RESET_PIN(0);
-	MDELAY(30);
-	SET_RESET_PIN(1);
-	MDELAY(120);
-	push_table(lcm_deep_sleep_mode_in_setting, sizeof(lcm_deep_sleep_mode_in_setting) / sizeof(struct LCM_setting_table), 1);//wqtao. enable
-#endif
+	unsigned int array[16];
+	array[0] = 0x00FE1500;
+	dsi_set_cmdq(array, 1, 1);
+	MDELAY(50);
+	array[0] = 0x00011500;
+	dsi_set_cmdq(array, 1, 1);
+	MDELAY(50);
+	array[0] = 0x00280500;
+	dsi_set_cmdq(array, 1, 1);
+	MDELAY(50);
+	array[0] = 0x00100500;
+	dsi_set_cmdq(array, 1, 1);
+	MDELAY(50);
+	array[0] = 0x014F1500;
+	dsi_set_cmdq(array, 1, 1);
+	MDELAY(50);
 }
 
 static void lcm_resume(void)
