@@ -1,3 +1,4 @@
+
 #ifndef BUILD_LK
 #include <linux/string.h>
 #endif
@@ -70,6 +71,27 @@ static unsigned int lcm_esd_test = FALSE;      ///only for ESD test
 
 static struct LCM_setting_table lcm_initialization_setting[] = {
 
+	/*
+Note :
+
+Data ID will depends on the following rule.
+
+count of parameters > 1      => Data ID = 0x39
+count of parameters = 1      => Data ID = 0x15
+count of parameters = 0      => Data ID = 0x05
+
+Struclcm_deep_sleep_mode_in_settingture Format :
+
+{DCS command, count of parameters, {parameter list}}
+{REGFLAG_DELAY, milliseconds of time, {}},
+
+...
+
+Setting ending by predefined flag
+
+{REGFLAG_END_OF_TABLE, 0x00, {}}
+*/
+//RM38200+HSD5.94 YKL CODE
 {0xFE,   1, {0x1}},
 {0x24,   1,{0xC0}},
 {0x25,   1,{0x53}},
@@ -361,15 +383,17 @@ static struct LCM_setting_table lcm_sleep_out_setting[] = {
 
 static struct LCM_setting_table lcm_sleep_in_setting[] = {
 	// Display off sequence
-	{0x01, 1, {0x00}},
-	{REGFLAG_DELAY, 50, {}},
 	
-	{0x28, 1, {0x00}},
+	{0x28, 0, {0x00}},
 	{REGFLAG_DELAY, 50, {}},
 
 	// Sleep Mode On
 	{0x10, 1, {0x00}},
-	{REGFLAG_DELAY, 50, {}},
+	{REGFLAG_DELAY, 150, {}},
+
+	{0x4f, 0, {0x01}},
+	{REGFLAG_DELAY, 150, {}},
+	
 
 	{REGFLAG_END_OF_TABLE, 0x00, {}}
 };
@@ -496,12 +520,22 @@ static void lcm_init(void)
 
 static void lcm_suspend(void)
 {
-	SET_RESET_PIN(1);
-	MDELAY(150);
-	SET_RESET_PIN(0);
-	MDELAY(30);
-	
-	push_table(lcm_sleep_in_setting,sizeof(lcm_sleep_in_setting) /sizeof(struct LCM_setting_table), 1);
+	unsigned int array[16];
+	array[0] = 0x00FE1500;
+	dsi_set_cmdq(array, 1, 1);
+	MDELAY(50);
+	array[0] = 0x00011500;
+	dsi_set_cmdq(array, 1, 1);
+	MDELAY(50);
+	array[0] = 0x00280500;
+	dsi_set_cmdq(array, 1, 1);
+	MDELAY(50);
+	array[0] = 0x00100500;
+	dsi_set_cmdq(array, 1, 1);
+	MDELAY(50);
+	array[0] = 0x014F1500;
+	dsi_set_cmdq(array, 1, 1);
+	MDELAY(50);
 }
 
 
@@ -654,7 +688,9 @@ LCM_DRIVER hct_rm68200_dsi_vdo_hd_cpt =
 	.init           = lcm_init,
 	.suspend        = lcm_suspend,
 	.resume         = lcm_resume,	
-	.compare_id     = lcm_compare_id,		
+	.compare_id     = lcm_compare_id,	
+    .esd_check   	= lcm_esd_check,	
+    .esd_recover   	= lcm_esd_recover,	
 #if (LCM_DSI_CMD_MODE)
     .update         = lcm_update,
 #endif	//wqtao

@@ -36,9 +36,11 @@ This BlackGHost custom kernel (3.18.140) source made to DOOGEE X5 (MT6580).
 * Added Fast Charging Support. (Upto 1.5AM)
 * Tweaked Mali For More Faster Rendering.
 * MTK Dynamic Boost.
-* Touch Boost. 
+* Touch Boost.
+* Added Color control.
 * Removed io blockplugs for better performance. 
 * Added Alucard Hotplug. 
+* Added AuroSmp Hotplug.
 * Added Thunder Charge Control.
 * Added Dynamic Fsync 1.5.
 * Added Power Suspend V1.8.1.

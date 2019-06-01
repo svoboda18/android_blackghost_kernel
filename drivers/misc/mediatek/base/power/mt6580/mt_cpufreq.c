@@ -358,7 +358,6 @@ static DEFINE_SPINLOCK(pmic_wrap_lock);
 #define pmic_wrap_unlock(flags) spin_unlock_irqrestore(&pmic_wrap_lock, flags)
 #else
 static DEFINE_MUTEX(pmic_wrap_mutex);
-
 #define pmic_wrap_lock(flags) \
 	do { \
 		flags = (unsigned long)&flags; \
@@ -2920,3 +2919,4 @@ module_exit(_mt_cpufreq_pdrv_exit);
 
 MODULE_DESCRIPTION("MediaTek CPU DVFS Driver v0.3");
 MODULE_LICENSE("GPL");
+

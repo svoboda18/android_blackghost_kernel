@@ -62,6 +62,13 @@ config MTK_FB_SUPPORT_ASSERTION_LAYER
 	  If you want to enable AEE assertion layer support, say Y here.
 	  If unsure, say N.
 
+config MTK_MIRAVISION_SUPPORT
+        bool CONFIG_MTK_MIRAVISION_SUPPORT
+        default n
+        help
+        Miravision hw 5
+
+
 config _MTK_AAL_SUPPORT
 	bool "MTK_AAL_SUPPORT"
 	default n

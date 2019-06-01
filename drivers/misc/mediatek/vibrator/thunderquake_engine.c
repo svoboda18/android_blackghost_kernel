@@ -1,5 +1,5 @@
 /*
- * Copyright © 2014, Varun Chitre "varun.chitre15" <varun.chitre15@gmail.com>
+ * Copyright ï¿½ 2014, Varun Chitre "varun.chitre15" <varun.chitre15@gmail.com>
  *
  * Vibration Intensity Controller for MTK Vibrator
  *
@@ -16,7 +16,7 @@
  * anywhere else.
  *
  */
-
+#define mt6325_upmu_set_rg_vibr_vosel
 #include <linux/module.h>
 #include <linux/kobject.h>
 #include <linux/sysfs.h>
@@ -29,10 +29,7 @@
 #define MAX_VIBR 7
 #define MIN_VIBR 0
 
-#define ENGINE_VERSION  1
-#define ENGINE_VERSION_SUB 0
-
-extern void mt6325_upmu_set_rg_vibr_vosel(kal_uint32 val);
+//extern void mt6325_upmu_set_rg_vibr_vosel(kal_uint32 val);
 
 static ssize_t vibr_vtg_show(struct kobject *kobj, struct kobj_attribute *attr, char *buf)
 {
@@ -46,33 +43,22 @@ static ssize_t vibr_vtg_store(struct kobject *kobj, struct kobj_attribute *attr,
 	unsigned int val;
     struct vibrator_hw* hw = mt_get_cust_vibrator_hw();
 	sscanf(buf, "%u", &val);
-	if(val>=MIN_VIBR && val <=MAX_VIBR) {
-       mt6325_upmu_set_rg_vibr_vosel(val);
-       hw->vib_vol=val;
-    }
-
+	if(val >= MIN_VIBR && val <= MAX_VIBR) {
+	    mt6325_upmu_set_rg_vibr_vosel(val);
+	    hw->vib_vol=val;
+	    }
+    
 	return count;
 }
 
-static ssize_t thunderquake_version_show(struct kobject *kobj, struct kobj_attribute *attr, char *buf)
-{
-	return sprintf(buf, "version: %u.%u\n", ENGINE_VERSION, ENGINE_VERSION_SUB);
-}
-
-static struct kobj_attribute thunderquake_version_attribute =
-	__ATTR(engine_version,
-		0444,
-		thunderquake_version_show, NULL);
-
 static struct kobj_attribute thunderquake_level_attribute =
 	__ATTR(level,
-		0666,
+		0660,
 		vibr_vtg_show, vibr_vtg_store);
 
 static struct attribute *thunderquake_engine_attrs[] =
 	{
 		&thunderquake_level_attribute.attr,
-		&thunderquake_version_attribute.attr,
 		NULL,
 	};
 
@@ -80,7 +66,7 @@ static struct attribute_group vibr_level_control_attr_group =
 	{
 		.attrs = thunderquake_engine_attrs,
 	};
-
+ 
 static struct kobject *vibr_level_control_kobj;
 
 static int vibr_level_control_init(void)
@@ -89,7 +75,7 @@ static int vibr_level_control_init(void)
 	printk(KERN_DEBUG "[%s]\n",__func__);
 
 	vibr_level_control_kobj =
-		kobject_create_and_add("thunderquake_engine", kernel_kobj);
+		kobject_create_and_add("thunderquake_engine", NULL);
 
 	if (!vibr_level_control_kobj) {
 		pr_err("%s Interface create failed!\n",

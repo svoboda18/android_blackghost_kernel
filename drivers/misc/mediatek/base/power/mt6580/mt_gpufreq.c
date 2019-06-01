@@ -294,11 +294,8 @@ static unsigned int _mt_gpufreq_get_dvfs_table_type(void)
 	return 0;
 #else
 	unsigned int type = 0;
-
 	mt_gpufreq_dvfs_mmpll_spd_bond = (get_devinfo_with_index(GPUFREQ_EFUSE_INDEX) >> 12) & 0x7;
-
 	gpufreq_info("@%s: mmpll_spd_bond = 0x%x\n", __func__, mt_gpufreq_dvfs_mmpll_spd_bond);
-
 	/* No efuse,  use clock-frequency from device tree to determine GPU table type! */
 	if (mt_gpufreq_dvfs_mmpll_spd_bond == 0) {
 #ifdef CONFIG_OF
@@ -307,10 +304,8 @@ static unsigned int _mt_gpufreq_get_dvfs_table_type(void)
 			{.compatible = "arm,mali-midgard"},
 			{ /* sentinel */ }
 		};
-
 		struct device_node *node;
 		unsigned int gpu_speed = 0;
-
 		node = of_find_matching_node(NULL, gpu_ids);
 		if (!node) {
 			gpufreq_err("@%s: find GPU node failed\n", __func__);
@@ -326,8 +321,6 @@ static unsigned int _mt_gpufreq_get_dvfs_table_type(void)
 			}
 		}
 		gpufreq_info("GPU clock-frequency from DT = %d MHz\n", gpu_speed);
-
-
 		if (gpu_speed > GPU_DEFAULT_MAX_FREQ_MHZ)
 			type = 0;	/* 600M */
 		else
@@ -338,7 +331,6 @@ static unsigned int _mt_gpufreq_get_dvfs_table_type(void)
 #endif
 		return type;
 	}
-
 	switch (mt_gpufreq_dvfs_mmpll_spd_bond) {
 	case 1:
 	case 2:
@@ -353,7 +345,6 @@ static unsigned int _mt_gpufreq_get_dvfs_table_type(void)
 		type = GPU_DEFAULT_TYPE;
 		break;
 	}
-
 	return type;
 #endif
 }
