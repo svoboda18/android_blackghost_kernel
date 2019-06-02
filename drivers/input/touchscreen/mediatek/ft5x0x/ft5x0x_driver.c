@@ -15,9 +15,6 @@
 #include <linux/of_irq.h>
 
 //#include "flash_on.h"
-#define FTS_GESTRUE
-//#define TPD_CLOSE_POWER_IN_SLEEP
-
 #include "tpd.h"
 
 #ifdef FTS_GESTRUE

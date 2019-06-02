@@ -5,7 +5,6 @@
 # Each configuration option enables a list of files.
 
 wm97xx-ts-y := wm97xx-core.o
-subdir-ccflags-y += -Wno-error # 
 obj-$(CONFIG_TOUCHSCREEN_SMARTWAKE)		+= smartwake.o
 obj-$(CONFIG_TOUCHSCREEN_DOUBLETAP2WAKE)	+= doubletap2wake.o
 obj-$(CONFIG_OF_TOUCHSCREEN)		+= of_touchscreen.o
