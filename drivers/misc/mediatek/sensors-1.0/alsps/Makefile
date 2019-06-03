@@ -12,3 +12,4 @@ obj-$(CONFIG_MTK_EPL2182_NEW)	+=  EPL2182-new/
 obj-$(CONFIG_MTK_APDS9930)	+=  APDS9930/
 obj-$(CONFIG_MTK_LTR559)	+=  ltr559/
 obj-$(CONFIG_MTK_STK3X1X_OT)	+=  stk3x1x/
+

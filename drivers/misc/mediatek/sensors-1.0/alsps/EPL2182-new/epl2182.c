@@ -1803,3 +1803,4 @@ module_exit(epl2182_exit);
 MODULE_AUTHOR("yucong.xiong@mediatek.com");
 MODULE_DESCRIPTION("EPL2182 ALSPS driver");
 MODULE_LICENSE("GPL");
+

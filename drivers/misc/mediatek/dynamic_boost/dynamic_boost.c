@@ -61,7 +61,7 @@ struct dboost_input_handle {
 };
 
 #define MAX_CORES_NUMBER nr_cpu_ids
-#define MAX_FREQUENCY 1
+#define MAX_FREQUENCY 1300000
 #define MAX_DURATION 10000
 
 static ssize_t dynamic_boost_show(struct device *dev, struct device_attribute *attr, char *buf);
