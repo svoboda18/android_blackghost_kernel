@@ -75,3 +75,4 @@ int fts_read_reg(struct i2c_client *client, u8 regaddr, u8 *regvalue)
 {
 	return fts_i2c_Read(client, &regaddr, 1, regvalue, 1);
 }
+

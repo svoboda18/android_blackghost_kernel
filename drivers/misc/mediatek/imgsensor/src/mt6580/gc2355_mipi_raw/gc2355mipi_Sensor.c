@@ -66,7 +66,7 @@ static imgsensor_info_struct imgsensor_info = {
         .grabwindow_width = 1600,        //record different mode's width of grabwindow
         .grabwindow_height = 1200,        //record different mode's height of grabwindow
         /*     following for MIPIDataLowPwr2HighSpeedSettleDelayCount by different scenario    */
-        .mipi_data_lp2hs_settle_dc = 14,//unit , ns
+        .mipi_data_lp2hs_settle_dc = 85,//unit , ns
         /*     following for GetDefaultFramerateByScenario()    */
         .max_framerate = 300,
     },
@@ -78,7 +78,7 @@ static imgsensor_info_struct imgsensor_info = {
         .starty = 0,
         .grabwindow_width = 1600,
         .grabwindow_height = 1200,
-        .mipi_data_lp2hs_settle_dc = 14,//unit , ns
+        .mipi_data_lp2hs_settle_dc = 85,//unit , ns
         .max_framerate = 300,
     },
     .cap1 = {                            //capture for PIP 24fps relative information, capture1 mode must use same framelength, linelength with Capture mode for shutter calculate
@@ -100,7 +100,7 @@ static imgsensor_info_struct imgsensor_info = {
         .starty = 0,
         .grabwindow_width = 1600,
         .grabwindow_height = 1200,
-        .mipi_data_lp2hs_settle_dc = 14,//unit , ns
+        .mipi_data_lp2hs_settle_dc = 85,//unit , ns
         .max_framerate = 300,
     },
     .hs_video = {
@@ -111,7 +111,7 @@ static imgsensor_info_struct imgsensor_info = {
         .starty = 0,
         .grabwindow_width = 640,
         .grabwindow_height = 480,
-        .mipi_data_lp2hs_settle_dc = 14,//unit , ns
+        .mipi_data_lp2hs_settle_dc = 85,//unit , ns
         .max_framerate = 1200,
     },
     .slim_video = {

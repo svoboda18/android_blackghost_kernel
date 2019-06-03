@@ -54,7 +54,7 @@ int psEableTimes = 0;
 #define I2C_RETRY_COUNT		3
 
 /* TODO: change delay time */
-#define PS_DELAY			1
+#define PS_DELAY			10
 #define ALS_DELAY			40
 
 /* TODO: parameters for lux equation y = ax + b */
@@ -200,7 +200,7 @@ static struct i2c_driver epl2182_i2c_driver = {
 	.driver = {
 		   .name = EPL2182_DEV_NAME,
 #ifdef CONFIG_OF
-	.of_match_table = alsps_of_match,
+			.of_match_table = alsps_of_match,
 #endif
 		   },
 };
@@ -300,29 +300,26 @@ static int elan_epl2182_psensor_enable(struct epl2182_priv *epl_data, int enable
 	APS_DBG("[ELAN epl2182] %s enable = %d\n", __func__, enable);
 
 	epl_data->enable_pflag = enable;
-	ret = elan_epl2182_I2C_Write(client, REG_9, W_SINGLE_BYTE, 0x02,
-			   EPL_INT_DISABLE | EPL_DRIVE_120MA);
+	ret =
+	    elan_epl2182_I2C_Write(client, REG_9, W_SINGLE_BYTE, 0x02,
+				   EPL_INT_DISABLE | EPL_DRIVE_120MA);
 
 	if (enable) {
 		regdata = EPL_SENSING_2_TIME | EPL_PS_MODE | EPL_L_GAIN;
-
-		//regdata = regdata | (isInterrupt ? EPL_C_SENSING_MODE : EPL_S_SENSING_MODE);
-		regdata = regdata | EPL_C_SENSING_MODE;
+		regdata = regdata | (isInterrupt ? EPL_C_SENSING_MODE : EPL_S_SENSING_MODE);
 		ret = elan_epl2182_I2C_Write(client, REG_0, W_SINGLE_BYTE, 0X02, regdata);
 
 		regdata = PS_INTT << 4 | EPL_PST_1_TIME | EPL_10BIT_ADC;
 		ret = elan_epl2182_I2C_Write(client, REG_1, W_SINGLE_BYTE, 0X02, regdata);
 
+		/* set_psensor_intr_threshold(epl_data->hw ->ps_threshold_low,epl_data->hw ->ps_threshold_high); */
+		set_psensor_threshold(client);
+
 		ret = elan_epl2182_I2C_Write(client, REG_7, W_SINGLE_BYTE, 0X02, EPL_C_RESET);
 		ret = elan_epl2182_I2C_Write(client, REG_7, W_SINGLE_BYTE, 0x02, EPL_C_START_RUN);
 		ret = elan_epl2182_I2C_Write(client, REG_9, W_SINGLE_BYTE, 0x02, EPL_INT_ACTIVE_LOW | EPL_DRIVE_120MA);
-
-		set_psensor_threshold(client);
-
 		msleep(PS_DELAY);
-
 		ret = elan_epl2182_I2C_Read(client, REG_13, R_SINGLE_BYTE, 0x01, read_data);
-
 		ps_state = !((read_data[0] & 0x04) >> 2);
 		APS_DBG("epl2182 ps state = %d, gRawData.ps_state = %d, %s\n", ps_state,
 		       gRawData.ps_state, __func__);
@@ -332,8 +329,8 @@ static int elan_epl2182_psensor_enable(struct epl2182_priv *epl_data, int enable
 			psEableTimes = 1;
 		else
 			schedule_work(&epl_data->data_work);
-
 		gRawData.ps_state = ps_state;	/* update ps state */
+		/* APS_LOG("epl2182 gRawData.ps_state = %d, %s\n", gRawData.ps_state, __func__); */
 	} else {
 		regdata = EPL_SENSING_2_TIME | EPL_PS_MODE | EPL_L_GAIN;
 		regdata = regdata | EPL_S_SENSING_MODE;
@@ -560,8 +557,6 @@ long epl2182_read_ps(struct i2c_client *client, u16 *data)
 		*data = 0;
 	else
 		*data = gRawData.ps_raw - obj->ps_cali;
-
-	//INIT_WORK(&obj->data_work, epl2182_check_ps_data);
 
 	/* APS_LOG("epl2182 read ps raw data = %d\n", gRawData.ps_raw); */
 	/* APS_LOG("epl2182 read ps binary data = %d\n", gRawData.ps_state); */
@@ -793,7 +788,7 @@ int epl2182_setup_eint(struct i2c_client *client)
 		APS_LOG("ints[0] = %d, ints[1] = %d!!\n", ints[0], ints[1]);
 
 		epl2182_obj->irq = irq_of_parse_and_map(epl2182_obj->irq_node, 0);
-		APS_LOG("epl2182_obj->irq = %d\n", epl2182_obj->irq);
+		APS_LOG("cm36652_obj->irq = %d\n", epl2182_obj->irq);
 		if (!epl2182_obj->irq) {
 			APS_ERR("irq_of_parse_and_map fail!!\n");
 			return -EINVAL;
@@ -1328,18 +1323,18 @@ static int ps_get_data(int *value, int *status)
 	if (atomic_read(&epl2182_obj->trace) & CMC_TRC_PS_DATA)
 		APS_LOG("value = %d\n", *value);
 #else
+
 	if (!epl2182_obj) {
 		APS_ERR("epl2182_obj is null!!\n");
 		return -1;
 	}
 
+	/*err = elan_epl2182_psensor_enable(epl2182_obj, 1);*/
 
 	epl2182_read_ps(epl2182_obj->client, &epl2182_obj->ps);
+
 	*value = gRawData.ps_state;
-	*status = SENSOR_STATUS_ACCURACY_HIGH;
-
-	INIT_WORK(&epl2182_obj->data_work, epl2182_check_ps_data);
-
+	*status = SENSOR_STATUS_ACCURACY_MEDIUM;
 #endif				/* #ifdef CUSTOM_KERNEL_SENSORHUB */
 
 	return err;
@@ -1384,7 +1379,6 @@ static int ps_flush(void)
 {
 	return ps_flush_report();
 }
-
 static int epl2182_als_factory_enable_sensor(bool enable_disable, int64_t sample_periods_ms)
 {
 	int err = 0;
@@ -1403,7 +1397,7 @@ static int epl2182_als_factory_enable_sensor(bool enable_disable, int64_t sample
 }
 static int epl2182_als_factory_get_data(int32_t *data)
 {
-	int status = 1;
+	int status;
 
 	return als_get_data(data, &status);
 }
@@ -1460,8 +1454,11 @@ static int epl2182_ps_factory_enable_sensor(bool enable_disable, int64_t sample_
 }
 static int epl2182_ps_factory_get_data(int32_t *data)
 {
-	int status = 1;
-	ps_get_data(data, &status);
+	int err = 0, status = 0;
+
+	err = ps_get_data(data, &status);
+	if (err < 0)
+		return -1;
 	return 0;
 }
 static int epl2182_ps_factory_get_raw_data(int32_t *data)
@@ -1565,7 +1562,6 @@ static int epl2182_i2c_probe(struct i2c_client *client, const struct i2c_device_
 
 	APS_FUN();
 
-	/* epl2182_dumpReg(client); */
 	obj = kzalloc(sizeof(*obj), GFP_KERNEL);
 	if (!obj) {
 		err = -ENOMEM;
@@ -1597,8 +1593,8 @@ static int epl2182_i2c_probe(struct i2c_client *client, const struct i2c_device_
 #ifdef CUSTOM_KERNEL_SENSORHUB
 	INIT_WORK(&obj->init_done_work, alsps_init_done_work);
 #endif
-
 	INIT_WORK(&obj->data_work, epl2182_check_ps_data);
+
 	init_waitqueue_head(&wait_rsp_wq);
 
 	obj->client = client;
@@ -1610,10 +1606,10 @@ static int epl2182_i2c_probe(struct i2c_client *client, const struct i2c_device_
 
 	i2c_set_clientdata(client, obj);
 
-	atomic_set(&obj->als_debounce, 1000);
+	atomic_set(&obj->als_debounce, 2000);
 	atomic_set(&obj->als_deb_on, 0);
 	atomic_set(&obj->als_deb_end, 0);
-	atomic_set(&obj->ps_debounce, 500);
+	atomic_set(&obj->ps_debounce, 1000);
 	atomic_set(&obj->ps_deb_on, 0);
 	atomic_set(&obj->ps_deb_end, 0);
 	atomic_set(&obj->ps_mask, 0);
@@ -1621,7 +1617,7 @@ static int epl2182_i2c_probe(struct i2c_client *client, const struct i2c_device_
 	atomic_set(&obj->als_suspend, 0);
 	atomic_set(&obj->ps_thd_val_high, obj->hw.ps_threshold_high);
 	atomic_set(&obj->ps_thd_val_low, obj->hw.ps_threshold_low);
-	obj->irq_node = of_find_compatible_node(NULL, NULL, "mediatek, als-eint");
+	obj->irq_node = client->dev.of_node;
 
 	obj->ps_cali = 0;
 	obj->ps_enable = 0;
@@ -1732,6 +1728,9 @@ exit:
 	APS_ERR("%s: err = %d\n", __func__, err);
 	alsps_init_flag = -1;
 	return err;
+
+
+
 }
 
 
@@ -1803,4 +1802,3 @@ module_exit(epl2182_exit);
 MODULE_AUTHOR("yucong.xiong@mediatek.com");
 MODULE_DESCRIPTION("EPL2182 ALSPS driver");
 MODULE_LICENSE("GPL");
-

@@ -33,6 +33,7 @@ This BlackGHost custom kernel (3.18.140) source made to DOOGEE X5 (MT6580).
 * Added Frandom.
 * Added crc check control. 
 * Added DT2W Gesture.
+* Added THUNDERQUAKE ENGINE.
 * Added Fast Charging Support. (Upto 1.5AM)
 * Tweaked Mali For More Faster Rendering.
 * MTK Dynamic Boost.
