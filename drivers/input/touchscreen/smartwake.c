@@ -538,7 +538,7 @@ static void smartwake_input_callback(struct work_struct *unused) {
 static void smartwake_input_event(struct input_handle *handle, unsigned int type,
 				unsigned int code, int value) {
 				
-	if(!display_off || !(smartwake_switch > 0))
+	if(!display_off || !smartwake_switch)
         	return;
 
 #if SMARTWAKE_DEBUG
