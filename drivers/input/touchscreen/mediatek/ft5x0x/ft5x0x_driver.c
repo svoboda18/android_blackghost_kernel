@@ -116,11 +116,11 @@ static void tpd_suspend(struct device *h)
 #endif
 }
 
-
+struct kobject *android_touch_kobj;
 static struct device_attribute *ft5x0x_attrs[] = {
 
 #ifdef CONFIG_HCT_TP_GESTRUE
-	 &dev_attr_tpgesture,
+	 &dev_attr_gesture,
 	 &dev_attr_tpgesture_status,
 #endif
 };
@@ -139,12 +139,29 @@ static struct tpd_driver_t tpd_device_driver = {
 /* called when loaded into kernel */
 static int __init tpd_driver_init(void)
 {
+	int rc = 0;
 	printk("MediaTek FT5x0x touch panel driver init\n");
 	tpd_get_dts_info();
 	tpd_apply_settings();
 
 	if(tpd_driver_add(&tpd_device_driver) < 0)
 		TPD_DMESG("add FT5x0x driver failed\n");
+
+
+	android_touch_kobj = kobject_create_and_add("android_touch", NULL) ;
+	if (android_touch_kobj == NULL) {
+		pr_warn("%s: android_touch_kobj create_and_add failed\n", __func__);
+	}
+
+	rc = sysfs_create_file(android_touch_kobj, &dev_attr_gesture.attr);
+	if (rc) {
+		pr_warn("%s: sysfs_create_file failed for smartwake\n", __func__);
+	}
+
+	rc = sysfs_create_file(android_touch_kobj, &dev_attr_tpgesture_status.attr);
+	if (rc) {
+		pr_warn("%s: sysfs_create_file failed for smartwake_version\n", __func__);
+	}
 
 	return 0;
 }
@@ -154,6 +171,7 @@ static void __exit tpd_driver_exit(void)
 {
 	TPD_DMESG("MediaTek FT5x0x touch panel driver exit\n");
        	tpd_driver_remove(&tpd_device_driver);
+kobject_del(android_touch_kobj);
 }
 
 module_init(tpd_driver_init);
