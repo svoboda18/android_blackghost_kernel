@@ -53,7 +53,7 @@ unsigned short coordinate_y[150] = {0};
 
 static char tpgesture_value[10]={};
 static char tpgesture_status_value[5] = {};
-static char tpgesture_status	= 1;
+static char enable = 1;
 static int  g_call_state 	= 0;
 
 static struct gesture_item gesture_array[] = 
@@ -74,28 +74,32 @@ static struct gesture_item gesture_array[] =
 	{0}
 };
 
-static ssize_t show_tpgesture_value(struct device *dev, struct device_attribute *attr, char *buf)
+static ssize_t show_gesture_value(struct device *dev, struct device_attribute *attr, char *buf)
 {
-	printk("show tp gesture value is %s \n", tpgesture_value);
 	return sprintf(buf, "%s\n", tpgesture_value);
 }
  
-static ssize_t show_tpgesture_status_value(struct device *dev, struct device_attribute *attr, char *buf)
+static ssize_t show_enable_status(struct device *dev, struct device_attribute *attr, char *buf)
 {
-	printk("show tp gesture status is %s\n", tpgesture_status_value);
-	return sprintf(buf, "%s\n", tpgesture_status_value);
+	return sprintf(buf, "%d\n", enable);
 }
  
-static ssize_t store_tpgesture_status_value(struct device* dev, struct device_attribute *attr,
+static ssize_t store_enable_status(struct device* dev, struct device_attribute *attr,
 							const char *buf, size_t count)
 {
-	tpgesture_status = strncmp(buf, "on", 2)?0:1;
-	sprintf(tpgesture_status_value, tpgesture_status?"on":"off");		 
-	 return count;
+	if (buf[1] == '\n') {
+		if (buf[0] == '0') {
+			enable = 0;
+		} else if (buf[0] == '1') {
+			enable = 1;
+		}
+	}
+
+	return count;
 }
 
-static DEVICE_ATTR(gesture, 0664, show_tpgesture_value, NULL);
-static DEVICE_ATTR(tpgesture_status, 0664, show_tpgesture_status_value, store_tpgesture_status_value);
+static DEVICE_ATTR(gesture, 0664, show_gesture_value, NULL);
+static DEVICE_ATTR(enable, 0664, show_enable_status, store_enable_status);
 
 int fts_Gesture_init(struct input_dev *input_dev)
 {
@@ -110,8 +114,6 @@ int fts_Gesture_init(struct input_dev *input_dev)
 		__set_bit(items->action_id, input_dev->keybit);
 		items++;
 	}
-//	device_create_file(&input_dev->dev, &dev_attr_tpgesture);
-//	device_create_file(&input_dev->dev, &dev_attr_tpgesture_status);
 #endif
 	return 0;
 }
@@ -119,6 +121,7 @@ int fts_Gesture_init(struct input_dev *input_dev)
 static void fts_check_gesture(struct input_dev *input_dev,int gesture_id)
 {
 	struct gesture_item* items = gesture_array;
+
 
 	printk("fts gesture_id==0x%x\n ", gesture_id);
 	*tpgesture_value = 0;
@@ -132,9 +135,6 @@ static void fts_check_gesture(struct input_dev *input_dev,int gesture_id)
                 input_sync(input_dev);
                 input_report_key(input_dev, items->action_id, 0);
                 input_sync(input_dev);
-
-//		device_remove_file(&input_dev->dev, &dev_attr_tpgesture);
-//		device_create_file(&input_dev->dev, &dev_attr_tpgesture);
 
 		break;
 	}
@@ -150,16 +150,14 @@ static int ft5x0x_read_Touchdata(struct input_dev *input_dev, struct i2c_client*
 	short pointnum = 0;
 
 	buf[0] = 0xd3;
+
 	ret = fts_i2c_Read(i2c_client, buf, 1, buf, FTS_GESTRUE_POINTS_HEADER);
-	if (ret < 0)
-	{
+	if (ret < 0) {
 		printk( "%s read touchdata failed.\n", __func__);
 		return ret;
 	}
 
-	if(buf[0] != 0xfe)
-	{
-// pass dblclick
+	if(buf[0] != 0xfe) {
 		gestrue_id =  buf[0];
 		fts_check_gesture(input_dev, gestrue_id);
 		return -1;
@@ -175,18 +173,10 @@ static int ft5x0x_read_Touchdata(struct input_dev *input_dev, struct i2c_client*
 		return ret;
 	}
 #ifdef CONFIG_HCT_TP_GESTRUE
+	if (!enable)
+		return -1;
 	gestrue_id = fetch_object_sample(buf, pointnum);
 	fts_check_gesture(input_dev, gestrue_id);
-#endif
-#if 0
-	for(i = 0;i < pointnum;i++)
-	{
-		coordinate_x[i] =  (((s16) buf[0 + (4 * i)]) & 0x0F) <<
-		    8 | (((s16) buf[1 + (4 * i)])& 0xFF);
-		coordinate_y[i] = (((s16) buf[2 + (4 * i)]) & 0x0F) <<
-		    8 | (((s16) buf[3 + (4 * i)]) & 0xFF);
-		printk( "Gesture touch pint x,y=%d,%d\n", coordinate_x[i], coordinate_y[i]);
-	}
 #endif
 	return -1;
 }
@@ -204,13 +194,7 @@ static int ft5x0x_read_Touchdata(struct input_dev *input_dev, struct i2c_client*
 
 static bool tpd_getsure_suspend(struct i2c_client* i2c_client)
  {
-	printk("[xy-tp]%d\n", tpgesture_status);
-
-	if((g_call_state == CALL_ACTIVE) || (!tpgesture_status)) 
-		return false;
-
 	printk("[xy-tp]:gesture mode\n");
-//	msleep(200);
 
 	fts_write_reg(i2c_client, 0xd0, 0x01);
 	fts_write_reg(i2c_client, 0xd1, 0xff);
@@ -226,8 +210,6 @@ static bool tpd_getsure_suspend(struct i2c_client* i2c_client)
 static bool tpd_getsure_resume(struct i2c_client* i2c_client)
  {
 	TPD_DMESG("TPD wake up\n");
-	if((g_call_state == CALL_ACTIVE) || (!tpgesture_status))
-		return false;
 
 	fts_write_reg(i2c_client, 0xD0, 0x0);
 

@@ -121,7 +121,7 @@ static struct device_attribute *ft5x0x_attrs[] = {
 
 #ifdef CONFIG_HCT_TP_GESTRUE
 	 &dev_attr_gesture,
-	 &dev_attr_tpgesture_status,
+	 &dev_attr_enable,
 #endif
 };
 
@@ -155,12 +155,12 @@ static int __init tpd_driver_init(void)
 
 	rc = sysfs_create_file(android_touch_kobj, &dev_attr_gesture.attr);
 	if (rc) {
-		pr_warn("%s: sysfs_create_file failed for smartwake\n", __func__);
+		pr_warn("%s: sysfs_create_file failed\n", __func__);
 	}
 
-	rc = sysfs_create_file(android_touch_kobj, &dev_attr_tpgesture_status.attr);
+	rc = sysfs_create_file(android_touch_kobj, &dev_attr_enable.attr);
 	if (rc) {
-		pr_warn("%s: sysfs_create_file failed for smartwake_version\n", __func__);
+		pr_warn("%s: sysfs_create_file failed\n", __func__);
 	}
 
 	return 0;
@@ -176,4 +176,3 @@ kobject_del(android_touch_kobj);
 
 module_init(tpd_driver_init);
 module_exit(tpd_driver_exit);
-
