@@ -1,4 +1,8 @@
+
+#define FTS_GESTRUE
+
 #include "accdet.h"
+
 #ifdef CONFIG_HCT_TP_GESTRUE
 #include "ft_gesture_lib.h"
 #endif
@@ -48,10 +52,10 @@ struct gesture_item{
 unsigned short coordinate_x[150] = {0};
 unsigned short coordinate_y[150] = {0};
 
-static char gesture_value[10] = {};
-static char enable = 1;
-static char version = 2.0;
-static int g_call_state = 0;
+static char tpgesture_value[10]={};
+static char tpgesture_status_value[5] = {};
+static char tpgesture_status	= 1;
+static int  g_call_state 	= 0;
 
 static struct gesture_item gesture_array[] = 
 {
@@ -71,38 +75,32 @@ static struct gesture_item gesture_array[] =
 	{0}
 };
 
-static ssize_t show_gesture_value(struct device *dev, struct device_attribute *attr, char *buf)
+static ssize_t show_tpgesture_value(struct device *dev, struct device_attribute *attr, char *buf)
 {
-	return sprintf(buf, "%s\n", gesture_value);
+	 printk("show tp gesture value is %s \n", tpgesture_value);
+	 return sprintf(buf, "%s\n", tpgesture_value);
 }
  
-static ssize_t show_version(struct device *dev, struct device_attribute *attr, char *buf)
+static ssize_t show_tpgesture_status_value(struct device *dev, struct device_attribute *attr, char *buf)
 {
-	return sprintf(buf, "%d\n", version);
-}
-
-static ssize_t show_enable_status(struct device *dev, struct device_attribute *attr, char *buf)
-{
-	return sprintf(buf, "%d\n", enable);
+	 printk("show tp gesture status is %s\n", tpgesture_status_value);
+	 return sprintf(buf, "%s\n", tpgesture_status_value);
 }
  
-static ssize_t store_enable_status(struct device* dev, struct device_attribute *attr,
-							const char *buf, size_t count)
+static ssize_t store_tpgesture_status_value(struct device* dev, struct device_attribute *attr,
+					const char *buf, size_t count)
 {
-	if (buf[1] == '\n') {
-		if (buf[0] == '0') {
-			enable = 0;
-		} else if (buf[0] == '1') {
-			enable = 1;
-		}
-	}
-
-	return count;
+	tpgesture_status = strncmp(buf, "on", 2)?0:1;
+	sprintf(tpgesture_status_value, tpgesture_status?"on":"off");
+ 
+	 return count;
 }
 
-static DEVICE_ATTR(gesture, 0664, show_gesture_value, NULL);
-static DEVICE_ATTR(enable, 0664, show_enable_status, store_enable_status);
-static DEVICE_ATTR(version, 0664, show_version, NULL);
+// sys/devices/bus/bus\:touch@/tpgesture
+static DEVICE_ATTR(tpgesture, 0664, show_tpgesture_value, NULL);
+//	0666
+// sys/devices/bus/bus\:touch@/tpgesture_status
+static DEVICE_ATTR(tpgesture_status, 0664, show_tpgesture_status_value, store_tpgesture_status_value);
 
 int fts_Gesture_init(struct input_dev *input_dev)
 {
@@ -117,6 +115,8 @@ int fts_Gesture_init(struct input_dev *input_dev)
 		__set_bit(items->action_id, input_dev->keybit);
 		items++;
 	}
+//	device_create_file(&input_dev->dev, &dev_attr_tpgesture);
+//	device_create_file(&input_dev->dev, &dev_attr_tpgesture_status);
 #endif
 	return 0;
 }
@@ -125,18 +125,21 @@ static void fts_check_gesture(struct input_dev *input_dev,int gesture_id)
 {
 	struct gesture_item* items = gesture_array;
 
-	printk("Smartwake: gesture: id: 0x%x\n ", gesture_id);
-	*gesture_value = 0;
+	printk("fts gesture_id==0x%x\n ", gesture_id);
+	*tpgesture_value = 0;
 
 	for(;items->gesture_id;++items)
 	{
 		if (items->gesture_id != gesture_id) continue;
 
-		sprintf(gesture_value, items->name);
+		sprintf(tpgesture_value, items->name);
                 input_report_key(input_dev, items->action_id, 1);
                 input_sync(input_dev);
                 input_report_key(input_dev, items->action_id, 0);
                 input_sync(input_dev);
+
+//		device_remove_file(&input_dev->dev, &dev_attr_tpgesture);
+//		device_create_file(&input_dev->dev, &dev_attr_tpgesture);
 
 		break;
 	}
@@ -152,14 +155,16 @@ static int ft5x0x_read_Touchdata(struct input_dev *input_dev, struct i2c_client*
 	short pointnum = 0;
 
 	buf[0] = 0xd3;
-	printk("Smartwake: reading touch data");
-
 	ret = fts_i2c_Read(i2c_client, buf, 1, buf, FTS_GESTRUE_POINTS_HEADER);
-	if (ret < 0) {
+	if (ret < 0)
+	{
+		printk( "%s read touchdata failed.\n", __func__);
 		return ret;
 	}
 
-	if(buf[0] != 0xfe) {
+	if(buf[0] != 0xfe)
+	{
+// pass dblclick
 		gestrue_id =  buf[0];
 		fts_check_gesture(input_dev, gestrue_id);
 		return -1;
@@ -171,15 +176,22 @@ static int ft5x0x_read_Touchdata(struct input_dev *input_dev, struct i2c_client*
 	ret = fts_i2c_Read(i2c_client, buf, 1, buf, pointnum * 4 + 2+6);
 	if (ret < 0)
 	{
+		printk( "%s read touchdata failed.\n", __func__);
 		return ret;
 	}
-
-	printk("Smartwake: reading touch data success!");
 #ifdef CONFIG_HCT_TP_GESTRUE
-	if (!enable)
-		return -1;
 	gestrue_id = fetch_object_sample(buf, pointnum);
 	fts_check_gesture(input_dev, gestrue_id);
+#endif
+#if 0
+	for(i = 0;i < pointnum;i++)
+	{
+		coordinate_x[i] =  (((s16) buf[0 + (4 * i)]) & 0x0F) <<
+		    8 | (((s16) buf[1 + (4 * i)])& 0xFF);
+		coordinate_y[i] = (((s16) buf[2 + (4 * i)]) & 0x0F) <<
+		    8 | (((s16) buf[3 + (4 * i)]) & 0xFF);
+		printk( "Gesture touch pint x,y=%d,%d\n", coordinate_x[i], coordinate_y[i]);
+	}
 #endif
 	return -1;
 }
@@ -188,15 +200,23 @@ static int ft5x0x_read_Touchdata(struct input_dev *input_dev, struct i2c_client*
 {
  	u8 state = 0;
 	fts_read_reg(i2c_client, 0xd0, &state);
-	if (state !=1)
-		return false;
+	printk("%s lsm--state=%x .\n",__func__,state);
+	if(state !=1) return false;
 
 	ft5x0x_read_Touchdata(input_dev, i2c_client);
 	return true;
 }
 
 static bool tpd_getsure_suspend(struct i2c_client* i2c_client)
-{
+ {
+	printk("[xy-tp]%d\n", tpgesture_status);
+
+	if((g_call_state == CALL_ACTIVE) || (!tpgesture_status)) 
+		return false;
+
+	printk("[xy-tp]:gesture mode\n");
+//	msleep(200);
+
 	fts_write_reg(i2c_client, 0xd0, 0x01);
 	fts_write_reg(i2c_client, 0xd1, 0xff);
 	fts_write_reg(i2c_client, 0xd2, 0xff);
@@ -206,12 +226,16 @@ static bool tpd_getsure_suspend(struct i2c_client* i2c_client)
 	fts_write_reg(i2c_client, 0xd8, 0xff);
 
 	return true;
-}
+ }
 
 static bool tpd_getsure_resume(struct i2c_client* i2c_client)
-{
+ {
+	TPD_DMESG("TPD wake up\n");
+	if((g_call_state == CALL_ACTIVE) || (!tpgesture_status))
+		return false;
+
 	fts_write_reg(i2c_client, 0xD0, 0x0);
 
 	return true;
-}
+ }
 
