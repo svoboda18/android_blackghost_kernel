@@ -11,6 +11,12 @@
  * GNU General Public License for more details.
  */
 
+#ifdef CONFIG_COMPAT
+
+#include <linux/fs.h>
+#include <linux/compat.h>
+
+#endif
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/init.h>
@@ -25,116 +31,140 @@
 #include <linux/delay.h>
 #include <linux/platform_device.h>
 #include <linux/cdev.h>
-#include <linux/err.h>
 #include <linux/errno.h>
 #include <linux/time.h>
-#include "kd_flashlight.h"
 #include <asm/io.h>
 #include <asm/uaccess.h>
-#include "kd_flashlight_type.h"
+#include "kd_camera_typedef.h"
 #include <linux/hrtimer.h>
 #include <linux/ktime.h>
 #include <linux/version.h>
-#include <linux/mutex.h>
-#include <linux/i2c.h>
-#include <linux/leds.h>
+/* #include <mach/mt6333.h> */
 
-/*#include <cust_gpio_usage.h>*/
-#include <mt_gpio.h>
-//#include <gpio_const.h>
-/******************************************************************************
- * GPIO configuration
-******************************************************************************/
-#define GPIO_CAMERA_FLASH_EN_PIN			(GPIO90 | 0x80000000)
-#define GPIO_CAMERA_FLASH_EN_PIN_M_CLK		GPIO_MODE_03
-#define GPIO_CAMERA_FLASH_EN_PIN_M_EINT		GPIO_MODE_01
-#define GPIO_CAMERA_FLASH_EN_PIN_M_GPIO		GPIO_MODE_00
-#define GPIO_CAMERA_FLASH_EN_PIN_CLK		CLK_OUT1
-#define GPIO_CAMERA_FLASH_EN_PIN_FREQ		GPIO_CLKSRC_NONE
-
+#include "kd_flashlight.h"
 /******************************************************************************
  * Debug configuration
 ******************************************************************************/
-
-#define TAG_NAME "[leds_strobe.c]"
+/* availible parameter */
+/* ANDROID_LOG_ASSERT */
+/* ANDROID_LOG_ERROR */
+/* ANDROID_LOG_WARNING */
+/* ANDROID_LOG_INFO */
+/* ANDROID_LOG_DEBUG */
+/* ANDROID_LOG_VERBOSE */
+#define TAG_NAME "[strobe_main_sid2_part1.c]"
+#define PK_DBG_NONE(fmt, arg...)    do {} while (0)
 #define PK_DBG_FUNC(fmt, arg...)    pr_debug(TAG_NAME "%s: " fmt, __func__ , ##arg)
+#define PK_WARN(fmt, arg...)        pr_warn(TAG_NAME "%s: " fmt, __func__ , ##arg)
+#define PK_NOTICE(fmt, arg...)      pr_notice(TAG_NAME "%s: " fmt, __func__ , ##arg)
+#define PK_INFO(fmt, arg...)        pr_info(TAG_NAME "%s: " fmt, __func__ , ##arg)
+#define PK_TRC_FUNC(f)              pr_debug(TAG_NAME "<%s>\n", __func__)
+#define PK_TRC_VERBOSE(fmt, arg...) pr_debug(TAG_NAME fmt, ##arg)
+#define PK_ERROR(fmt, arg...)       pr_err(TAG_NAME "%s: " fmt, __func__ , ##arg)
 
-/*#define DEBUG_LEDS_STROBE*/
+
+#define DEBUG_LEDS_STROBE
 #ifdef DEBUG_LEDS_STROBE
-	#define PK_DBG PK_DBG_FUNC
+#define PK_DBG PK_DBG_FUNC
+#define PK_VER PK_TRC_VERBOSE
+#define PK_ERR PK_ERROR
 #else
-	#define PK_DBG(a, ...)
+#define PK_DBG(a, ...)
+#define PK_VER(a, ...)
+#define PK_ERR(a, ...)
 #endif
 
 /******************************************************************************
  * local variables
 ******************************************************************************/
-
 static DEFINE_SPINLOCK(g_strobeSMPLock);	/* cotta-- SMP proection */
-
-
-static u32 strobe_Res;
-static u32 strobe_Timeus;
-static BOOL g_strobe_On;
-
-static int g_timeOutTimeMs;
-
-static DEFINE_MUTEX(g_strobeSem);
-
 static struct work_struct workTimeOut;
-
-/* #define FLASH_GPIO_ENF GPIO12 */
-/* #define FLASH_GPIO_ENT GPIO13 */
-#define FLASH_GPIO_EN GPIO_CAMERA_FLASH_EN_PIN
-
+static int g_timeOutTimeMs;
+static u32 strobe_Res;
 /*****************************************************************************
 Functions
 *****************************************************************************/
 static void work_timeOutFunc(struct work_struct *data);
 
-int FL_Enable(void)
+/* extern int flashEnable_sky81296_2(void); */
+/* extern int flashDisable_sky81296_2(void); */
+/* extern int setDuty_sky81296_2(int duty); */
+/* int init_sky81296(); */
+
+
+
+static int FL_Enable(void)
 {
-	PK_DBG(" FL_Enable line=%d\n", __LINE__);
-
-	mdelay(12);
-
-	flashlight_gpio_set(FLASHLIGHT_PIN_HWEN, STATE_HIGH);
+/* flashEnable_sky81296_1(); */
+	PK_DBG("FL_Enable-");
 
 	return 0;
 }
 
-
-
-int FL_Disable(void)
+static int FL_Disable(void)
 {
-	PK_DBG(" FL_Disable line=%d\n", __LINE__);
-
-	flashlight_gpio_set(FLASHLIGHT_PIN_HWEN, STATE_LOW);
+	/* flashDisable_sky81296_1(); */
 
 	return 0;
 }
 
-int FL_dim_duty(kal_uint32 duty)
+static int FL_dim_duty(kal_uint32 duty)
 {
-	PK_DBG(" FL_dim_duty line=%d\n", __LINE__);
+	/* setDuty_sky81296_1(duty); */
 	return 0;
 }
 
-int FL_Init(void)
+/*
+static int g_lowPowerLevel=LOW_BATTERY_LEVEL_0;
+static void lowPowerCB(LOW_BATTERY_LEVEL lev)
+{
+	g_lowPowerLevel=lev;
+}*/
+
+static int FL_Init(void)
 {
 	PK_DBG(" FL_Init line=%d\n", __LINE__);
+	INIT_WORK(&workTimeOut, work_timeOutFunc);
+	/* register_low_battery_callback(&lowPowerCB, LOW_BATTERY_PRIO_FLASHLIGHT); */
+	/* register_low_battery_notify(&lowPowerCB, LOW_BATTERY_PRIO_FLASHLIGHT); */
+
+
+
 	return 0;
 }
 
-int FL_Uninit(void)
+static int FL_Uninit(void)
 {
 	FL_Disable();
+	return 0;
+}
+
+static int FL_hasLowPowerDetect(void)
+{
+
+	return 1;
+}
+
+static int detLowPowerStart(void)
+{
+
+/* g_lowPowerLevel=LOW_BATTERY_LEVEL_0; */
+	return 0;
+}
+
+
+static int detLowPowerEnd(void)
+{
+
 	return 0;
 }
 
 /*****************************************************************************
 User interface
 *****************************************************************************/
+static struct hrtimer g_timeOutTimer;
+
+static int g_b1stInit = 1;
 
 static void work_timeOutFunc(struct work_struct *data)
 {
@@ -144,41 +174,53 @@ static void work_timeOutFunc(struct work_struct *data)
 
 
 
-enum hrtimer_restart ledTimeOutCallback(struct hrtimer *timer)
+static enum hrtimer_restart ledTimeOutCallback(struct hrtimer *timer)
 {
 	schedule_work(&workTimeOut);
 	return HRTIMER_NORESTART;
 }
-static struct hrtimer g_timeOutTimer;
-void timerInit(void)
-{
-	static int init_flag;
 
-	if (init_flag == 0) {
-		init_flag = 1;
+static void timerInit(void)
+{
+	/* ktime_t ktime; */
+
+
+	/* mt6333_set_rg_chrwdt_en(0); */
+
+	/* mt6333_set_rg_chrwdt_td(0); //4 sec */
+	/* mt6333_set_rg_chrwdt_en(1); */
+
+	/* mt6333_set_rg_chrwdt_en(0); */
+
+	if (g_b1stInit == 1) {
+		g_b1stInit = 0;
+
+
 		INIT_WORK(&workTimeOut, work_timeOutFunc);
 		g_timeOutTimeMs = 1000;
 		hrtimer_init(&g_timeOutTimer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
 		g_timeOutTimer.function = ledTimeOutCallback;
 	}
-}
 
+
+
+}
 
 
 static int constant_flashlight_ioctl(unsigned int cmd, unsigned long arg)
 {
+	int temp;
 	int i4RetValue = 0;
 	int ior_shift;
 	int iow_shift;
 	int iowr_shift;
-
+	/* kal_uint8 valTemp; */
 	ior_shift = cmd - (_IOR(FLASHLIGHT_MAGIC, 0, int));
 	iow_shift = cmd - (_IOW(FLASHLIGHT_MAGIC, 0, int));
 	iowr_shift = cmd - (_IOWR(FLASHLIGHT_MAGIC, 0, int));
-/*	PK_DBG
-	    ("LM3643 constant_flashlight_ioctl() line=%d ior_shift=%d, iow_shift=%d iowr_shift=%d arg=%d\n",
+	PK_DBG
+	    ("constant_flashlight_ioctl() line=%d ior_shift=%d, iow_shift=%d iowr_shift=%d arg=%d\n",
 	     __LINE__, ior_shift, iow_shift, iowr_shift, (int)arg);
-*/
 	switch (cmd) {
 
 	case FLASH_IOC_SET_TIME_OUT_TIME_MS:
@@ -201,22 +243,10 @@ static int constant_flashlight_ioctl(unsigned int cmd, unsigned long arg)
 	case FLASH_IOC_SET_ONOFF:
 		PK_DBG("FLASHLIGHT_ONOFF: %d\n", (int)arg);
 		if (arg == 1) {
-
-			int s;
-			int ms;
-
-			if (g_timeOutTimeMs > 1000) {
-				s = g_timeOutTimeMs / 1000;
-				ms = g_timeOutTimeMs - s * 1000;
-			} else {
-				s = 0;
-				ms = g_timeOutTimeMs;
-			}
-
 			if (g_timeOutTimeMs != 0) {
 				ktime_t ktime;
 
-				ktime = ktime_set(s, ms * 1000000);
+				ktime = ktime_set(0, g_timeOutTimeMs * 1000000);
 				hrtimer_start(&g_timeOutTimer, ktime, HRTIMER_MODE_REL);
 			}
 			FL_Enable();
@@ -225,6 +255,56 @@ static int constant_flashlight_ioctl(unsigned int cmd, unsigned long arg)
 			hrtimer_cancel(&g_timeOutTimer);
 		}
 		break;
+/*
+	case FLASH_IOC_PRE_ON:
+		PK_DBG("FLASH_IOC_PRE_ON\n");
+			FL_preOn();
+		break;
+	case FLASH_IOC_GET_PRE_ON_TIME_MS:
+		PK_DBG("FLASH_IOC_GET_PRE_ON_TIME_MS: %d\n",(int)arg);
+		temp=13;
+		if(copy_to_user((void __user *) arg , (void*)&temp , 4))
+	    {
+		PK_DBG(" ioctl copy to user failed\n");
+		return -1;
+	    }
+		break;
+*/
+	case FLASH_IOC_SET_REG_ADR:
+		PK_DBG("FLASH_IOC_SET_REG_ADR: %d\n", (int)arg);
+		/* g_reg = arg; */
+		break;
+	case FLASH_IOC_SET_REG_VAL:
+		PK_DBG("FLASH_IOC_SET_REG_VAL: %d\n", (int)arg);
+		/* g_val = arg; */
+		break;
+	case FLASH_IOC_SET_REG:
+		/* PK_DBG("FLASH_IOC_SET_REG: %d %d\n",g_reg, g_val); */
+
+		break;
+
+	case FLASH_IOC_GET_REG:
+		PK_DBG("FLASH_IOC_GET_REG: %d\n", (int)arg);
+
+		/* i4RetValue = valTemp; */
+		/* PK_DBG("FLASH_IOC_GET_REG: v=%d\n",valTemp); */
+		break;
+
+	case FLASH_IOC_HAS_LOW_POWER_DETECT:
+		PK_DBG("FLASH_IOC_HAS_LOW_POWER_DETECT");
+		temp = FL_hasLowPowerDetect();
+		if (copy_to_user((void __user *)arg, (void *)&temp, 4)) {
+			PK_DBG(" ioctl copy to user failed\n");
+			return -1;
+		}
+		break;
+	case FLASH_IOC_LOW_POWER_DETECT_START:
+		detLowPowerStart();
+		break;
+	case FLASH_IOC_LOW_POWER_DETECT_END:
+		i4RetValue = detLowPowerEnd();
+		break;
+
 	default:
 		PK_DBG(" No such command\n");
 		i4RetValue = -EPERM;
@@ -251,7 +331,7 @@ static int constant_flashlight_open(void *pArg)
 
 
 	if (strobe_Res) {
-		PK_DBG(" busy!\n");
+		PK_ERR(" busy!\n");
 		i4RetValue = -EBUSY;
 	} else {
 		strobe_Res += 1;
@@ -274,107 +354,27 @@ static int constant_flashlight_release(void *pArg)
 		spin_lock_irq(&g_strobeSMPLock);
 
 		strobe_Res = 0;
-		strobe_Timeus = 0;
 
-		/* LED On Status */
-		g_strobe_On = FALSE;
 
 		spin_unlock_irq(&g_strobeSMPLock);
-
 		FL_Uninit();
 	}
-
 	PK_DBG(" Done\n");
-
 	return 0;
-
 }
 
 
-FLASHLIGHT_FUNCTION_STRUCT constantFlashlightFunc = {
+static FLASHLIGHT_FUNCTION_STRUCT constantFlashlightFunc = {
 	constant_flashlight_open,
 	constant_flashlight_release,
 	constant_flashlight_ioctl
 };
 
 
-MUINT32 constantFlashlightInit(PFLASHLIGHT_FUNCTION_STRUCT *pfFunc)
+
+MUINT32 strobeInit_main_sid2_part1(PFLASHLIGHT_FUNCTION_STRUCT *pfFunc)
 {
 	if (pfFunc != NULL)
 		*pfFunc = &constantFlashlightFunc;
 	return 0;
 }
-
-ssize_t strobe_VDIrq(void) {
-	return 0;
-}
-
-EXPORT_SYMBOL(strobe_VDIrq);
-
-/* Varaibles */
-static struct class *flashlight_class = NULL;
-static struct device *flashlight_dev = NULL;
-unsigned int flashlight_status = 0;
-
-/* Functions */
-static ssize_t get_flashlight_status(struct device *dev,
-        struct device_attribute *attr, char *buf) {
-    PK_DBG("[Flashlight] get flashlight status is:%d \n", flashlight_status);
-    return sprintf(buf, "%u\n", flashlight_status);
-}
-
-static ssize_t set_flashlight_status(struct device *dev,
-        struct device_attribute *attr, const char *buf, size_t size)
-{
-    int value = simple_strtoul(buf, NULL, 0);
-    flashlight_status = value;
-
-    if (1 == value || 255 == value) // enable flashlight
-    {
-        PK_DBG("[Flashlight] set flashlight status: on");
-	FL_Enable();
-    }
-    else // disable flashlight
-    {
-        PK_DBG("[Flashlight] set flashlight status: off");
-	FL_Disable();
-    }
-    return size;
-}
-
-/* Main */
-static DEVICE_ATTR(max_brightness, 0664, get_flashlight_status, set_flashlight_status);
-static int __init flashlight_init(void)
-{
-    PK_DBG("[Flashlight] init: Start, driver by svoboda18\n");
-    flashlight_class = class_create(THIS_MODULE , "led");
-    if (IS_ERR(flashlight_class)) {
-        PK_DBG("[Flashlight] init: Error!\n");
-        return 0;
-    }
-
-    flashlight_dev = device_create(flashlight_class, NULL, 0, 0, "flashlight");
-    if(NULL != flashlight_dev){
-        device_create_file(flashlight_dev, &dev_attr_max_brightness);
-        PK_DBG("[Flashlight] init: Done!\n");
-        return 0;
-    } else {
-        PK_DBG("[Flashlight] init: Error!\n");
-        return 0;
-    }
-}
-
-static void __exit flashlight_exit(void)
-{
-    device_remove_file(flashlight_dev, &dev_attr_max_brightness);
-    device_unregister(flashlight_dev);
-    if(flashlight_class!=NULL)
-        class_destroy(flashlight_class);
-}
-
-module_init(flashlight_init);
-module_exit(flashlight_exit);
-
-MODULE_LICENSE("GPL");
-MODULE_AUTHOR("svoboda18");
-MODULE_DESCRIPTION("MTK Flashlight Filesystem Driver");

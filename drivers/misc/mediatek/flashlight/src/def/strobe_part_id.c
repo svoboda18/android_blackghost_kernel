@@ -30,59 +30,24 @@
 #include <linux/time.h>
 #include <asm/io.h>
 #include <asm/uaccess.h>
-#include "kd_flashlight_type.h"
-#include <linux/hrtimer.h>
-#include <linux/ktime.h>
-#include <linux/version.h>
+#include "kd_camera_typedef.h"
 #ifdef CONFIG_COMPAT
 #include <linux/fs.h>
 #include <linux/compat.h>
 #endif
 #include "kd_flashlight.h"
-/******************************************************************************
- * Debug configuration
-******************************************************************************/
-#define TAG_NAME "[sub_strobe.c]"
-#define PK_DBG_FUNC(fmt, arg...)    pr_debug(TAG_NAME "%s: " fmt, __func__ , ##arg)
 
-#define DEBUG_LEDS_STROBE
-#ifdef DEBUG_LEDS_STROBE
-#define PK_DBG PK_DBG_FUNC
-#else
-#define PK_DBG(a, ...)
-#endif
-
-
-static int sub_strobe_ioctl(unsigned int cmd, unsigned long arg)
+int strobe_getPartId(int sensorDev, int strobeId)
 {
-	PK_DBG("sub dummy ioctl");
-	return 0;
-}
-
-static int sub_strobe_open(void *pArg)
-{
-	PK_DBG("sub dummy open");
-	return 0;
-
-}
-
-static int sub_strobe_release(void *pArg)
-{
-	PK_DBG("sub dummy release");
-	return 0;
-
-}
-
-FLASHLIGHT_FUNCTION_STRUCT subStrobeFunc = {
-	sub_strobe_open,
-	sub_strobe_release,
-	sub_strobe_ioctl
-};
-
-
-MUINT32 subStrobeInit(PFLASHLIGHT_FUNCTION_STRUCT *pfFunc)
-{
-	if (pfFunc != NULL)
-		*pfFunc = &subStrobeFunc;
-	return 0;
+	/* return 1 or 2 (backup flash part). Other numbers are invalid. */
+	if (sensorDev == e_CAMERA_MAIN_SENSOR && strobeId == 1)
+		return 1;
+	else if (sensorDev == e_CAMERA_MAIN_SENSOR && strobeId == 2)
+		return 1;
+	else if (sensorDev == e_CAMERA_SUB_SENSOR && strobeId == 1)
+		return 1;
+	else if (sensorDev == e_CAMERA_SUB_SENSOR && strobeId == 2)
+		return 1;
+	/*  else  sensorDev == e_CAMERA_MAIN_2_SENSOR */
+	return 200;
 }

@@ -188,3 +188,10 @@ config MTK_FLASHLIGHT_DLPT
 		the current of battary dynamicly. It will start by request
 		and notice user by kernel notifier.
 
+
+config CUSTOM_KERNEL_FLASHLIGHT
+        string "CUSTOM_KERNEL_FLASHLIGHT"
+        help
+          Kernel space cameara flashlight driver. You can use this driver
+          choose cameara flashlight type.
+

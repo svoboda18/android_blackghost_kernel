@@ -15,21 +15,4 @@
 # Makefile for misc devices that really don't fit anywhere else.
 #
 
-MTK_PLATFORM := $(subst ",,$(CONFIG_MTK_PLATFORM))
-ARCH_MTK_PROJECT := $(subst ",,$(CONFIG_ARCH_MTK_PROJECT))
-MTK_CUSTOM_PATH  := $(srctree)/drivers/misc/mediatek
-
-subdir-ccflags-y += -I$(MTK_CUSTOM_PATH)/lens/main/inc
-
-ifeq ($(CONFIG_MTK_LENS_USE_MODULE), y)
-
-MAIN_CFILES += main_lens.c
-MAIN_CFILES += common/dw9714af/DW9714AF.c
-obj-m := mainaf.o
-mainaf-objs := $(MAIN_CFILES:.c=.o)
-
-else
-
-obj-y  += common/dw9714af/
-obj-y  += main_lens.o
-endif
+obj-y				+= leds_strobe.o
