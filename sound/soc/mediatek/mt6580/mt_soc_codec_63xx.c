@@ -1304,7 +1304,7 @@ static void Audio_Amp_Change(int channels, bool enable)
 				Ana_Set_Reg(AUDTOP_CON4, 0x005C, 0xffff);
 			} else {
 				/* enable audio bias. enable audio DAC, HP buffers */
-				Ana_Set_Reg(AUDTOP_CON4, 0x007C, 0xffff);
+				Ana_Set_Reg(AUDTOP_CON4, 0x003C, 0xffff);
 			}
 			/* udelay(10 * 1000); */
 			mdelay(10);
