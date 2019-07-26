@@ -80,6 +80,7 @@
 #include <linux/proc_fs.h>
 #include <linux/string.h>
 #include <linux/mutex.h>
+/*#include <mach/irqs.h>*/
 #include <linux/uaccess.h>
 #include <asm/irq.h>
 #include <linux/io.h>

@@ -248,6 +248,7 @@ int AudDrv_GPIO_I2S_Select(int bEnable)
 	}
 	return retval;
 }
+
 int AudDrv_GPIO_EXTAMP_Select(int bEnable)
 {
 	int retval = 0;

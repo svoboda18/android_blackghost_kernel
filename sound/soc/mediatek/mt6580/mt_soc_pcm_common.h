@@ -99,6 +99,7 @@
 #include <sound/pcm.h>
 #include <sound/jack.h>
 /* #include <asm/mach-types.h> */
+#include <sound/mt_soc_audio.h>
 
 /* #define EFUSE_HP_TRIM */
 
