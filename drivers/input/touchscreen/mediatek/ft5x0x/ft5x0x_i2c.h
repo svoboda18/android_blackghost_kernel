@@ -1,18 +1,22 @@
 #include <linux/dma-mapping.h>
 
-extern struct tpd_device *tpd;
  #define IIC_DMA_MAX_TRANSFER_SIZE     250
+extern struct tpd_device *tpd;
 
 u8 *I2CDMABuf_va = NULL;
 dma_addr_t I2CDMABuf_pa = 0;
-static DEFINE_MUTEX(i2c_rw_access);
 
-void fts_i2c_Init(void)
+int fts_i2c_Init(void)
 {
 	tpd->dev->dev.coherent_dma_mask = DMA_BIT_MASK(32);
 	I2CDMABuf_va = (u8 *) dma_alloc_coherent(&tpd->dev->dev, IIC_DMA_MAX_TRANSFER_SIZE, &I2CDMABuf_pa, GFP_KERNEL);
-	if (I2CDMABuf_va)
-		memset(I2CDMABuf_va, 0, IIC_DMA_MAX_TRANSFER_SIZE);
+	if (!I2CDMABuf_va) {
+		TPD_DMESG("Allocate DMA I2C Buffer failed!");
+		return -1;
+	}
+	memset(I2CDMABuf_va, 0, IIC_DMA_MAX_TRANSFER_SIZE);
+
+	return 0;
 }
 
 int fts_i2c_Read(struct i2c_client *client, char *writebuf,
@@ -20,11 +24,6 @@ int fts_i2c_Read(struct i2c_client *client, char *writebuf,
 {
 	int ret = 0;
 	int i,i2;
-
-	mutex_lock(&i2c_rw_access);
-
-	if (I2CDMABuf_va == NULL)
-		fts_i2c_Init();
 
 	client->addr = (client->addr & I2C_MASK_FLAG) | I2C_DMA_FLAG;
 
@@ -34,10 +33,7 @@ int fts_i2c_Read(struct i2c_client *client, char *writebuf,
 			I2CDMABuf_va[i2] = writebuf[i + i2];
 		}
 		ret = i2c_master_send(client, (unsigned char *)I2CDMABuf_pa, i2);
-		if(ret != i2){
-			mutex_unlock(&i2c_rw_access);
-			return -1;
-		}
+		if(ret != i2) return -1;
 	}
 
 	for(i = 0; i < readlen; i += ret)
@@ -50,12 +46,11 @@ int fts_i2c_Read(struct i2c_client *client, char *writebuf,
 			readbuf[i + i2] = I2CDMABuf_va[i2];
 		}
 	}
+	ret = i;
 
 	client->addr = client->addr & I2C_MASK_FLAG &(~ I2C_DMA_FLAG);
 
-	mutex_unlock(&i2c_rw_access);
-
-	return i;
+	return ret;
 }
 
 int fts_i2c_Write(struct i2c_client *client, char *writebuf, int writelen)

@@ -4,5 +4,8 @@
 
 obj-y +=hct_ili9881_dsi_vdo_hd_cpt.o
 
+
+ccflags-y += -Wno-error=unused-variable \
+	     -Wno-error=unused-function
 ccflags-$(CONFIG_MTK_LCM) += -I$(srctree)/drivers/misc/mediatek/lcm/inc
 

@@ -255,6 +255,7 @@ static void lcm_init(void)
 
 static void lcm_suspend(void)
 {
+#ifndef BUILD_LK
 	unsigned int array[16];
 	array[0] = 0x00FE1500;
 	dsi_set_cmdq(array, 1, 1);
@@ -271,11 +272,12 @@ static void lcm_suspend(void)
 	array[0] = 0x014F1500;
 	dsi_set_cmdq(array, 1, 1);
 	MDELAY(50);
+#endif
 }
 
 static void lcm_resume(void)
 {
-#if 1
+#ifndef BUILD_LK
 	lcm_init();
 #endif
 }

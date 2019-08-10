@@ -10,6 +10,8 @@
 # See http://www.gnu.org/licenses/gpl-2.0.html for more details.
 
 LOCAL_PATH := $(call my-dir)
+KBUILD_BUILD_USER := SaMad
+KBUILD_BUILD_HOST := BlackHost
 
 ifeq ($(notdir $(LOCAL_PATH)),$(strip $(LINUX_KERNEL_VERSION)))
 ifneq ($(strip $(TARGET_NO_KERNEL)),true)

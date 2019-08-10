@@ -92,7 +92,7 @@ CONFIG_MTK_LCM=y
 CONFIG_MTK_SYNC=y
 CONFIG_MTK_FB=y
 CONFIG_MTK_VIDEOX=y
-#CONFIG_MTK_AAL_SUPPORT is not set
+CONFIG_MTK_AAL_SUPPORT=y
 CONFIG_MTK_SENSOR_SUPPORT=y
 CONFIG_MTK_SENSORS_1_0=y
 CONFIG_CUSTOM_KERNEL_ACCELEROMETER=y
@@ -352,7 +352,7 @@ CONFIG_BUILD_ARM_APPENDED_DTB_IMAGE=y
 CONFIG_BUILD_ARM_APPENDED_DTB_IMAGE_NAMES="x5_bsp"
 
 # LCM
-CONFIG_CUSTOM_KERNEL_LCM="hct_hx8394f_dsi_vdo_hd_cmi hct_rm68200_dsi_vdo_hd_cpt"
+CONFIG_CUSTOM_KERNEL_LCM="hct_hx8394f_dsi_vdo_hd_cmi hct_rm68200_dsi_vdo_hd_cpt hct_otm1285a_dsi_vdo_hd_boe hct_ili9881_dsi_vdo_hd_cpt"
 CONFIG_MTK_LCM_PHYSICAL_ROTATION="0"
 #hct_otm1285a_dsi_vdo_hd_boe hct_ili9881_dsi_vdo_hd_cpt hct_hx8394f_dsi_vdo_hd_cmi hct_otm1282_dsi_vdo_hd_auo 
 #hct_nt35521s_dsi_vdo_hd_boe_50_xld 
