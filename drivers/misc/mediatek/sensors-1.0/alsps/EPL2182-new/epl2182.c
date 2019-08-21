@@ -53,7 +53,7 @@ int psEableTimes = 0;
 #define I2C_RETRY_COUNT		3
 
 /* TODO: change delay time */
-#define PS_DELAY			1
+#define PS_DELAY			20
 #define ALS_DELAY			40
 
 /* TODO: parameters for lux equation y = ax + b */
@@ -312,8 +312,7 @@ static int elan_epl2182_psensor_enable(struct epl2182_priv *epl_data, int enable
 	if (enable) {
 		regdata = EPL_SENSING_2_TIME | EPL_PS_MODE | EPL_L_GAIN;
 
-		//regdata = regdata | (isInterrupt ? EPL_C_SENSING_MODE : EPL_S_SENSING_MODE);
-		regdata = regdata | EPL_C_SENSING_MODE;
+		regdata = regdata | (isInterrupt ? EPL_C_SENSING_MODE : EPL_S_SENSING_MODE);
 		ret = elan_epl2182_I2C_Write(client, REG_0, W_SINGLE_BYTE, 0X02, regdata);
 
 		regdata = PS_INTT << 4 | EPL_PST_1_TIME | EPL_10BIT_ADC;
@@ -1466,7 +1465,7 @@ static int epl2182_ps_factory_enable_sensor(bool enable_disable, int64_t sample_
 }
 static int epl2182_ps_factory_get_data(int32_t *data)
 {
-	int status = 1;
+	int status;
 	ps_get_data(data, &status);
 	return 0;
 }
