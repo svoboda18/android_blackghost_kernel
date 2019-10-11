@@ -88,8 +88,9 @@ void tpd_get_dts_info(void)
 			if (of_property_read_u32_array(node1,
 				"tpd-key-dim-local",
 				key_dim_local, ARRAY_SIZE(key_dim_local))) {
-				memcpy(tpd_dts_data.tpd_key_dim_local,
-					key_dim_local, sizeof(key_dim_local));
+ /* of_property_read_u32_array return 0, if all OK. 
+ * memcpy has been moved from here. 
+ */
 				for (i = 0; i < 4; i++) {
 					pr_debug("[tpd]key[%d].key_x = %d\n", i,
 						tpd_dts_data
@@ -109,6 +110,8 @@ void tpd_get_dts_info(void)
 							.key_height);
 				}
 			}
+				memcpy(tpd_dts_data.tpd_key_dim_local,
+					key_dim_local, sizeof(key_dim_local));
 		}
 		of_property_read_u32(node1, "tpd-filter-enable",
 			&tpd_dts_data.touch_filter.enable);
