@@ -19,6 +19,7 @@
 #include <linux/init.h>
 #include <linux/skbuff.h>
 #include <linux/siphash.h>
+#include <linux/siphash.h>
 #include <linux/slab.h>
 #include <linux/vmalloc.h>
 #include <net/netlink.h>
@@ -158,6 +159,7 @@ static inline struct sfq_head *sfq_dep_head(struct sfq_sched_data *q, sfq_index 
 static unsigned int sfq_hash(const struct sfq_sched_data *q,
 			     const struct sk_buff *skb)
 {
+	return skb_get_hash_perturb(skb, &q->perturbation) & (q->divisor - 1);
 	return skb_get_hash_perturb(skb, &q->perturbation) & (q->divisor - 1);
 }
 
@@ -608,9 +610,12 @@ static void sfq_perturbation(unsigned long arg)
 	struct sfq_sched_data *q = qdisc_priv(sch);
 	spinlock_t *root_lock = qdisc_lock(qdisc_root_sleeping(sch));
 	siphash_key_t nkey;
+	siphash_key_t nkey;
 
 	get_random_bytes(&nkey, sizeof(nkey));
+	get_random_bytes(&nkey, sizeof(nkey));
 	spin_lock(root_lock);
+	q->perturbation = nkey;
 	q->perturbation = nkey;
 	if (!q->filter_list && q->tail)
 		sfq_rehash(sch);
@@ -684,6 +689,7 @@ static int sfq_change(struct Qdisc *sch, struct nlattr *opt)
 	if (q->perturb_period) {
 		mod_timer(&q->perturb_timer, jiffies + q->perturb_period);
 		get_random_bytes(&q->perturbation, sizeof(q->perturbation));
+		get_random_bytes(&q->perturbation, sizeof(q->perturbation));
 	}
 	sch_tree_unlock(sch);
 	kfree(p);
@@ -739,6 +745,7 @@ static int sfq_init(struct Qdisc *sch, struct nlattr *opt)
 	q->quantum = psched_mtu(qdisc_dev(sch));
 	q->scaled_quantum = SFQ_ALLOT_SIZE(q->quantum);
 	q->perturb_period = 0;
+	get_random_bytes(&q->perturbation, sizeof(q->perturbation));
 	get_random_bytes(&q->perturbation, sizeof(q->perturbation));
 
 	if (opt) {
