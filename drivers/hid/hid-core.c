@@ -6,13 +6,16 @@
  *  Copyright (c) 2005 Michael Haboustak <mike-@cinci.rr.com> for Concept2, Inc
  *  Copyright (c) 2006-2012 Jiri Kosina
  */
+
 /*
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation; either version 2 of the License, or (at your option)
  * any later version.
  */
+
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
+
 #include <linux/module.h>
 #include <linux/slab.h>
 #include <linux/init.h>
@@ -27,82 +30,107 @@
 #include <linux/vmalloc.h>
 #include <linux/sched.h>
 #include <linux/semaphore.h>
+
 #include <linux/hid.h>
 #include <linux/hiddev.h>
 #include <linux/hid-debug.h>
 #include <linux/hidraw.h>
+
 #include "hid-ids.h"
+
 /*
  * Version Information
  */
+
 #define DRIVER_DESC "HID core driver"
 #define DRIVER_LICENSE "GPL"
+
 int hid_debug = 0;
 module_param_named(debug, hid_debug, int, 0600);
 MODULE_PARM_DESC(debug, "toggle HID debugging messages");
 EXPORT_SYMBOL_GPL(hid_debug);
+
 static int hid_ignore_special_drivers = 0;
 module_param_named(ignore_special_drivers, hid_ignore_special_drivers, int, 0600);
 MODULE_PARM_DESC(ignore_special_drivers, "Ignore any special drivers and handle all devices by generic driver");
+
 /*
  * Register a new report for a device.
  */
+
 struct hid_report *hid_register_report(struct hid_device *device, unsigned type, unsigned id)
 {
 	struct hid_report_enum *report_enum = device->report_enum + type;
 	struct hid_report *report;
+
 	if (id >= HID_MAX_IDS)
 		return NULL;
 	if (report_enum->report_id_hash[id])
 		return report_enum->report_id_hash[id];
+
 	report = kzalloc(sizeof(struct hid_report), GFP_KERNEL);
 	if (!report)
 		return NULL;
+
 	if (id != 0)
 		report_enum->numbered = 1;
+
 	report->id = id;
 	report->type = type;
 	report->size = 0;
 	report->device = device;
 	report_enum->report_id_hash[id] = report;
+
 	list_add_tail(&report->list, &report_enum->report_list);
+
 	return report;
 }
 EXPORT_SYMBOL_GPL(hid_register_report);
+
 /*
  * Register a new field for this report.
  */
+
 static struct hid_field *hid_register_field(struct hid_report *report, unsigned usages, unsigned values)
 {
 	struct hid_field *field;
+
 	if (report->maxfield == HID_MAX_FIELDS) {
 		hid_err(report->device, "too many fields in report\n");
 		return NULL;
 	}
+
 	field = kzalloc((sizeof(struct hid_field) +
 			 usages * sizeof(struct hid_usage) +
 			 values * sizeof(unsigned)), GFP_KERNEL);
 	if (!field)
 		return NULL;
+
 	field->index = report->maxfield++;
 	report->field[field->index] = field;
 	field->usage = (struct hid_usage *)(field + 1);
 	field->value = (s32 *)(field->usage + usages);
 	field->report = report;
+
 	return field;
 }
+
 /*
  * Open a collection. The type/usage is pushed on the stack.
  */
+
 static int open_collection(struct hid_parser *parser, unsigned type)
 {
 	struct hid_collection *collection;
 	unsigned usage;
+
 	usage = parser->local.usage[0];
+
 	if (parser->collection_stack_ptr == HID_COLLECTION_STACK_SIZE) {
 		hid_err(parser->device, "collection stack overflow\n");
 		return -EINVAL;
 	}
+
 	if (parser->device->maxcollection == parser->device->collection_size) {
 		collection = kmalloc(sizeof(struct hid_collection) *
 				parser->device->collection_size * 2, GFP_KERNEL);
@@ -120,20 +148,26 @@ static int open_collection(struct hid_parser *parser, unsigned type)
 		parser->device->collection = collection;
 		parser->device->collection_size *= 2;
 	}
+
 	parser->collection_stack[parser->collection_stack_ptr++] =
 		parser->device->maxcollection;
+
 	collection = parser->device->collection +
 		parser->device->maxcollection++;
 	collection->type = type;
 	collection->usage = usage;
 	collection->level = parser->collection_stack_ptr - 1;
+
 	if (type == HID_COLLECTION_APPLICATION)
 		parser->device->maxapplication++;
+
 	return 0;
 }
+
 /*
  * Close a collection.
  */
+
 static int close_collection(struct hid_parser *parser)
 {
 	if (!parser->collection_stack_ptr) {
@@ -143,14 +177,17 @@ static int close_collection(struct hid_parser *parser)
 	parser->collection_stack_ptr--;
 	return 0;
 }
+
 /*
  * Climb up the stack, search for the specified collection type
  * and return the usage.
  */
+
 static unsigned hid_lookup_collection(struct hid_parser *parser, unsigned type)
 {
 	struct hid_collection *collection = parser->device->collection;
 	int n;
+
 	for (n = parser->collection_stack_ptr - 1; n >= 0; n--) {
 		unsigned index = parser->collection_stack[n];
 		if (collection[index].type == type)
@@ -158,19 +195,23 @@ static unsigned hid_lookup_collection(struct hid_parser *parser, unsigned type)
 	}
 	return 0; /* we know nothing about this usage type */
 }
+
 /*
  * Concatenate usage which defines 16 bits or less with the
  * currently defined usage page to form a 32 bit usage
  */
+
 static void complete_usage(struct hid_parser *parser, unsigned int index)
 {
 	parser->local.usage[index] &= 0xFFFF;
 	parser->local.usage[index] |=
 		(parser->global.usage_page & 0xFFFF) << 16;
 }
+
 /*
  * Add a usage to the temporary parser table.
  */
+
 static int hid_add_usage(struct hid_parser *parser, unsigned usage, u8 size)
 {
 	if (parser->local.usage_index >= HID_MAX_USAGES) {
@@ -178,12 +219,14 @@ static int hid_add_usage(struct hid_parser *parser, unsigned usage, u8 size)
 		return -1;
 	}
 	parser->local.usage[parser->local.usage_index] = usage;
+
 	/*
 	 * If Usage item only includes usage id, concatenate it with
 	 * currently defined usage page
 	 */
 	if (size <= 2)
 		complete_usage(parser, parser->local.usage_index);
+
 	parser->local.usage_size[parser->local.usage_index] = size;
 	parser->local.collection_index[parser->local.usage_index] =
 		parser->collection_stack_ptr ?
@@ -191,9 +234,11 @@ static int hid_add_usage(struct hid_parser *parser, unsigned usage, u8 size)
 	parser->local.usage_index++;
 	return 0;
 }
+
 /*
  * Register a new field for this report.
  */
+
 static int hid_add_field(struct hid_parser *parser, unsigned report_type, unsigned flags)
 {
 	struct hid_report *report;
@@ -201,11 +246,13 @@ static int hid_add_field(struct hid_parser *parser, unsigned report_type, unsign
 	unsigned usages;
 	unsigned offset;
 	unsigned i;
+
 	report = hid_register_report(parser->device, report_type, parser->global.report_id);
 	if (!report) {
 		hid_err(parser->device, "hid_register_report failed\n");
 		return -1;
 	}
+
 	/* Handle both signed and unsigned cases properly */
 	if ((parser->global.logical_minimum < 0 &&
 		parser->global.logical_maximum <
@@ -218,18 +265,24 @@ static int hid_add_field(struct hid_parser *parser, unsigned report_type, unsign
 			parser->global.logical_maximum);
 		return -1;
 	}
+
 	offset = report->size;
 	report->size += parser->global.report_size * parser->global.report_count;
+
 	if (!parser->local.usage_index) /* Ignore padding fields */
 		return 0;
+
 	usages = max_t(unsigned, parser->local.usage_index,
 				 parser->global.report_count);
+
 	field = hid_register_field(report, usages, parser->global.report_count);
 	if (!field)
 		return 0;
+
 	field->physical = hid_lookup_collection(parser, HID_COLLECTION_PHYSICAL);
 	field->logical = hid_lookup_collection(parser, HID_COLLECTION_LOGICAL);
 	field->application = hid_lookup_collection(parser, HID_COLLECTION_APPLICATION);
+
 	for (i = 0; i < usages; i++) {
 		unsigned j = i;
 		/* Duplicate the last usage we parsed if we have excess values */
@@ -240,6 +293,7 @@ static int hid_add_field(struct hid_parser *parser, unsigned report_type, unsign
 			parser->local.collection_index[j];
 		field->usage[i].usage_index = i;
 	}
+
 	field->maxusage = usages;
 	field->flags = flags;
 	field->report_offset = offset;
@@ -252,11 +306,14 @@ static int hid_add_field(struct hid_parser *parser, unsigned report_type, unsign
 	field->physical_maximum = parser->global.physical_maximum;
 	field->unit_exponent = parser->global.unit_exponent;
 	field->unit = parser->global.unit;
+
 	return 0;
 }
+
 /*
  * Read data value from item.
  */
+
 static u32 item_udata(struct hid_item *item)
 {
 	switch (item->size) {
@@ -266,6 +323,7 @@ static u32 item_udata(struct hid_item *item)
 	}
 	return 0;
 }
+
 static s32 item_sdata(struct hid_item *item)
 {
 	switch (item->size) {
@@ -275,50 +333,63 @@ static s32 item_sdata(struct hid_item *item)
 	}
 	return 0;
 }
+
 /*
  * Process a global item.
  */
+
 static int hid_parser_global(struct hid_parser *parser, struct hid_item *item)
 {
 	__s32 raw_value;
 	switch (item->tag) {
 	case HID_GLOBAL_ITEM_TAG_PUSH:
+
 		if (parser->global_stack_ptr == HID_GLOBAL_STACK_SIZE) {
 			hid_err(parser->device, "global environment stack overflow\n");
 			return -1;
 		}
+
 		memcpy(parser->global_stack + parser->global_stack_ptr++,
 			&parser->global, sizeof(struct hid_global));
 		return 0;
+
 	case HID_GLOBAL_ITEM_TAG_POP:
+
 		if (!parser->global_stack_ptr) {
 			hid_err(parser->device, "global environment stack underflow\n");
 			return -1;
 		}
+
 		memcpy(&parser->global, parser->global_stack +
 			--parser->global_stack_ptr, sizeof(struct hid_global));
 		return 0;
+
 	case HID_GLOBAL_ITEM_TAG_USAGE_PAGE:
 		parser->global.usage_page = item_udata(item);
 		return 0;
+
 	case HID_GLOBAL_ITEM_TAG_LOGICAL_MINIMUM:
 		parser->global.logical_minimum = item_sdata(item);
 		return 0;
+
 	case HID_GLOBAL_ITEM_TAG_LOGICAL_MAXIMUM:
 		if (parser->global.logical_minimum < 0)
 			parser->global.logical_maximum = item_sdata(item);
 		else
 			parser->global.logical_maximum = item_udata(item);
 		return 0;
+
 	case HID_GLOBAL_ITEM_TAG_PHYSICAL_MINIMUM:
 		parser->global.physical_minimum = item_sdata(item);
 		return 0;
+
 	case HID_GLOBAL_ITEM_TAG_PHYSICAL_MAXIMUM:
 		if (parser->global.physical_minimum < 0)
 			parser->global.physical_maximum = item_sdata(item);
 		else
 			parser->global.physical_maximum = item_udata(item);
 		return 0;
+
 	case HID_GLOBAL_ITEM_TAG_UNIT_EXPONENT:
 		/* Many devices provide unit exponent as a two's complement
 		 * nibble due to the common misunderstanding of HID
@@ -330,9 +401,11 @@ static int hid_parser_global(struct hid_parser *parser, struct hid_item *item)
 		else
 			parser->global.unit_exponent = raw_value;
 		return 0;
+
 	case HID_GLOBAL_ITEM_TAG_UNIT:
 		parser->global.unit = item_udata(item);
 		return 0;
+
 	case HID_GLOBAL_ITEM_TAG_REPORT_SIZE:
 		parser->global.report_size = item_udata(item);
 		if (parser->global.report_size > 128) {
@@ -341,6 +414,7 @@ static int hid_parser_global(struct hid_parser *parser, struct hid_item *item)
 			return -1;
 		}
 		return 0;
+
 	case HID_GLOBAL_ITEM_TAG_REPORT_COUNT:
 		parser->global.report_count = item_udata(item);
 		if (parser->global.report_count > HID_MAX_USAGES) {
@@ -349,6 +423,7 @@ static int hid_parser_global(struct hid_parser *parser, struct hid_item *item)
 			return -1;
 		}
 		return 0;
+
 	case HID_GLOBAL_ITEM_TAG_REPORT_ID:
 		parser->global.report_id = item_udata(item);
 		if (parser->global.report_id == 0 ||
@@ -358,22 +433,28 @@ static int hid_parser_global(struct hid_parser *parser, struct hid_item *item)
 			return -1;
 		}
 		return 0;
+
 	default:
 		hid_err(parser->device, "unknown global tag 0x%x\n", item->tag);
 		return -1;
 	}
 }
+
 /*
  * Process a local item.
  */
+
 static int hid_parser_local(struct hid_parser *parser, struct hid_item *item)
 {
 	__u32 data;
 	unsigned n;
 	__u32 count;
+
 	data = item_udata(item);
+
 	switch (item->tag) {
 	case HID_LOCAL_ITEM_TAG_DELIMITER:
+
 		if (data) {
 			/*
 			 * We treat items before the first delimiter
@@ -395,24 +476,33 @@ static int hid_parser_local(struct hid_parser *parser, struct hid_item *item)
 			parser->local.delimiter_depth--;
 		}
 		return 0;
+
 	case HID_LOCAL_ITEM_TAG_USAGE:
+
 		if (parser->local.delimiter_branch > 1) {
 			dbg_hid("alternative usage ignored\n");
 			return 0;
 		}
+
 		return hid_add_usage(parser, data, item->size);
+
 	case HID_LOCAL_ITEM_TAG_USAGE_MINIMUM:
+
 		if (parser->local.delimiter_branch > 1) {
 			dbg_hid("alternative usage ignored\n");
 			return 0;
 		}
+
 		parser->local.usage_minimum = data;
 		return 0;
+
 	case HID_LOCAL_ITEM_TAG_USAGE_MAXIMUM:
+
 		if (parser->local.delimiter_branch > 1) {
 			dbg_hid("alternative usage ignored\n");
 			return 0;
 		}
+
 		count = data - parser->local.usage_minimum;
 		if (count + parser->local.usage_index >= HID_MAX_USAGES) {
 			/*
@@ -430,32 +520,40 @@ static int hid_parser_local(struct hid_parser *parser, struct hid_item *item)
 				return -1;
 			}
 		}
+
 		for (n = parser->local.usage_minimum; n <= data; n++)
 			if (hid_add_usage(parser, n, item->size)) {
 				dbg_hid("hid_add_usage failed\n");
 				return -1;
 			}
 		return 0;
+
 	default:
+
 		dbg_hid("unknown local item tag 0x%x\n", item->tag);
 		return 0;
 	}
 	return 0;
 }
+
 /*
  * Concatenate Usage Pages into Usages where relevant:
  * As per specification, 6.2.2.8: "When the parser encounters a main item it
  * concatenates the last declared Usage Page with a Usage to form a complete
  * usage value."
  */
+
 static void hid_concatenate_last_usage_page(struct hid_parser *parser)
 {
 	int i;
 	unsigned int usage_page;
 	unsigned int current_page;
+
 	if (!parser->local.usage_index)
 		return;
+
 	usage_page = parser->global.usage_page;
+
 	/*
 	 * Concatenate usage page again only if last declared Usage Page
 	 * has not been already used in previous usages concatenation
@@ -464,21 +562,28 @@ static void hid_concatenate_last_usage_page(struct hid_parser *parser)
 		if (parser->local.usage_size[i] > 2)
 			/* Ignore extended usages */
 			continue;
+
 		current_page = parser->local.usage[i] >> 16;
 		if (current_page == usage_page)
 			break;
+
 		complete_usage(parser, i);
 	}
 }
+
 /*
  * Process a main item.
  */
+
 static int hid_parser_main(struct hid_parser *parser, struct hid_item *item)
 {
 	__u32 data;
 	int ret;
+
 	hid_concatenate_last_usage_page(parser);
+
 	data = item_udata(item);
+
 	switch (item->tag) {
 	case HID_MAIN_ITEM_TAG_BEGIN_COLLECTION:
 		ret = open_collection(parser, data & 0xff);
@@ -499,29 +604,37 @@ static int hid_parser_main(struct hid_parser *parser, struct hid_item *item)
 		hid_err(parser->device, "unknown main item tag 0x%x\n", item->tag);
 		ret = 0;
 	}
+
 	memset(&parser->local, 0, sizeof(parser->local));	/* Reset the local parser environment */
+
 	return ret;
 }
+
 /*
  * Process a reserved item.
  */
+
 static int hid_parser_reserved(struct hid_parser *parser, struct hid_item *item)
 {
 	dbg_hid("reserved item type, tag 0x%x\n", item->tag);
 	return 0;
 }
+
 /*
  * Free a report and all registered fields. The field->usage and
  * field->value table's are allocated behind the field, so we need
  * only to free(field) itself.
  */
+
 static void hid_free_report(struct hid_report *report)
 {
 	unsigned n;
+
 	for (n = 0; n < report->maxfield; n++)
 		kfree(report->field[n]);
 	kfree(report);
 }
+
 /*
  * Close report. This function returns the device
  * state to the point prior to hid_open_report().
@@ -529,8 +642,10 @@ static void hid_free_report(struct hid_report *report)
 static void hid_close_report(struct hid_device *device)
 {
 	unsigned i, j;
+
 	for (i = 0; i < HID_REPORT_TYPES; i++) {
 		struct hid_report_enum *report_enum = device->report_enum + i;
+
 		for (j = 0; j < HID_MAX_IDS; j++) {
 			struct hid_report *report = report_enum->report_id_hash[j];
 			if (report)
@@ -539,66 +654,88 @@ static void hid_close_report(struct hid_device *device)
 		memset(report_enum, 0, sizeof(*report_enum));
 		INIT_LIST_HEAD(&report_enum->report_list);
 	}
+
 	kfree(device->rdesc);
 	device->rdesc = NULL;
 	device->rsize = 0;
+
 	kfree(device->collection);
 	device->collection = NULL;
 	device->collection_size = 0;
 	device->maxcollection = 0;
 	device->maxapplication = 0;
+
 	device->status &= ~HID_STAT_PARSED;
 }
+
 /*
  * Free a device structure, all reports, and all fields.
  */
+
 static void hid_device_release(struct device *dev)
 {
 	struct hid_device *hid = to_hid_device(dev);
+
 	hid_close_report(hid);
 	kfree(hid->dev_rdesc);
 	kfree(hid);
 }
+
 /*
  * Fetch a report description item from the data stream. We support long
  * items, though they are not used yet.
  */
+
 static u8 *fetch_item(__u8 *start, __u8 *end, struct hid_item *item)
 {
 	u8 b;
+
 	if ((end - start) <= 0)
 		return NULL;
+
 	b = *start++;
+
 	item->type = (b >> 2) & 3;
 	item->tag  = (b >> 4) & 15;
+
 	if (item->tag == HID_ITEM_TAG_LONG) {
+
 		item->format = HID_ITEM_FORMAT_LONG;
+
 		if ((end - start) < 2)
 			return NULL;
+
 		item->size = *start++;
 		item->tag  = *start++;
+
 		if ((end - start) < item->size)
 			return NULL;
+
 		item->data.longdata = start;
 		start += item->size;
 		return start;
 	}
+
 	item->format = HID_ITEM_FORMAT_SHORT;
 	item->size = b & 3;
+
 	switch (item->size) {
 	case 0:
 		return start;
+
 	case 1:
 		if ((end - start) < 1)
 			return NULL;
 		item->data.u8 = *start++;
 		return start;
+
 	case 2:
 		if ((end - start) < 2)
 			return NULL;
 		item->data.u16 = get_unaligned_le16(start);
 		start = (__u8 *)((__le16 *)start + 1);
 		return start;
+
 	case 3:
 		item->size++;
 		if ((end - start) < 4)
@@ -607,27 +744,34 @@ static u8 *fetch_item(__u8 *start, __u8 *end, struct hid_item *item)
 		start = (__u8 *)((__le32 *)start + 1);
 		return start;
 	}
+
 	return NULL;
 }
+
 static void hid_scan_input_usage(struct hid_parser *parser, u32 usage)
 {
 	struct hid_device *hid = parser->device;
+
 	if (usage == HID_DG_CONTACTID)
 		hid->group = HID_GROUP_MULTITOUCH;
 }
+
 static void hid_scan_feature_usage(struct hid_parser *parser, u32 usage)
 {
 	if (usage == 0xff0000c5 && parser->global.report_count == 256 &&
 	    parser->global.report_size == 8)
 		parser->scan_flags |= HID_SCAN_FLAG_MT_WIN_8;
 }
+
 static void hid_scan_collection(struct hid_parser *parser, unsigned type)
 {
 	struct hid_device *hid = parser->device;
 	int i;
+
 	if (((parser->global.usage_page << 16) == HID_UP_SENSOR) &&
 	    type == HID_COLLECTION_PHYSICAL)
 		hid->group = HID_GROUP_SENSOR_HUB;
+
 	if (hid->vendor == USB_VENDOR_ID_MICROSOFT &&
 	    (hid->product == USB_DEVICE_ID_MS_TYPE_COVER_PRO_3 ||
 	     hid->product == USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_2 ||
@@ -636,19 +780,25 @@ static void hid_scan_collection(struct hid_parser *parser, unsigned type)
 	     hid->product == USB_DEVICE_ID_MS_POWER_COVER) &&
 	    hid->group == HID_GROUP_MULTITOUCH)
 		hid->group = HID_GROUP_GENERIC;
+
 	if ((parser->global.usage_page << 16) == HID_UP_GENDESK)
 		for (i = 0; i < parser->local.usage_index; i++)
 			if (parser->local.usage[i] == HID_GD_POINTER)
 				parser->scan_flags |= HID_SCAN_FLAG_GD_POINTER;
+
 	if ((parser->global.usage_page << 16) >= HID_UP_MSVENDOR)
 		parser->scan_flags |= HID_SCAN_FLAG_VENDOR_SPECIFIC;
 }
+
 static int hid_scan_main(struct hid_parser *parser, struct hid_item *item)
 {
 	__u32 data;
 	int i;
+
 	hid_concatenate_last_usage_page(parser);
+
 	data = item_udata(item);
+
 	switch (item->tag) {
 	case HID_MAIN_ITEM_TAG_BEGIN_COLLECTION:
 		hid_scan_collection(parser, data & 0xff);
@@ -669,10 +819,13 @@ static int hid_scan_main(struct hid_parser *parser, struct hid_item *item)
 			hid_scan_feature_usage(parser, parser->local.usage[i]);
 		break;
 	}
+
 	/* Reset the local parser environment */
 	memset(&parser->local, 0, sizeof(parser->local));
+
 	return 0;
 }
+
 /*
  * Scan a report descriptor before the device is added to the bus.
  * Sets device groups and other properties that determine what driver
@@ -691,11 +844,14 @@ static int hid_scan_report(struct hid_device *hid)
 		hid_parser_local,
 		hid_parser_reserved
 	};
+
 	parser = vzalloc(sizeof(struct hid_parser));
 	if (!parser)
 		return -ENOMEM;
+
 	parser->device = hid;
 	hid->group = HID_GROUP_GENERIC;
+
 	/*
 	 * The parsing is simpler than the one in hid_open_report() as we should
 	 * be robust against hid errors. Those errors will be raised by
@@ -703,12 +859,14 @@ static int hid_scan_report(struct hid_device *hid)
 	 */
 	while ((start = fetch_item(start, end, &item)) != NULL)
 		dispatch_type[item.type](parser, &item);
+
 	/*
 	 * Handle special flags set during scanning.
 	 */
 	if ((parser->scan_flags & HID_SCAN_FLAG_MT_WIN_8) &&
 	    (hid->group == HID_GROUP_MULTITOUCH))
 		hid->group = HID_GROUP_MULTITOUCH_WIN_8;
+
 	/*
 	 * Vendor specific handlings
 	 */
@@ -727,9 +885,11 @@ static int hid_scan_report(struct hid_device *hid)
 				hid->group = HID_GROUP_RMI;
 		break;
 	}
+
 	vfree(parser);
 	return 0;
 }
+
 /**
  * hid_parse_report - parse device report
  *
@@ -749,6 +909,7 @@ int hid_parse_report(struct hid_device *hid, __u8 *start, unsigned size)
 	return 0;
 }
 EXPORT_SYMBOL_GPL(hid_parse_report);
+
 static const char * const hid_report_names[] = {
 	"HID_INPUT_REPORT",
 	"HID_OUTPUT_REPORT",
@@ -772,14 +933,17 @@ struct hid_report *hid_validate_values(struct hid_device *hid,
 				       unsigned int report_counts)
 {
 	struct hid_report *report;
+
 	if (type > HID_FEATURE_REPORT) {
 		hid_err(hid, "invalid HID report type %u\n", type);
 		return NULL;
 	}
+
 	if (id >= HID_MAX_IDS) {
 		hid_err(hid, "invalid HID report id %u\n", id);
 		return NULL;
 	}
+
 	/*
 	 * Explicitly not using hid_get_report() here since it depends on
 	 * ->numbered being checked, which may not always be the case when
@@ -813,6 +977,7 @@ struct hid_report *hid_validate_values(struct hid_device *hid,
 	return report;
 }
 EXPORT_SYMBOL_GPL(hid_validate_values);
+
 /**
  * hid_open_report - open a driver-specific device report
  *
@@ -842,32 +1007,42 @@ int hid_open_report(struct hid_device *device)
 		hid_parser_local,
 		hid_parser_reserved
 	};
+
 	if (WARN_ON(device->status & HID_STAT_PARSED))
 		return -EBUSY;
+
 	start = device->dev_rdesc;
 	if (WARN_ON(!start))
 		return -ENODEV;
 	size = device->dev_rsize;
+
 	buf = kmemdup(start, size, GFP_KERNEL);
 	if (buf == NULL)
 		return -ENOMEM;
+
 	if (device->driver->report_fixup)
 		start = device->driver->report_fixup(device, buf, &size);
 	else
 		start = buf;
+
 	start = kmemdup(start, size, GFP_KERNEL);
 	kfree(buf);
 	if (start == NULL)
 		return -ENOMEM;
+
 	device->rdesc = start;
 	device->rsize = size;
+
 	parser = vzalloc(sizeof(struct hid_parser));
 	if (!parser) {
 		ret = -ENOMEM;
 		goto err;
 	}
+
 	parser->device = device;
+
 	end = start + size;
+
 	device->collection = kcalloc(HID_DEFAULT_NUM_COLLECTIONS,
 				     sizeof(struct hid_collection), GFP_KERNEL);
 	if (!device->collection) {
@@ -875,19 +1050,23 @@ int hid_open_report(struct hid_device *device)
 		goto err;
 	}
 	device->collection_size = HID_DEFAULT_NUM_COLLECTIONS;
+
 	ret = -EINVAL;
 	while ((next = fetch_item(start, end, &item)) != NULL) {
 		start = next;
+
 		if (item.format != HID_ITEM_FORMAT_SHORT) {
 			hid_err(device, "unexpected long global item\n");
 			goto err;
 		}
+
 		if (dispatch_type[item.type](parser, &item)) {
 			hid_err(device, "item %u %u %u %u parsing failed\n",
 				item.format, (unsigned)item.size,
 				(unsigned)item.type, (unsigned)item.tag);
 			goto err;
 		}
+
 		if (start == end) {
 			if (parser->collection_stack_ptr) {
 				hid_err(device, "unbalanced collection at end of report description\n");
@@ -902,6 +1081,7 @@ int hid_open_report(struct hid_device *device)
 			return 0;
 		}
 	}
+
 	hid_err(device, "item fetching failed at offset %u/%u\n",
 		size - (unsigned int)(end - start), size);
 err:
@@ -910,11 +1090,13 @@ err:
 	return ret;
 }
 EXPORT_SYMBOL_GPL(hid_open_report);
+
 /*
  * Convert a signed n-bit integer to signed 32-bit integer. Common
  * cases are done through the compiler, the screwed things has to be
  * done by hand.
  */
+
 static s32 snto32(__u32 value, unsigned n)
 {
 	switch (n) {
@@ -924,14 +1106,17 @@ static s32 snto32(__u32 value, unsigned n)
 	}
 	return value & (1 << (n - 1)) ? value | (-1 << n) : value;
 }
+
 s32 hid_snto32(__u32 value, unsigned n)
 {
 	return snto32(value, n);
 }
 EXPORT_SYMBOL_GPL(hid_snto32);
+
 /*
  * Convert a signed 32-bit integer to a signed n-bit integer.
  */
+
 static u32 s32ton(__s32 value, unsigned n)
 {
 	s32 a = value >> (n - 1);
@@ -939,6 +1124,7 @@ static u32 s32ton(__s32 value, unsigned n)
 		return value < 0 ? 1 << (n - 1) : (1 << (n - 1)) - 1;
 	return value & ((1 << n) - 1);
 }
+
 /*
  * Extract/implement a data field from/to a little endian report (bit array).
  *
@@ -950,6 +1136,7 @@ static u32 s32ton(__s32 value, unsigned n)
  * One model of UPS is claimed to report "LINEV" as a 32-bit field.
  * Search linux-kernel and linux-usb-devel archives for "hid-core extract".
  */
+
 static u32 __extract(u8 *report, unsigned offset, int n)
 {
 	unsigned int idx = offset / 8;
@@ -958,6 +1145,7 @@ static u32 __extract(u8 *report, unsigned offset, int n)
 	int bits_to_copy = 8 - bit_shift;
 	u32 value = 0;
 	u32 mask = n < 32 ? (1U << n) - 1 : ~0U;
+
 	while (n > 0) {
 		value |= ((u32)report[idx] >> bit_shift) << bit_nr;
 		n -= bits_to_copy;
@@ -966,8 +1154,10 @@ static u32 __extract(u8 *report, unsigned offset, int n)
 		bit_shift = 0;
 		idx++;
 	}
+
 	return value & mask;
 }
+
 u32 hid_field_extract(const struct hid_device *hid, u8 *report,
 			unsigned offset, unsigned n)
 {
@@ -976,9 +1166,11 @@ u32 hid_field_extract(const struct hid_device *hid, u8 *report,
 			 n, current->comm);
 		n = 32;
 	}
+
 	return __extract(report, offset, n);
 }
 EXPORT_SYMBOL_GPL(hid_field_extract);
+
 /*
  * "implement" : set bits in a little endian bit stream.
  * Same concepts as "extract" (see comments above).
@@ -987,11 +1179,13 @@ EXPORT_SYMBOL_GPL(hid_field_extract);
  * endianness of register values by considering a register
  * a "cached" copy of the little endian bit stream.
  */
+
 static void __implement(u8 *report, unsigned offset, int n, u32 value)
 {
 	unsigned int idx = offset / 8;
 	unsigned int bit_shift = offset % 8;
 	int bits_to_set = 8 - bit_shift;
+
 	while (n - bits_to_set >= 0) {
 		report[idx] &= ~(0xff << bit_shift);
 		report[idx] |= value << bit_shift;
@@ -1001,6 +1195,7 @@ static void __implement(u8 *report, unsigned offset, int n, u32 value)
 		bit_shift = 0;
 		idx++;
 	}
+
 	/* last nibble */
 	if (n) {
 		u8 bit_mask = ((1U << n) - 1);
@@ -1008,6 +1203,7 @@ static void __implement(u8 *report, unsigned offset, int n, u32 value)
 		report[idx] |= value << bit_shift;
 	}
 }
+
 static void implement(const struct hid_device *hid, u8 *report,
 		      unsigned offset, unsigned n, u32 value)
 {
@@ -1017,6 +1213,7 @@ static void implement(const struct hid_device *hid, u8 *report,
 		n = 32;
 	} else if (n < 32) {
 		u32 m = (1U << n) - 1;
+
 		if (unlikely(value > m)) {
 			hid_warn(hid,
 				 "%s() called with too large value %d (n: %d)! (%s)\n",
@@ -1025,11 +1222,14 @@ static void implement(const struct hid_device *hid, u8 *report,
 			value &= m;
 		}
 	}
+
 	__implement(report, offset, n, value);
 }
+
 /*
  * Search an array for a value.
  */
+
 static int search(__s32 *array, __s32 value, unsigned n)
 {
 	while (n--) {
@@ -1038,6 +1238,7 @@ static int search(__s32 *array, __s32 value, unsigned n)
 	}
 	return -1;
 }
+
 /**
  * hid_match_report - check if driver's raw_event should be called
  *
@@ -1049,14 +1250,17 @@ static int search(__s32 *array, __s32 value, unsigned n)
 static int hid_match_report(struct hid_device *hid, struct hid_report *report)
 {
 	const struct hid_report_id *id = hid->driver->report_table;
+
 	if (!id) /* NULL means all */
 		return 1;
+
 	for (; id->report_type != HID_TERMINATOR; id++)
 		if (id->report_type == HID_ANY_ID ||
 				id->report_type == report->type)
 			return 1;
 	return 0;
 }
+
 /**
  * hid_match_usage - check if driver's event should be called
  *
@@ -1069,8 +1273,10 @@ static int hid_match_report(struct hid_device *hid, struct hid_report *report)
 static int hid_match_usage(struct hid_device *hid, struct hid_usage *usage)
 {
 	const struct hid_usage_id *id = hid->driver->usage_table;
+
 	if (!id) /* NULL means all */
 		return 1;
+
 	for (; id->usage_type != HID_ANY_ID - 1; id++)
 		if ((id->usage_hid == HID_ANY_ID ||
 				id->usage_hid == usage->hid) &&
@@ -1081,13 +1287,16 @@ static int hid_match_usage(struct hid_device *hid, struct hid_usage *usage)
 			return 1;
 	return 0;
 }
+
 static void hid_process_event(struct hid_device *hid, struct hid_field *field,
 		struct hid_usage *usage, __s32 value, int interrupt)
 {
 	struct hid_driver *hdrv = hid->driver;
 	int ret;
+
 	if (!list_empty(&hid->debug_list))
 		hid_dump_input(hid, usage, value);
+
 	if (hdrv && hdrv->event && hid_match_usage(hid, usage)) {
 		ret = hdrv->event(hid, field, usage, value);
 		if (ret != 0) {
@@ -1097,16 +1306,19 @@ static void hid_process_event(struct hid_device *hid, struct hid_field *field,
 			return;
 		}
 	}
+
 	if (hid->claimed & HID_CLAIMED_INPUT)
 		hidinput_hid_event(hid, field, usage, value);
 	if (hid->claimed & HID_CLAIMED_HIDDEV && interrupt && hid->hiddev_hid_event)
 		hid->hiddev_hid_event(hid, field, usage, value);
 }
+
 /*
  * Analyse a received field, and fetch the data from it. The field
  * content is stored for next report processing (we do differential
  * reporting to the layer).
  */
+
 static void hid_input_field(struct hid_device *hid, struct hid_field *field,
 			    __u8 *data, int interrupt)
 {
@@ -1117,14 +1329,18 @@ static void hid_input_field(struct hid_device *hid, struct hid_field *field,
 	__s32 min = field->logical_minimum;
 	__s32 max = field->logical_maximum;
 	__s32 *value;
+
 	value = kmalloc(sizeof(__s32) * count, GFP_ATOMIC);
 	if (!value)
 		return;
+
 	for (n = 0; n < count; n++) {
+
 		value[n] = min < 0 ?
 			snto32(hid_field_extract(hid, data, offset + n * size,
 			       size), size) :
 			hid_field_extract(hid, data, offset + n * size, size);
+
 		/* Ignore report if ErrorRollOver */
 		if (!(field->flags & HID_MAIN_ITEM_VARIABLE) &&
 		    value[n] >= min && value[n] <= max &&
@@ -1132,29 +1348,36 @@ static void hid_input_field(struct hid_device *hid, struct hid_field *field,
 		    field->usage[value[n] - min].hid == HID_UP_KEYBOARD + 1)
 			goto exit;
 	}
+
 	for (n = 0; n < count; n++) {
+
 		if (HID_MAIN_ITEM_VARIABLE & field->flags) {
 			hid_process_event(hid, field, &field->usage[n], value[n], interrupt);
 			continue;
 		}
+
 		if (field->value[n] >= min && field->value[n] <= max
 			&& field->value[n] - min < field->maxusage
 			&& field->usage[field->value[n] - min].hid
 			&& search(value, field->value[n], count))
 				hid_process_event(hid, field, &field->usage[field->value[n] - min], 0, interrupt);
+
 		if (value[n] >= min && value[n] <= max
 			&& value[n] - min < field->maxusage
 			&& field->usage[value[n] - min].hid
 			&& search(field->value, value[n], count))
 				hid_process_event(hid, field, &field->usage[value[n] - min], 1, interrupt);
 	}
+
 	memcpy(field->value, value, count * sizeof(__s32));
 exit:
 	kfree(value);
 }
+
 /*
  * Output the field into the report.
  */
+
 static void hid_output_field(const struct hid_device *hid,
 			     struct hid_field *field, __u8 *data)
 {
@@ -1162,6 +1385,7 @@ static void hid_output_field(const struct hid_device *hid,
 	unsigned offset = field->report_offset;
 	unsigned size = field->report_size;
 	unsigned n;
+
 	for (n = 0; n < count; n++) {
 		if (field->logical_minimum < 0)	/* signed values */
 			implement(hid, data, offset + n * size, size,
@@ -1171,20 +1395,25 @@ static void hid_output_field(const struct hid_device *hid,
 				  field->value[n]);
 	}
 }
+
 /*
  * Create a report. 'data' has to be allocated using
  * hid_alloc_report_buf() so that it has proper size.
  */
+
 void hid_output_report(struct hid_report *report, __u8 *data)
 {
 	unsigned n;
+
 	if (report->id > 0)
 		*data++ = report->id;
+
 	memset(data, 0, ((report->size - 1) >> 3) + 1);
 	for (n = 0; n < report->maxfield; n++)
 		hid_output_field(report->device, report->field[n], data);
 }
 EXPORT_SYMBOL_GPL(hid_output_report);
+
 /*
  * Allocator for buffer that is going to be passed to hid_output_report()
  */
@@ -1194,22 +1423,30 @@ u8 *hid_alloc_report_buf(struct hid_report *report, gfp_t flags)
 	 * 7 extra bytes are necessary to achieve proper functionality
 	 * of implement() working on 8 byte chunks
 	 */
+
 	u32 len = hid_report_len(report) + 7;
+
 	return kmalloc(len, flags);
 }
 EXPORT_SYMBOL_GPL(hid_alloc_report_buf);
+
 /*
  * Set a field value. The report this field belongs to has to be
  * created and transferred to the device, to set this value in the
  * device.
  */
+
 int hid_set_field(struct hid_field *field, unsigned offset, __s32 value)
 {
 	unsigned size;
+
 	if (!field)
 		return -1;
+
 	size = field->report_size;
+
 	hid_dump_input(field->report->device, field->usage + offset, value);
+
 	if (offset >= field->report_count) {
 		hid_err(field->report->device, "offset (%d) exceeds report_count (%d)\n",
 				offset, field->report_count);
@@ -1225,19 +1462,24 @@ int hid_set_field(struct hid_field *field, unsigned offset, __s32 value)
 	return 0;
 }
 EXPORT_SYMBOL_GPL(hid_set_field);
+
 static struct hid_report *hid_get_report(struct hid_report_enum *report_enum,
 		const u8 *data)
 {
 	struct hid_report *report;
 	unsigned int n = 0;	/* Normally report number is 0 */
+
 	/* Device uses numbered reports, data[0] is report number */
 	if (report_enum->numbered)
 		n = *data;
+
 	report = report_enum->report_id_hash[n];
 	if (report == NULL)
 		dbg_hid("undefined report_id %u received\n", n);
+
 	return report;
 }
+
 /*
  * Implement a generic .request() callback, using .raw_request()
  * DO NOT USE in hid drivers directly, but through hid_hw_request instead.
@@ -1248,24 +1490,31 @@ void __hid_request(struct hid_device *hid, struct hid_report *report,
 	char *buf;
 	int ret;
 	u32 len;
+
 	buf = hid_alloc_report_buf(report, GFP_KERNEL);
 	if (!buf)
 		return;
+
 	len = hid_report_len(report);
+
 	if (reqtype == HID_REQ_SET_REPORT)
 		hid_output_report(report, buf);
+
 	ret = hid->ll_driver->raw_request(hid, report->id, buf, len,
 					  report->type, reqtype);
 	if (ret < 0) {
 		dbg_hid("unable to complete request: %d\n", ret);
 		goto out;
 	}
+
 	if (reqtype == HID_REQ_GET_REPORT)
 		hid_input_report(hid, report->type, buf, ret, 0);
+
 out:
 	kfree(buf);
 }
 EXPORT_SYMBOL_GPL(__hid_request);
+
 int hid_report_raw_event(struct hid_device *hid, int type, u8 *data, u32 size,
 		int interrupt)
 {
@@ -1276,21 +1525,27 @@ int hid_report_raw_event(struct hid_device *hid, int type, u8 *data, u32 size,
 	u32 rsize, csize = size;
 	u8 *cdata = data;
 	int ret = 0;
+
 	report = hid_get_report(report_enum, data);
 	if (!report)
 		goto out;
+
 	if (report_enum->numbered) {
 		cdata++;
 		csize--;
 	}
+
 	rsize = ((report->size - 1) >> 3) + 1;
+
 	if (rsize > HID_MAX_BUFFER_SIZE)
 		rsize = HID_MAX_BUFFER_SIZE;
+
 	if (csize < rsize) {
 		dbg_hid("report %d is too short, (%d < %d)\n", report->id,
 				csize, rsize);
 		memset(cdata + csize, 0, rsize - csize);
 	}
+
 	if ((hid->claimed & HID_CLAIMED_HIDDEV) && hid->hiddev_report_event)
 		hid->hiddev_report_event(hid, report);
 	if (hid->claimed & HID_CLAIMED_HIDRAW) {
@@ -1298,6 +1553,7 @@ int hid_report_raw_event(struct hid_device *hid, int type, u8 *data, u32 size,
 		if (ret)
 			goto out;
 	}
+
 	if (hid->claimed != HID_CLAIMED_HIDRAW && report->maxfield) {
 		for (a = 0; a < report->maxfield; a++)
 			hid_input_field(hid, report->field[a], cdata, interrupt);
@@ -1305,12 +1561,14 @@ int hid_report_raw_event(struct hid_device *hid, int type, u8 *data, u32 size,
 		if (hdrv && hdrv->report)
 			hdrv->report(hid, report);
 	}
+
 	if (hid->claimed & HID_CLAIMED_INPUT)
 		hidinput_report_event(hid, report);
 out:
 	return ret;
 }
 EXPORT_SYMBOL_GPL(hid_report_raw_event);
+
 /**
  * hid_input_report - report data from lower layer (usb, bt...)
  *
@@ -1328,40 +1586,51 @@ int hid_input_report(struct hid_device *hid, int type, u8 *data, u32 size, int i
 	struct hid_driver *hdrv;
 	struct hid_report *report;
 	int ret = 0;
+
 	if (!hid)
 		return -ENODEV;
+
 	if (down_trylock(&hid->driver_input_lock))
 		return -EBUSY;
+
 	if (!hid->driver) {
 		ret = -ENODEV;
 		goto unlock;
 	}
 	report_enum = hid->report_enum + type;
 	hdrv = hid->driver;
+
 	if (!size) {
 		dbg_hid("empty report\n");
 		ret = -1;
 		goto unlock;
 	}
+
 	/* Avoid unnecessary overhead if debugfs is disabled */
 	if (!list_empty(&hid->debug_list))
 		hid_dump_report(hid, type, data, size);
+
 	report = hid_get_report(report_enum, data);
+
 	if (!report) {
 		ret = -1;
 		goto unlock;
 	}
+
 	if (hdrv && hdrv->raw_event && hid_match_report(hid, report)) {
 		ret = hdrv->raw_event(hid, report, data, size);
 		if (ret < 0)
 			goto unlock;
 	}
+
 	ret = hid_report_raw_event(hid, type, data, size, interrupt);
+
 unlock:
 	up(&hid->driver_input_lock);
 	return ret;
 }
 EXPORT_SYMBOL_GPL(hid_input_report);
+
 static bool hid_match_one_id(struct hid_device *hdev,
 		const struct hid_device_id *id)
 {
@@ -1370,23 +1639,29 @@ static bool hid_match_one_id(struct hid_device *hdev,
 		(id->vendor == HID_ANY_ID || id->vendor == hdev->vendor) &&
 		(id->product == HID_ANY_ID || id->product == hdev->product);
 }
+
 const struct hid_device_id *hid_match_id(struct hid_device *hdev,
 		const struct hid_device_id *id)
 {
 	for (; id->bus; id++)
 		if (hid_match_one_id(hdev, id))
 			return id;
+
 	return NULL;
 }
+
 static const struct hid_device_id hid_hiddev_list[] = {
 	{ HID_USB_DEVICE(USB_VENDOR_ID_MGE, USB_DEVICE_ID_MGE_UPS) },
 	{ HID_USB_DEVICE(USB_VENDOR_ID_MGE, USB_DEVICE_ID_MGE_UPS1) },
 	{ }
 };
+
 static bool hid_hiddev(struct hid_device *hdev)
 {
 	return !!hid_match_id(hdev, hid_hiddev_list);
 }
+
+
 static ssize_t
 read_report_descriptor(struct file *filp, struct kobject *kobj,
 		struct bin_attribute *attr,
@@ -1394,29 +1669,38 @@ read_report_descriptor(struct file *filp, struct kobject *kobj,
 {
 	struct device *dev = kobj_to_dev(kobj);
 	struct hid_device *hdev = to_hid_device(dev);
+
 	if (off >= hdev->rsize)
 		return 0;
+
 	if (off + count > hdev->rsize)
 		count = hdev->rsize - off;
+
 	memcpy(buf, hdev->rdesc + off, count);
+
 	return count;
 }
+
 static ssize_t
 show_country(struct device *dev, struct device_attribute *attr,
 		char *buf)
 {
 	struct hid_device *hdev = to_hid_device(dev);
+
 	return sprintf(buf, "%02x\n", hdev->country & 0xff);
 }
+
 static struct bin_attribute dev_bin_attr_report_desc = {
 	.attr = { .name = "report_descriptor", .mode = 0444 },
 	.read = read_report_descriptor,
 	.size = HID_MAX_DESCRIPTOR_SIZE,
 };
+
 static struct device_attribute dev_attr_country = {
 	.attr = { .name = "country", .mode = 0444 },
 	.show = show_country,
 };
+
 int hid_connect(struct hid_device *hdev, unsigned int connect_mask)
 {
 	static const char *types[] = { "Device", "Pointer", "Mouse", "Device",
@@ -1428,6 +1712,7 @@ int hid_connect(struct hid_device *hdev, unsigned int connect_mask)
 	unsigned int i;
 	int len;
 	int ret;
+
 	if (hdev->quirks & HID_QUIRK_HIDDEV_FORCE)
 		connect_mask |= (HID_CONNECT_HIDDEV_FORCE | HID_CONNECT_HIDDEV);
 	if (hdev->quirks & HID_QUIRK_HIDINPUT_FORCE)
@@ -1436,26 +1721,32 @@ int hid_connect(struct hid_device *hdev, unsigned int connect_mask)
 		connect_mask &= ~HID_CONNECT_HIDDEV;
 	if (hid_hiddev(hdev))
 		connect_mask |= HID_CONNECT_HIDDEV_FORCE;
+
 	if ((connect_mask & HID_CONNECT_HIDINPUT) && !hidinput_connect(hdev,
 				connect_mask & HID_CONNECT_HIDINPUT_FORCE))
 		hdev->claimed |= HID_CLAIMED_INPUT;
+
 	if ((connect_mask & HID_CONNECT_HIDDEV) && hdev->hiddev_connect &&
 			!hdev->hiddev_connect(hdev,
 				connect_mask & HID_CONNECT_HIDDEV_FORCE))
 		hdev->claimed |= HID_CLAIMED_HIDDEV;
 	if ((connect_mask & HID_CONNECT_HIDRAW) && !hidraw_connect(hdev))
 		hdev->claimed |= HID_CLAIMED_HIDRAW;
+
 	if (connect_mask & HID_CONNECT_DRIVER)
 		hdev->claimed |= HID_CLAIMED_DRIVER;
+
 	/* Drivers with the ->raw_event callback set are not required to connect
 	 * to any other listener. */
 	if (!hdev->claimed && !hdev->driver->raw_event) {
 		hid_err(hdev, "device has no listeners, quitting\n");
 		return -ENODEV;
 	}
+
 	if ((hdev->claimed & HID_CLAIMED_INPUT) &&
 			(connect_mask & HID_CONNECT_FF) && hdev->ff_init)
 		hdev->ff_init(hdev);
+
 	len = 0;
 	if (hdev->claimed & HID_CLAIMED_INPUT)
 		len += sprintf(buf + len, "input");
@@ -1465,6 +1756,7 @@ int hid_connect(struct hid_device *hdev, unsigned int connect_mask)
 	if (hdev->claimed & HID_CLAIMED_HIDRAW)
 		len += sprintf(buf + len, "%shidraw%d", len ? "," : "",
 				((struct hidraw *)hdev->hidraw)->minor);
+
 	type = "Device";
 	for (i = 0; i < hdev->maxcollection; i++) {
 		struct hid_collection *col = &hdev->collection[i];
@@ -1475,6 +1767,7 @@ int hid_connect(struct hid_device *hdev, unsigned int connect_mask)
 			break;
 		}
 	}
+
 	switch (hdev->bus) {
 	case BUS_USB:
 		bus = "USB";
@@ -1488,16 +1781,20 @@ int hid_connect(struct hid_device *hdev, unsigned int connect_mask)
 	default:
 		bus = "<UNKNOWN>";
 	}
+
 	ret = device_create_file(&hdev->dev, &dev_attr_country);
 	if (ret)
 		hid_warn(hdev,
 			 "can't create sysfs country code attribute err: %d\n", ret);
+
 	hid_info(hdev, "%s: %s HID v%x.%02x %s [%s] on %s\n",
 		 buf, bus, hdev->version >> 8, hdev->version & 0xff,
 		 type, hdev->name, hdev->phys);
+
 	return 0;
 }
 EXPORT_SYMBOL_GPL(hid_connect);
+
 void hid_disconnect(struct hid_device *hdev)
 {
 	device_remove_file(&hdev->dev, &dev_attr_country);
@@ -1510,6 +1807,7 @@ void hid_disconnect(struct hid_device *hdev)
 	hdev->claimed = 0;
 }
 EXPORT_SYMBOL_GPL(hid_disconnect);
+
 /*
  * A list of devices for which there is a specialized driver on HID bus.
  *
@@ -1873,6 +2171,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
 	{ HID_USB_DEVICE(USB_VENDOR_ID_ZEROPLUS, 0x0005) },
 	{ HID_USB_DEVICE(USB_VENDOR_ID_ZEROPLUS, 0x0030) },
 	{ HID_USB_DEVICE(USB_VENDOR_ID_ZYDACRON, USB_DEVICE_ID_ZYDACRON_REMOTE_CONTROL) },
+
 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_PRESENTER_8K_BT) },
 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_NINTENDO, USB_DEVICE_ID_NINTENDO_WIIMOTE) },
 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_NINTENDO, USB_DEVICE_ID_NINTENDO_WIIMOTE2) },
@@ -1880,10 +2179,12 @@ static const struct hid_device_id hid_have_special_driver[] = {
 	{ HID_USB_DEVICE(USB_VENDOR_ID_CMEDIA, USB_DEVICE_ID_CM6533) },
 	{ }
 };
+
 struct hid_dynid {
 	struct list_head list;
 	struct hid_device_id id;
 };
+
 /**
  * store_new_id - add a new HID device ID to this driver and re-probe devices
  * @driver: target device driver
@@ -1901,28 +2202,36 @@ static ssize_t store_new_id(struct device_driver *drv, const char *buf,
 	__u32 bus, vendor, product;
 	unsigned long driver_data = 0;
 	int ret;
+
 	ret = sscanf(buf, "%x %x %x %lx",
 			&bus, &vendor, &product, &driver_data);
 	if (ret < 3)
 		return -EINVAL;
+
 	dynid = kzalloc(sizeof(*dynid), GFP_KERNEL);
 	if (!dynid)
 		return -ENOMEM;
+
 	dynid->id.bus = bus;
 	dynid->id.group = HID_GROUP_ANY;
 	dynid->id.vendor = vendor;
 	dynid->id.product = product;
 	dynid->id.driver_data = driver_data;
+
 	spin_lock(&hdrv->dyn_lock);
 	list_add_tail(&dynid->list, &hdrv->dyn_list);
 	spin_unlock(&hdrv->dyn_lock);
+
 	ret = driver_attach(&hdrv->driver);
+
 	return ret ? : count;
 }
 static DRIVER_ATTR(new_id, S_IWUSR, NULL, store_new_id);
+
 static void hid_free_dynids(struct hid_driver *hdrv)
 {
 	struct hid_dynid *dynid, *n;
+
 	spin_lock(&hdrv->dyn_lock);
 	list_for_each_entry_safe(dynid, n, &hdrv->dyn_list, list) {
 		list_del(&dynid->list);
@@ -1930,10 +2239,12 @@ static void hid_free_dynids(struct hid_driver *hdrv)
 	}
 	spin_unlock(&hdrv->dyn_lock);
 }
+
 static const struct hid_device_id *hid_match_device(struct hid_device *hdev,
 		struct hid_driver *hdrv)
 {
 	struct hid_dynid *dynid;
+
 	spin_lock(&hdrv->dyn_lock);
 	list_for_each_entry(dynid, &hdrv->dyn_list, list) {
 		if (hid_match_one_id(hdev, &dynid->id)) {
@@ -1942,20 +2253,25 @@ static const struct hid_device_id *hid_match_device(struct hid_device *hdev,
 		}
 	}
 	spin_unlock(&hdrv->dyn_lock);
+
 	return hid_match_id(hdev, hdrv->id_table);
 }
+
 static int hid_bus_match(struct device *dev, struct device_driver *drv)
 {
 	struct hid_driver *hdrv = to_hid_driver(drv);
 	struct hid_device *hdev = to_hid_device(dev);
+
 	return hid_match_device(hdev, hdrv) != NULL;
 }
+
 static int hid_device_probe(struct device *dev)
 {
 	struct hid_driver *hdrv = to_hid_driver(dev->driver);
 	struct hid_device *hdev = to_hid_device(dev);
 	const struct hid_device_id *id;
 	int ret = 0;
+
 	if (down_interruptible(&hdev->driver_lock))
 		return -EINTR;
 	if (down_interruptible(&hdev->driver_input_lock)) {
@@ -1963,12 +2279,14 @@ static int hid_device_probe(struct device *dev)
 		goto unlock_driver_lock;
 	}
 	hdev->io_started = false;
+
 	if (!hdev->driver) {
 		id = hid_match_device(hdev, hdrv);
 		if (id == NULL) {
 			ret = -ENODEV;
 			goto unlock;
 		}
+
 		hdev->driver = hdrv;
 		if (hdrv->probe) {
 			ret = hdrv->probe(hdev, id);
@@ -1989,11 +2307,13 @@ unlock_driver_lock:
 	up(&hdev->driver_lock);
 	return ret;
 }
+
 static int hid_device_remove(struct device *dev)
 {
 	struct hid_device *hdev = to_hid_device(dev);
 	struct hid_driver *hdrv;
 	int ret = 0;
+
 	if (down_interruptible(&hdev->driver_lock))
 		return -EINTR;
 	if (down_interruptible(&hdev->driver_input_lock)) {
@@ -2001,6 +2321,7 @@ static int hid_device_remove(struct device *dev)
 		goto unlock_driver_lock;
 	}
 	hdev->io_started = false;
+
 	hdrv = hdev->driver;
 	if (hdrv) {
 		if (hdrv->remove)
@@ -2010,20 +2331,24 @@ static int hid_device_remove(struct device *dev)
 		hid_close_report(hdev);
 		hdev->driver = NULL;
 	}
+
 	if (!hdev->io_started)
 		up(&hdev->driver_input_lock);
 unlock_driver_lock:
 	up(&hdev->driver_lock);
 	return ret;
 }
+
 static ssize_t modalias_show(struct device *dev, struct device_attribute *a,
 			     char *buf)
 {
 	struct hid_device *hdev = container_of(dev, struct hid_device, dev);
+
 	return scnprintf(buf, PAGE_SIZE, "hid:b%04Xg%04Xv%08Xp%08X\n",
 			 hdev->bus, hdev->group, hdev->vendor, hdev->product);
 }
 static DEVICE_ATTR_RO(modalias);
+
 static struct attribute *hid_dev_attrs[] = {
 	&dev_attr_modalias.attr,
 	NULL,
@@ -2037,23 +2362,31 @@ static const struct attribute_group hid_dev_group = {
 	.bin_attrs = hid_dev_bin_attrs,
 };
 __ATTRIBUTE_GROUPS(hid_dev);
+
 static int hid_uevent(struct device *dev, struct kobj_uevent_env *env)
 {
 	struct hid_device *hdev = to_hid_device(dev);	
+
 	if (add_uevent_var(env, "HID_ID=%04X:%08X:%08X",
 			hdev->bus, hdev->vendor, hdev->product))
 		return -ENOMEM;
+
 	if (add_uevent_var(env, "HID_NAME=%s", hdev->name))
 		return -ENOMEM;
+
 	if (add_uevent_var(env, "HID_PHYS=%s", hdev->phys))
 		return -ENOMEM;
+
 	if (add_uevent_var(env, "HID_UNIQ=%s", hdev->uniq))
 		return -ENOMEM;
+
 	if (add_uevent_var(env, "MODALIAS=hid:b%04Xg%04Xv%08Xp%08X",
 			   hdev->bus, hdev->group, hdev->vendor, hdev->product))
 		return -ENOMEM;
+
 	return 0;
 }
+
 static struct bus_type hid_bus_type = {
 	.name		= "hid",
 	.dev_groups	= hid_dev_groups,
@@ -2062,6 +2395,7 @@ static struct bus_type hid_bus_type = {
 	.remove		= hid_device_remove,
 	.uevent		= hid_uevent,
 };
+
 /* a list of devices that shouldn't be handled by HID core at all */
 static const struct hid_device_id hid_ignore_list[] = {
 	{ HID_USB_DEVICE(USB_VENDOR_ID_ACECAD, USB_DEVICE_ID_ACECAD_FLAIR) },
@@ -2231,6 +2565,7 @@ static const struct hid_device_id hid_ignore_list[] = {
 	{ HID_USB_DEVICE(USB_VENDOR_ID_YEALINK, USB_DEVICE_ID_YEALINK_P1K_P4K_B2K) },
 	{ }
 };
+
 /**
  * hid_mouse_ignore_list - mouse devices which should not be handled by the hid layer
  *
@@ -2297,12 +2632,14 @@ static const struct hid_device_id hid_mouse_ignore_list[] = {
 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER1_TP_ONLY) },
 	{ }
 };
+
 bool hid_ignore(struct hid_device *hdev)
 {
 	if (hdev->quirks & HID_QUIRK_NO_IGNORE)
 		return false;
 	if (hdev->quirks & HID_QUIRK_IGNORE)
 		return true;
+
 	switch (hdev->vendor) {
 	case USB_VENDOR_ID_CODEMERCS:
 		/* ignore all Code Mercenaries IOWarrior devices */
@@ -2372,22 +2709,28 @@ bool hid_ignore(struct hid_device *hdev)
 			return true;
 		break;
 	}
+
 	if (hdev->type == HID_TYPE_USBMOUSE &&
 			hid_match_id(hdev, hid_mouse_ignore_list))
 		return true;
+
 	return !!hid_match_id(hdev, hid_ignore_list);
 }
 EXPORT_SYMBOL_GPL(hid_ignore);
+
 int hid_add_device(struct hid_device *hdev)
 {
 	static atomic_t id = ATOMIC_INIT(0);
 	int ret;
+
 	if (WARN_ON(hdev->status & HID_STAT_ADDED))
 		return -EBUSY;
+
 	/* we need to kill them here, otherwise they will stay allocated to
 	 * wait for coming driver */
 	if (hid_ignore(hdev))
 		return -ENODEV;
+
 	/*
 	 * Check for the mandatory transport channel.
 	 */
@@ -2395,6 +2738,7 @@ int hid_add_device(struct hid_device *hdev)
 		hid_err(hdev, "transport driver missing .raw_request()\n");
 		return -EINVAL;
 	 }
+
 	/*
 	 * Read the device report descriptor once and use as template
 	 * for the driver-specific modifications.
@@ -2404,6 +2748,7 @@ int hid_add_device(struct hid_device *hdev)
 		return ret;
 	if (!hdev->dev_rdesc)
 		return -ENODEV;
+
 	/*
 	 * Scan generic devices for group information
 	 */
@@ -2415,19 +2760,23 @@ int hid_add_device(struct hid_device *hdev)
 		if (ret)
 			hid_warn(hdev, "bad device descriptor (%d)\n", ret);
 	}
+
 	/* XXX hack, any other cleaner solution after the driver core
 	 * is converted to allow more than 20 bytes as the device name? */
 	dev_set_name(&hdev->dev, "%04X:%04X:%04X.%04X", hdev->bus,
 		     hdev->vendor, hdev->product, atomic_inc_return(&id));
+
 	hid_debug_register(hdev, dev_name(&hdev->dev));
 	ret = device_add(&hdev->dev);
 	if (!ret)
 		hdev->status |= HID_STAT_ADDED;
 	else
 		hid_debug_unregister(hdev);
+
 	return ret;
 }
 EXPORT_SYMBOL_GPL(hid_add_device);
+
 /**
  * hid_allocate_device - allocate new hid device descriptor
  *
@@ -2441,22 +2790,28 @@ struct hid_device *hid_allocate_device(void)
 {
 	struct hid_device *hdev;
 	int ret = -ENOMEM;
+
 	hdev = kzalloc(sizeof(*hdev), GFP_KERNEL);
 	if (hdev == NULL)
 		return ERR_PTR(ret);
+
 	device_initialize(&hdev->dev);
 	hdev->dev.release = hid_device_release;
 	hdev->dev.bus = &hid_bus_type;
 	device_enable_async_suspend(&hdev->dev);
+
 	hid_close_report(hdev);
+
 	init_waitqueue_head(&hdev->debug_wait);
 	INIT_LIST_HEAD(&hdev->debug_list);
 	spin_lock_init(&hdev->debug_list_lock);
 	sema_init(&hdev->driver_lock, 1);
 	sema_init(&hdev->driver_input_lock, 1);
+
 	return hdev;
 }
 EXPORT_SYMBOL_GPL(hid_allocate_device);
+
 static void hid_remove_device(struct hid_device *hdev)
 {
 	if (hdev->status & HID_STAT_ADDED) {
@@ -2468,6 +2823,7 @@ static void hid_remove_device(struct hid_device *hdev)
 	hdev->dev_rdesc = NULL;
 	hdev->dev_rsize = 0;
 }
+
 /**
  * hid_destroy_device - free previously allocated device
  *
@@ -2482,25 +2838,32 @@ void hid_destroy_device(struct hid_device *hdev)
 	put_device(&hdev->dev);
 }
 EXPORT_SYMBOL_GPL(hid_destroy_device);
+
 int __hid_register_driver(struct hid_driver *hdrv, struct module *owner,
 		const char *mod_name)
 {
 	int ret;
+
 	hdrv->driver.name = hdrv->name;
 	hdrv->driver.bus = &hid_bus_type;
 	hdrv->driver.owner = owner;
 	hdrv->driver.mod_name = mod_name;
+
 	INIT_LIST_HEAD(&hdrv->dyn_list);
 	spin_lock_init(&hdrv->dyn_lock);
+
 	ret = driver_register(&hdrv->driver);
 	if (ret)
 		return ret;
+
 	ret = driver_create_file(&hdrv->driver, &driver_attr_new_id);
 	if (ret)
 		driver_unregister(&hdrv->driver);
+
 	return ret;
 }
 EXPORT_SYMBOL_GPL(__hid_register_driver);
+
 void hid_unregister_driver(struct hid_driver *hdrv)
 {
 	driver_remove_file(&hdrv->driver, &driver_attr_new_id);
@@ -2508,50 +2871,65 @@ void hid_unregister_driver(struct hid_driver *hdrv)
 	hid_free_dynids(hdrv);
 }
 EXPORT_SYMBOL_GPL(hid_unregister_driver);
+
 int hid_check_keys_pressed(struct hid_device *hid)
 {
 	struct hid_input *hidinput;
 	int i;
+
 	if (!(hid->claimed & HID_CLAIMED_INPUT))
 		return 0;
+
 	list_for_each_entry(hidinput, &hid->inputs, list) {
 		for (i = 0; i < BITS_TO_LONGS(KEY_MAX); i++)
 			if (hidinput->input->key[i])
 				return 1;
 	}
+
 	return 0;
 }
+
 EXPORT_SYMBOL_GPL(hid_check_keys_pressed);
+
 static int __init hid_init(void)
 {
 	int ret;
+
 	if (hid_debug)
 		pr_warn("hid_debug is now used solely for parser and driver debugging.\n"
 			"debugfs is now used for inspecting the device (report descriptor, reports)\n");
+
 	ret = bus_register(&hid_bus_type);
 	if (ret) {
 		pr_err("can't register hid bus\n");
 		goto err;
 	}
+
 	ret = hidraw_init();
 	if (ret)
 		goto err_bus;
+
 	hid_debug_init();
+
 	return 0;
 err_bus:
 	bus_unregister(&hid_bus_type);
 err:
 	return ret;
 }
+
 static void __exit hid_exit(void)
 {
 	hid_debug_exit();
 	hidraw_exit();
 	bus_unregister(&hid_bus_type);
 }
+
 module_init(hid_init);
 module_exit(hid_exit);
+
 MODULE_AUTHOR("Andreas Gal");
 MODULE_AUTHOR("Vojtech Pavlik");
 MODULE_AUTHOR("Jiri Kosina");
 MODULE_LICENSE(DRIVER_LICENSE);
+
