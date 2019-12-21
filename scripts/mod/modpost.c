@@ -1168,17 +1168,7 @@ static const struct sectioncheck *section_mismatch(
  *   fromsec = text section
  *   tosym   = *.cfi
  *
- * Pattern 6:
- *   With CONFIG_CFI_CLANG, clang appends .cfi to all indirectly called
- *   functions and creates a function stub with the original name. This
- *   stub is always placed in .text, even if the actual function with the
- *   .cfi postfix is in .init.text or .exit.text.
- *   This pattern is identified by
- *   tosec   = init or exit section
- *   fromsec = text section
- *   tosym   = *.cfi
- *
- * Pattern 6:
+ * Pattern 7:
  *   Hide section mismatch warnings for ELF local symbols.  The goal
  *   is to eliminate false positive modpost warnings caused by
  *   compiler-generated ELF local symbol names such as ".LANCHOR1".
@@ -1228,7 +1218,7 @@ static int secref_whitelist(const struct sectioncheck *mismatch,
 	if (strstarts(fromsym, ".L"))
 		return 0;
 
-	/* Check for pattern 6 */
+	/* Check for pattern 7 */
 	if (match(fromsec, text_sections) &&
 	    match(tosec, init_exit_sections) &&
 	    match(tosym, cfi_symbols))
