@@ -1,3 +1,5 @@
+
+
 extern struct i2c_client *i2c_client;
 extern struct tpd_device *tpd;
 /***********************************************
@@ -87,16 +89,13 @@ static int tpd_touchinfo(struct i2c_client* i2c_client, struct touch_info *cinfo
 	TPD_DEBUG("Number of touch points = %d\n", cinfo->count);
 	TPD_DEBUG("Procss raw data...\n");
 
-	for(i = 0; i < TPD_SUPPORT_POINTS; i++)
+	for(i = 0; i < cinfo->count; i++)
 	{
 		cinfo->p[i] = (data[3 + 6 * i] >> 6) & 0x0003; //event flag
 		cinfo->id[i] = data[3 + 6 * i + 2] >> 4; //touch id
 
-        if((data[3 + 6 * i + 2] >> 4) >= 0x0f)
-			break;
-
 		/*get the X coordinate, 2 bytes*/
-		high_byte = data[3 + 6 * i];
+		high_byte = data[3 + 6 * i + 0];
 		high_byte <<= 8;
 		high_byte &= 0x0F00;
 
@@ -127,11 +126,11 @@ static int tpd_flag = 0;
 
 static void tpd_down(struct input_dev *input_dev, int x, int y, int id)
 {
-	input_report_abs(input_dev, ABS_MT_TRACKING_ID, id); // 132
 	input_report_key(input_dev, BTN_TOUCH, 1);
-	input_report_abs(input_dev, ABS_MT_TOUCH_MAJOR, 1); // 20
+	input_report_abs(input_dev, ABS_MT_TOUCH_MAJOR, 20);
 	input_report_abs(input_dev, ABS_MT_POSITION_X, x);
 	input_report_abs(input_dev, ABS_MT_POSITION_Y, y);
+	input_report_abs(input_dev, ABS_MT_TRACKING_ID, id);
 	input_mt_sync(input_dev);
 
 	if (FACTORY_BOOT == get_boot_mode() || RECOVERY_BOOT == get_boot_mode())
@@ -143,7 +142,6 @@ static void tpd_down(struct input_dev *input_dev, int x, int y, int id)
 static void tpd_up(struct input_dev *input_dev, int x, int y)
 {
 	input_report_key(input_dev, BTN_TOUCH, 0);
-	input_report_abs(tpd->dev, ABS_MT_TOUCH_MAJOR, 0);
 	input_mt_sync(input_dev);
 
 	if (FACTORY_BOOT == get_boot_mode() || RECOVERY_BOOT == get_boot_mode())
@@ -177,13 +175,14 @@ static int touch_event_handler(void* handle)
 		if(tpd_touchinfo(i2c_client, &cinfo, &pinfo) == 0)
 			continue;
 
-		if(cinfo.count > 0) {
-		   for(i =0; i < cinfo.count; i++)
+		if(cinfo.count > 0)
+		{
+		    for(i =0; i < cinfo.count; i++)
 		         tpd_down(input_dev, cinfo.x[i], cinfo.y[i], cinfo.id[i]);
-		} else {
-		   tpd_up(input_dev, cinfo.x[0], cinfo.y[0]);
+		}else{
+		    tpd_up(input_dev, cinfo.x[0], cinfo.y[0]);
 		}
-	    input_sync(input_dev);
+	   	input_sync(input_dev);
 
 	} while (!kthread_should_stop());
 

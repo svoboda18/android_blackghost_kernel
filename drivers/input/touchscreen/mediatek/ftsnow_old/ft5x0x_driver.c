@@ -14,6 +14,8 @@
 #include "tpd.h"
 #include "ft5x0x_i2c.h"
 
+//#define TPD_CLOSE_POWER_IN_SLEEP
+
 #if !defined(CONFIG_TPD_CLOSE_POWER_IN_SLEEP) || defined(CONFIG_HCT_TP_GESTRUE)
 #include "ft5x0x_getsure.h"
 #endif
@@ -35,12 +37,14 @@ static int tpd_probe(struct i2c_client *client, const struct i2c_device_id *id)
 	if (tpd_power_on(client) == 0)
 		return -1;
 	tpd_irq_registration(client);
+	// Extern variable MTK touch driver
     	tpd_load_status = 1;
 	return 0;
 }
 
 static int tpd_remove(struct i2c_client *client)
 {
+	TPD_DEBUG("TPD removed\n");
 	return 0;
 }
 
@@ -62,7 +66,7 @@ static struct i2c_driver tpd_i2c_driver = {
 	.id_table = ft5x0x_tpd_id,
 	.detect = tpd_detect,
 };
-
+/********************************************/
 static int tpd_local_init(void)
 {
 	if(i2c_add_driver(&tpd_i2c_driver)!=0)
@@ -71,6 +75,7 @@ static int tpd_local_init(void)
 		return -1;
 	}
 
+	TPD_DMESG("end %s, %d\n", __FUNCTION__, __LINE__);
 	tpd_type_cap = 1;
 
 	return 0;
@@ -78,9 +83,12 @@ static int tpd_local_init(void)
 
 static void tpd_resume(struct device *h)
 {
+#ifdef FTS_GESTRUE
 	if (tpd_getsure_resume(i2c_client)) return;
+#endif
 
 #ifdef TPD_CLOSE_POWER_IN_SLEEP
+   	TPD_DMESG("TPD wake up\n");
 	ft5x0x_set_rst(false, 5);
 	ft5x0x_power(true);
 	ft5x0x_set_rst(true, 20);
@@ -92,18 +100,28 @@ static void tpd_resume(struct device *h)
 
 static void tpd_suspend(struct device *h)
 {
+//	static char data;
+
+#ifdef FTS_GESTRUE
 	if (tpd_getsure_suspend(i2c_client)) return;
+#endif
+
+	TPD_DEBUG("TPD enter sleep\n");
+//	data = 0x3;
+//	i2c_smbus_write_i2c_block_data(i2c_client, 0xA5, 1, &data);  //TP enter sleep mode
+	fts_write_reg(i2c_client, 0xA5, 0x3);
 
 #ifdef TPD_CLOSE_POWER_IN_SLEEP
 	ft5x0x_power(false);
 #endif
 }
 
-struct kobject *android_touch_kobj;
+
 static struct device_attribute *ft5x0x_attrs[] = {
+
 #ifdef CONFIG_HCT_TP_GESTRUE
-	 &dev_attr_gesture,
-	 &dev_attr_enable,
+	 &dev_attr_tpgesture,
+	 &dev_attr_tpgesture_status,
 #endif
 };
 
@@ -118,47 +136,24 @@ static struct tpd_driver_t tpd_device_driver = {
 	},
 };
 
+/* called when loaded into kernel */
 static int __init tpd_driver_init(void)
 {
-	int rc = 0;
+	printk("MediaTek FT5x0x touch panel driver init\n");
 	tpd_get_dts_info();
 	tpd_apply_settings();
 
 	if(tpd_driver_add(&tpd_device_driver) < 0)
 		TPD_DMESG("add FT5x0x driver failed\n");
 
-	printk("ft5x0x init: Ok!\n");
-
-	android_touch_kobj = kobject_create_and_add("android_touch", NULL) ;
-	if (android_touch_kobj == NULL) {
-		pr_warn("%s: android_touch_kobj create_and_add failed\n", __func__);
-	}
-
-	rc = sysfs_create_file(android_touch_kobj, &dev_attr_gesture.attr);
-	if (rc) {
-		pr_warn("%s: sysfs_create_file failed\n", __func__);
-	}
-
-	rc = sysfs_create_file(android_touch_kobj, &dev_attr_enable.attr);
-	if (rc) {
-		pr_warn("%s: sysfs_create_file failed\n", __func__);
-	}
-
-	rc = sysfs_create_file(android_touch_kobj, &dev_attr_version.attr);
-	if (rc) {
-		pr_warn("%s: sysfs_create_file failed\n", __func__);
-	}
-
-	printk("Smartwake: init: Ok!\n");
 	return 0;
 }
 
+/* should never be called */
 static void __exit tpd_driver_exit(void)
 {
-    tpd_driver_remove(&tpd_device_driver);
-	printk("ft5x0x: exit: Ok!\n");
-	kobject_del(android_touch_kobj);
-	printk("Smartwake: exit: Ok!\n");
+	TPD_DMESG("MediaTek FT5x0x touch panel driver exit\n");
+       	tpd_driver_remove(&tpd_device_driver);
 }
 
 module_init(tpd_driver_init);
