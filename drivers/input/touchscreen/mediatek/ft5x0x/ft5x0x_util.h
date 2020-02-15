@@ -1,5 +1,6 @@
 extern struct i2c_client *i2c_client;
 extern struct tpd_device *tpd;
+
 /***********************************************
 //	SET RESET PIN
 */
@@ -44,42 +45,40 @@ struct touch_info
 	int id[TPD_SUPPORT_POINTS];
 	int count;
 };
+
+struct touch_info ainfo;
+
 static int tpd_touchinfo(struct i2c_client* i2c_client, struct touch_info *cinfo, struct touch_info *pinfo)
 {
-	int i = 0;
+        int i = 0, base, x, y;
 	char data[40] = {0};
 	u8 report_rate = 0;
 	u16 high_byte, low_byte;
-
-	mutex_lock(&i2c_rw_access);
 
 	i2c_smbus_read_i2c_block_data(i2c_client, 0x00, 8, &(data[0]));
 	i2c_smbus_read_i2c_block_data(i2c_client, 0x08, 8, &(data[8]));
 	i2c_smbus_read_i2c_block_data(i2c_client, 0x10, 8, &(data[16]));
 	i2c_smbus_read_i2c_block_data(i2c_client, 0x18, 8, &(data[24]));
-
 	i2c_smbus_read_i2c_block_data(i2c_client, 0xa6, 1, &(data[32]));
 	i2c_smbus_read_i2c_block_data(i2c_client, 0x88, 1, &report_rate);
 
-	mutex_unlock(&i2c_rw_access);
+	TPD_DEBUG("FW version=%x]\n", data[32]);
 
-	TPD_DEBUG("FW version=%x]\n",data[32]);
-
-	if(report_rate < 8)
-	{
+	if (report_rate < 8) {
 		report_rate = 0x8;
-		if((i2c_smbus_write_i2c_block_data(i2c_client, 0x88, 1, &report_rate)) < 0)
+		if ((i2c_smbus_write_i2c_block_data(i2c_client, 0x88, 1, &report_rate)) < 0)
 			TPD_DMESG("I2C write report rate error, line: %d\n", __LINE__);
 	}
 
 	/* Device Mode[2:0] == 0 :Normal operating Mode*/
-	if((data[0] & 0x70) != 0)
+	if ((data[0] & 0x70) != 0)
 		return false;
 
 	memcpy(pinfo, cinfo, sizeof(struct touch_info));
 	memset(cinfo, 0, sizeof(struct touch_info));
-	for(i = 0; i < TPD_SUPPORT_POINTS; i++)
-		cinfo->p[i] = 1;	//Put up
+
+	for (i = 0; i < TPD_SUPPORT_POINTS; i++)
+		cinfo->p[i] = 1;	/* Put up */
 
 	/*get the number of the touch points*/
 	cinfo->count = data[2] & 0x0f;
@@ -87,31 +86,49 @@ static int tpd_touchinfo(struct i2c_client* i2c_client, struct touch_info *cinfo
 	TPD_DEBUG("Number of touch points = %d\n", cinfo->count);
 	TPD_DEBUG("Procss raw data...\n");
 
-	for(i = 0; i < TPD_SUPPORT_POINTS; i++)
-	{
-		cinfo->p[i] = (data[3 + 6 * i] >> 6) & 0x0003; //event flag
-		cinfo->id[i] = data[3 + 6 * i + 2] >> 4; //touch id
+	for (i = 0; i < cinfo->count; i++) {
+		base = 6 * i;
 
-        if((data[3 + 6 * i + 2] >> 4) >= 0x0f)
-			break;
+                cinfo->p[i] = (data[base +3] >> 6) & 0x0003; //event flag
+		cinfo->id[i] = data[base + 5] >> 4; //touch id
 
 		/*get the X coordinate, 2 bytes*/
-		high_byte = data[3 + 6 * i];
+		high_byte = data[3 + base];
 		high_byte <<= 8;
 		high_byte &= 0x0F00;
 
-		low_byte = data[3 + 6 * i + 1];
+		low_byte = data[4 + base];
 		low_byte &= 0x00FF;
-		cinfo->x[i] = high_byte | low_byte;
+                x = high_byte | low_byte;
+
+                if ((x-ainfo.x[i]) != 1) {
+                    cinfo->x[i] = x;
+		    ainfo.x[i] = x;
+		} else {
+                    cinfo->x[i] = ainfo.x[i];
+                }
+
+                // TPD_DMESG(" x = %d, cinfo->x[%d] = %d, ainfo.x = %d, x - ainfo->x[%d] = %d\n", x, i, cinfo->x[i],
+		//		ainfo.x[i], i, (x-ainfo.x[i]));
 
 		/*get the Y coordinate, 2 bytes*/
-		high_byte = data[3 + 6 * i + 2];
+		high_byte = data[base + 5];
 		high_byte <<= 8;
 		high_byte &= 0x0F00;
 
-		low_byte = data[3 + 6 * i + 3];
+		low_byte = data[base + 6];
 		low_byte &= 0x00FF;
-		cinfo->y[i] = high_byte | low_byte;
+		y = high_byte | low_byte;
+
+                if ((y-ainfo.y[i]) != 1) {
+                    cinfo->y[i] = y;
+		    ainfo.y[i] = y;
+		} else {
+                    cinfo->y[i] = ainfo.y[i];
+                }
+
+		// TPD_DMESG(" cinfo->x[%d] = %d, cinfo->y[%d] = %d, cinfo->p[%d] = %d\n", i,
+		// cinfo->x[i], i, cinfo->y[i], i, cinfo->p[i]);
 	}
 
 	return true;
@@ -127,29 +144,32 @@ static int tpd_flag = 0;
 
 static void tpd_down(struct input_dev *input_dev, int x, int y, int id)
 {
-	input_report_abs(input_dev, ABS_MT_TRACKING_ID, id); // 132
+        if (0 != x) {
 	input_report_key(input_dev, BTN_TOUCH, 1);
-	input_report_abs(input_dev, ABS_MT_TOUCH_MAJOR, 1); // 20
+	input_report_abs(input_dev, ABS_MT_TOUCH_MAJOR, 10); // 20
 	input_report_abs(input_dev, ABS_MT_POSITION_X, x);
 	input_report_abs(input_dev, ABS_MT_POSITION_Y, y);
 	input_mt_sync(input_dev);
+	}
 
 	if (FACTORY_BOOT == get_boot_mode() || RECOVERY_BOOT == get_boot_mode())
-	{
-		tpd_button(x, y, 1);
-	}
+		{
+			tpd_button(x, y, 1);
+		}
 }
 
 static void tpd_up(struct input_dev *input_dev, int x, int y)
 {
+        if (0 != x) { 
 	input_report_key(input_dev, BTN_TOUCH, 0);
 	input_report_abs(tpd->dev, ABS_MT_TOUCH_MAJOR, 0);
 	input_mt_sync(input_dev);
+	}
 
 	if (FACTORY_BOOT == get_boot_mode() || RECOVERY_BOOT == get_boot_mode())
-	{
-		tpd_button(x, y, 0);
-	}
+		{
+			tpd_button(x, y, 0);
+		}
 }
 
 static int touch_event_handler(void* handle)
@@ -178,12 +198,14 @@ static int touch_event_handler(void* handle)
 			continue;
 
 		if(cinfo.count > 0) {
-		   for(i =0; i < cinfo.count; i++)
+		   for(i=0; i < cinfo.count; i++)
 		         tpd_down(input_dev, cinfo.x[i], cinfo.y[i], cinfo.id[i]);
 		} else {
+		   tpd_up(input_dev, 1, 48);
 		   tpd_up(input_dev, cinfo.x[0], cinfo.y[0]);
 		}
-	    input_sync(input_dev);
+
+	        input_sync(input_dev);
 
 	} while (!kthread_should_stop());
 

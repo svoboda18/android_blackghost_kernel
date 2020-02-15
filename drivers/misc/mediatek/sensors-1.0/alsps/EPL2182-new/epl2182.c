@@ -54,7 +54,7 @@ int psEableTimes = 0;
 #define I2C_RETRY_COUNT		3
 
 /* TODO: change delay time */
-#define PS_DELAY			1
+#define PS_DELAY			15
 #define ALS_DELAY			40
 
 /* TODO: parameters for lux equation y = ax + b */
