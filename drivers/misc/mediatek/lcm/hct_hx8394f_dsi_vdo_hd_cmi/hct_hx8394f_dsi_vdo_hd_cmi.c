@@ -158,6 +158,17 @@ static struct LCM_setting_table lcm_initialization_setting[] = {
   {REGFLAG_END_OF_TABLE, 0x00, {}}
 };
 
+static struct LCM_setting_table lcm_deep_sleep_mode_in_setting[] = {
+	// Display off sequence
+	{0x28, 1, {0x00}},
+    	{REGFLAG_DELAY, 10, {}},
+
+	// Sleep Mode On
+	{0x10, 1, {0x00}},
+	{REGFLAG_DELAY, 150, {}},
+
+	{REGFLAG_END_OF_TABLE, 0x00, {}}
+};
 
 static void push_table(struct LCM_setting_table *table, unsigned int count, unsigned char force_update)
 {
@@ -255,31 +266,19 @@ static void lcm_init(void)
 
 static void lcm_suspend(void)
 {
-#ifndef BUILD_LK
-	unsigned int array[16];
-	array[0] = 0x00FE1500;
-	dsi_set_cmdq(array, 1, 1);
-	MDELAY(50);
-	array[0] = 0x00011500;
-	dsi_set_cmdq(array, 1, 1);
-	MDELAY(50);
-	array[0] = 0x00280500;
-	dsi_set_cmdq(array, 1, 1);
-	MDELAY(50);
-	array[0] = 0x00100500;
-	dsi_set_cmdq(array, 1, 1);
-	MDELAY(50);
-	array[0] = 0x014F1500;
-	dsi_set_cmdq(array, 1, 1);
-	MDELAY(50);
-#endif
+    SET_RESET_PIN(1);
+    MDELAY(10);
+    SET_RESET_PIN(0);
+    MDELAY(30);
+    SET_RESET_PIN(1);
+    MDELAY(120);
+
+    push_table(lcm_deep_sleep_mode_in_setting, sizeof(lcm_deep_sleep_mode_in_setting) / sizeof(struct LCM_setting_table), 1);
 }
 
 static void lcm_resume(void)
 {
-#ifndef BUILD_LK
 	lcm_init();
-#endif
 }
 
 static unsigned int lcm_compare_id(void)

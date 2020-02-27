@@ -596,7 +596,8 @@ static int tpd_probe(struct platform_device *pdev)
 			return ret;
 		}
 		TPD_RES_X = tpd_res_x;
-		ret = kstrtoul(CONFIG_LCM_HEIGHT, 0, &tpd_res_x);
+		// mtk careless shit
+		ret = kstrtoul(CONFIG_LCM_HEIGHT, 0, &tpd_res_y); // i am a varaible, and i have right to be correct,R!GHT?
 		if (ret < 0) {
 			pr_info("Touch down get lcm_y failed");
 			return ret;

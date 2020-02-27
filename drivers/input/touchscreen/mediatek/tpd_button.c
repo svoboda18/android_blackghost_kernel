@@ -25,7 +25,6 @@ static ssize_t mtk_virtual_keys_show(struct kobject *kobj,
 			struct kobj_attribute *attr, char *buf)
 {
 	int i, j;
-
 	for (i = 0, j = 0; i < tpd_keycnt; i++) {
 		j += sprintf(buf+j, "%s:%d:%d:%d:%d:%d%s",
 			    __stringify(EV_KEY), tpd_keys[i],
