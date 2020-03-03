@@ -1,18 +1,21 @@
-ccflags-y += -Wno-unused-variable -g
-ccflags-y += -Wno-unused-function -g
 
 # Linux driver folder
-ccflags-y += -I$(srctree)/drivers/input/touchscreen/mediatek/ft5x0x/include/
 ccflags-y += -I$(srctree)/drivers/input/touchscreen/mediatek/
-ccflags-y += -I$(srctree)/drivers/input/touchscreen/mediatek/ft5x0x/include/$(CONFIG_FT5X0X_FIRMWARE)/
+ccflags-y += -I$(srctree)/drivers/input/touchscreen/mediatek/$(CONFIG_TOUCHSCREEN_MTK_FTS_DIRECTORY)
 ccflags-y += -I$(srctree)/drivers/misc/mediatek/include/mt-plat/
 ccflags-y += -I$(srctree)/drivers/misc/mediatek/include/mt-plat/$(MTK_PLATFORM)/include/
-ccflags-y += -I$(srctree)/drivers/misc/mediatek/accdet/$(MTK_PLATFORM)/
+ccflags-y += -I$(srctree)/drivers/base
+ccflags-y += -I$(srctree)/drivers/misc/mediatek/hwmon/include
 
-obj-y	+= ft5x0x_driver.o
-ifneq ($(CONFIG_COMPAT),y)
-obj-$(CONFIG_HCT_TP_GESTRUE)   += lib/ft_gesture_32bit_lib_v1.0_20140820.a
-else
-obj-$(CONFIG_HCT_TP_GESTRUE)   += lib/ft_gesture_64bit_lib_v1.0_20140820.a
-endif
+obj-$(CONFIG_TOUCHSCREEN_MTK_FOCALTECH_TS)    +=  focaltech_ex_fun.o
+obj-$(CONFIG_TOUCHSCREEN_MTK_FOCALTECH_TS)    +=  focaltech_flash.o
+obj-$(CONFIG_TOUCHSCREEN_MTK_FOCALTECH_TS)    +=  focaltech_gesture.o
+obj-$(CONFIG_TOUCHSCREEN_MTK_FOCALTECH_TS)    +=  focaltech_core.o
+obj-$(CONFIG_TOUCHSCREEN_MTK_FOCALTECH_TS)    +=  focaltech_esdcheck.o
+obj-$(CONFIG_TOUCHSCREEN_MTK_FOCALTECH_TS)    +=  focaltech_ex_mode.o
+obj-$(CONFIG_TOUCHSCREEN_MTK_FOCALTECH_TS)    +=  focaltech_proximity.o
+obj-$(CONFIG_TOUCHSCREEN_MTK_FOCALTECH_TS)    +=  focaltech_i2c.o
+obj-$(CONFIG_TOUCHSCREEN_MTK_FOCALTECH_TS)    +=  focaltech_point_report_check.o
 
+# obj-$(CONFIG_TOUCHSCREEN_MTK_FOCALTECH_TS) +=     focaltech_test/
+obj-$(CONFIG_TOUCHSCREEN_MTK_FOCALTECH_TS) +=     focaltech_flash/
