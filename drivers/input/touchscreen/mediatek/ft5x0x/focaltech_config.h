@@ -89,6 +89,7 @@
 
 /*
  * choose your ic chip type of focaltech
+ * This definition is ignored that tpd-probe pass
  */
 #define FTS_CHIP_TYPE _FT5436
 
@@ -105,7 +106,7 @@
  * Linux MultiTouch Protocol
  * 1: Protocol B(default), 0: Protocol A
  */
-#define FTS_MT_PROTOCOL_B_EN                    0
+#define FTS_MT_PROTOCOL_B_EN                    1
 
 /*
  * Report Pressure in multitouch
@@ -129,7 +130,7 @@
  * Production test enable
  * 1: enable, 0:disable(default)
  */
-#define FTS_TEST_EN                             0//modify by cassy from 1 to 0
+#define FTS_TEST_EN                             0
 
 /*
  * Glove mode enable
@@ -163,7 +164,7 @@
  * enable it when customer need control TP power
  * default: disable
  */
-#define FTS_POWER_SOURCE_CUST_EN                1//modify by cassy from 0 to 1
+#define FTS_POWER_SOURCE_CUST_EN                1
 
 
 /****************************************************/

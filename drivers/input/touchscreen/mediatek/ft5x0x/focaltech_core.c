@@ -40,7 +40,6 @@
 #ifdef CONFIG_HAS_EARLYSUSPEND
 #include <linux/earlysuspend.h>
 #endif
-//#include <linux/wakelock.h>
 #include "focaltech_core.h"
 
 /*****************************************************************************
@@ -865,18 +864,13 @@ static int tpd_probe(struct i2c_client *client, const struct i2c_device_id *id)
         FTS_ERROR("failed to create fts workqueue");
     }
 	
-	//add by cassy begin
-//		tpd_get_gpio_info_focal(client);
-		//add by cassy end
-		
-//add by allen start
-//tpd_power_on(1);
-//add by allen end
     spin_lock_init(&ts_data->irq_lock);
     mutex_init(&ts_data->report_mutex);
+
     /* Init I2C */
     fts_i2c_init();
-	    ret = fts_input_init(ts_data);
+
+    ret = fts_input_init(ts_data);
     if (ret) {
         FTS_ERROR("fts input initialize fail");
         goto err_input_init;
@@ -889,49 +883,51 @@ static int tpd_probe(struct i2c_client *client, const struct i2c_device_id *id)
         FTS_ERROR("not focal IC, ignore");
     }
 	
-#if FTS_APK_NODE_EN////1
+#if FTS_APK_NODE_EN
     ret = fts_create_apk_debug_channel(ts_data);
     if (ret) {
         FTS_ERROR("create apk debug node fail");
     }
 #endif
 
-#if FTS_SYSFS_NODE_EN////1
+#if FTS_SYSFS_NODE_EN
     ret = fts_create_sysfs(client);
     if (ret) {
         FTS_ERROR("create sysfs node fail");
     }
 #endif
 
-#if FTS_POINT_REPORT_CHECK_EN///0
+#if FTS_POINT_REPORT_CHECK_EN
     ret = fts_point_report_check_init(ts_data);
     if (ret) {
         FTS_ERROR("init point report check fail");
     }
 #endif
+
     ret = fts_ex_mode_init(client);
     if (ret) {
         FTS_ERROR("init glove/cover/charger fail");
     }
-#if FTS_GESTURE_EN////0
+
+#if FTS_GESTURE_EN
     ret = fts_gesture_init(ts_data);
     if (ret) {
         FTS_ERROR("init gesture fail");
     }
 #endif
 
-#if FTS_PSENSOR_EN///0
+#if FTS_PSENSOR_EN
     fts_proximity_init(client);
 #endif
 
-#if FTS_TEST_EN///0(cassy change from 1 to 0)
+#if FTS_TEST_EN
     ret = fts_test_init(client);
     if (ret) {
         FTS_ERROR("init production test fail");
     }
 #endif
 
-#if FTS_ESDCHECK_EN//0
+#if FTS_ESDCHECK_EN
     ret = fts_esdcheck_init(ts_data);
     if (ret) {
         FTS_ERROR("init esd check fail");
@@ -947,7 +943,6 @@ static int tpd_probe(struct i2c_client *client, const struct i2c_device_id *id)
     }
 
     FTS_DEBUG("[TPD]Touch Panel Device Probe %s!", (ret < 0) ? "FAIL" : "PASS");
-	
 
     /* Configure gpio to irq and request irq */
     tpd_gpio_as_int(tpd_int_gpio_number);
@@ -957,7 +952,7 @@ static int tpd_probe(struct i2c_client *client, const struct i2c_device_id *id)
         goto err_irq_req;
     }
 
-#if FTS_AUTO_UPGRADE_EN////1
+#if FTS_AUTO_UPGRADE_EN
     ret = fts_fwupg_init(ts_data);
     if (ret) {
         FTS_ERROR("init fw upgrade fail");
@@ -1052,55 +1047,15 @@ static int tpd_remove(struct i2c_client *client)
 *  Output:
 *  Return:
 *****************************************************************************/
-//add by cassy begin
-/*
-void tpd_gpio_output_focal(int pin, int level)
-{
-	//mutex_lock(&tpd_set_gpio_mutex);
-	if (pin == 2) {
-		if (level)
-			pinctrl_select_state(pinctrl3, focal_power_output1);
-		else
-			pinctrl_select_state(pinctrl3, focal_power_output0);
-	} 
-	//mutex_unlock(&tpd_set_gpio_mutex);
-}
-#if FTS_POWER_SOURCE_CUST_EN
-#else
-
-static void tpd_power_on(int flag)
-{
-	if(flag)
-		{
-		
-		tpd_gpio_output_focal(GTP_enable_power_PORT, 1);
-		}
-		else
-		{
-		
-        tpd_gpio_output_focal(GTP_enable_power_PORT, 0);
-
-		}
-	}
-#endif*/
-//add by cassy end
-
 static int tpd_local_init(void)
 {
 
     FTS_FUNC_ENTER();
-	//modify by cassy begin
-#if FTS_POWER_SOURCE_CUST_EN///1//modify by cassy from 0 to 1
 
+#if FTS_POWER_SOURCE_CUST_EN
     if (fts_power_init() != 0)
         return -1;
-#else
-
-
-//tpd_power_on(1);
 #endif
-	//modify by cassy end
-	
 
     if (i2c_add_driver(&tpd_i2c_driver) != 0) {
         FTS_ERROR("[TPD]: Unable to add fts i2c driver!!");
@@ -1294,7 +1249,7 @@ static int __init tpd_driver_init(void)
     tpd_get_dts_info();
     if (tpd_dts_data.touch_max_num < 2)
         tpd_dts_data.touch_max_num = 2;
-    else if (tpd_dts_data.touch_max_num > FTS_MAX_POINTS_SUPPORT)///10
+    else if (tpd_dts_data.touch_max_num > FTS_MAX_POINTS_SUPPORT)
         tpd_dts_data.touch_max_num = FTS_MAX_POINTS_SUPPORT;
     FTS_INFO("tpd max touch num:%d", tpd_dts_data.touch_max_num);
     if (tpd_driver_add(&tpd_device_driver) < 0) {
