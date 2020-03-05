@@ -873,7 +873,7 @@ static int tpd_probe(struct i2c_client *client, const struct i2c_device_id *id)
     ret = fts_input_init(ts_data);
     if (ret) {
         FTS_ERROR("fts input initialize fail");
-        goto err_input_init;
+	goto err_input_init;
     }
 
     fts_reset_proc(200);
@@ -1142,14 +1142,17 @@ static void tpd_suspend(struct device *h)
     }
 #endif
 
+#if !FTS_MT_PROTOCOL_B_EN
     fts_irq_disable();
+#endif
+
     /* TP enter sleep mode */
     ret = fts_i2c_write_reg(ts_data->client, FTS_REG_POWER_MODE, FTS_REG_POWER_MODE_SLEEP_VALUE);
     if (ret < 0) {
         FTS_ERROR("Set TP to sleep mode fail, ret=%d!", ret);
     }
 
-#if FTS_POWER_SOURCE_CUST_EN
+#if FTS_POWER_SOURCE_CUST_EN && !FTS_MT_PROTOCOL_B_EN
     fts_power_suspend();
 #endif
 
@@ -1194,7 +1197,7 @@ static void tpd_resume(struct device *h)
 
     fts_release_all_finger();
 
-#if FTS_POWER_SOURCE_CUST_EN
+#if FTS_POWER_SOURCE_CUST_EN && !FTS_MT_PROTOCOL_B_EN
     fts_power_resume();
 #endif
 
@@ -1217,8 +1220,9 @@ static void tpd_resume(struct device *h)
     }
 #endif
 
+#if !FTS_MT_PROTOCOL_B_EN
     fts_irq_enable();
-
+#endif
     ts_data->suspended = false;
     FTS_FUNC_EXIT();
 }
