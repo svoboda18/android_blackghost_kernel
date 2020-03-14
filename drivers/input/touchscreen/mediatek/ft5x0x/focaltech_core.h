@@ -44,14 +44,12 @@
 #include <linux/delay.h>
 #include <linux/mutex.h>
 #include <linux/interrupt.h>
-//#include <mach/irqs.h>//delete by cassy
 #include <linux/jiffies.h>
 #include <linux/version.h>
 #include <linux/types.h>
 #include <linux/sched.h>
 #include <linux/kthread.h>
 #include <linux/kernel.h>
-//#include <linux/rtpm_prio.h>//delete by cassy
 #include <linux/fs.h>
 #include <linux/device.h>
 #include <linux/dma-mapping.h>
@@ -108,17 +106,13 @@ struct ts_event {
 struct fts_ts_data {
     struct i2c_client *client;
     struct input_dev *input_dev;
-    struct ts_ic_info ic_info;
     struct workqueue_struct *ts_workqueue;
-    struct work_struct fwupg_work;
-    struct delayed_work esdcheck_work;
     struct delayed_work prc_work;
     struct task_struct *thread_tpd;
     spinlock_t irq_lock;
     struct mutex report_mutex;
     int irq;
     bool suspended;
-    bool fw_loading;
     bool irq_disabled;
     /* multi-touch */
     struct ts_event *events;
@@ -158,65 +152,13 @@ int fts_gesture_suspend(struct i2c_client *i2c_client);
 int fts_gesture_resume(struct i2c_client *client);
 #endif
 
-/* Apk and functions */
-#if FTS_APK_NODE_EN
-int fts_create_apk_debug_channel(struct fts_ts_data *);
-void fts_release_apk_debug_channel(struct fts_ts_data *);
-#endif
-
-/* ADB functions */
-#if FTS_SYSFS_NODE_EN
-int fts_create_sysfs(struct i2c_client *client);
-int fts_remove_sysfs(struct i2c_client *client);
-#endif
-
-/* ESD */
-#if FTS_ESDCHECK_EN
-int fts_esdcheck_init(struct fts_ts_data *ts_data);
-int fts_esdcheck_exit(struct fts_ts_data *ts_data);
-int fts_esdcheck_switch(bool enable);
-int fts_esdcheck_proc_busy(bool proc_debug);
-int fts_esdcheck_set_intr(bool intr);
-int fts_esdcheck_suspend(void);
-int fts_esdcheck_resume(void);
-#endif
-
-/* Production test */
-#if FTS_TEST_EN
-int fts_test_init(struct i2c_client *client);
-int fts_test_exit(struct i2c_client *client);
-#endif
-
-/* Point Report Check*/
-#if FTS_POINT_REPORT_CHECK_EN
-int fts_point_report_check_init(struct fts_ts_data *ts_data);
-int fts_point_report_check_exit(struct fts_ts_data *ts_data);
-void fts_prc_queue_work(struct fts_ts_data *ts_data);
-#endif
-
-/* FW upgrade */
-int fts_upgrade_bin(struct i2c_client *client, char *fw_name, bool force);
-int fts_fwupg_init(struct fts_ts_data *ts_data);
-int fts_fwupg_exit(struct fts_ts_data *ts_data);
+/* IRQ */
+void fts_irq_disable(void);
+void fts_irq_enable(void);
 
 /* Other */
 int fts_reset_proc(int hdelayms);
 int fts_wait_tp_to_valid(struct i2c_client *client);
 void fts_tp_state_recovery(struct i2c_client *client);
-int fts_ex_mode_init(struct i2c_client *client);
-int fts_ex_mode_exit(struct i2c_client *client);
-int fts_ex_mode_recovery(struct i2c_client *client);
-
-void fts_irq_disable(void);
-void fts_irq_enable(void);
-
-#if FTS_PSENSOR_EN
-int fts_proximity_init(struct i2c_client *client);
-int fts_proximity_exit(struct i2c_client *client);
-int fts_proximity_readdata(struct i2c_client *client);
-int fts_proximity_suspend(void);
-int fts_proximity_resume(void);
-int fts_proximity_recovery(struct i2c_client *client);
-#endif
 
 #endif /* __LINUX_FOCALTECH_CORE_H__ */

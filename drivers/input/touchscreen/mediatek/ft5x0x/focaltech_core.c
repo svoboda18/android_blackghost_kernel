@@ -37,9 +37,6 @@
 #include <linux/of_device.h>
 #include <linux/of_gpio.h>
 #include <linux/of_irq.h>
-#ifdef CONFIG_HAS_EARLYSUSPEND
-#include <linux/earlysuspend.h>
-#endif
 #include "focaltech_core.h"
 
 /*****************************************************************************
@@ -109,128 +106,20 @@ int fts_wait_tp_to_valid(struct i2c_client *client)
     int ret = 0;
     int cnt = 0;
     u8 reg_value = 0;
-    u8 chip_id = fts_data->ic_info.ids.chip_idh;
 
     do {
-        ret = fts_i2c_read_reg(client, FTS_REG_CHIP_ID, &reg_value);
-        if ((ret < 0) || (reg_value != chip_id)) {
-            FTS_DEBUG("TP Not Ready, ReadData = 0x%x", reg_value);
-        } else if (reg_value == chip_id) {
-            FTS_INFO("TP Ready, Device ID = 0x%x", reg_value);
+        ret = fts_i2c_read_reg(client, FTS_REG_WORKMODE_WORK_VALUE, &reg_value);
+        if (ret >= 0) {
+            FTS_INFO("TP Ready, ReadData = 0x%x", reg_value);
             return 0;
+        } else {
+            FTS_DEBUG("TP Not Ready, ReadData = 0x%x", reg_value);      
         }
         cnt++;
         msleep(INTERVAL_READ_REG);
     } while ((cnt * INTERVAL_READ_REG) < TIMEOUT_READ_REG);
 
     return -EIO;
-}
-
-/************************************************************************
-* Name: fts_get_chip_types
-* Brief: verity chip id and get chip type data
-* Input:
-* Output:
-* Return: return 0 if success, otherwise return error code
-***********************************************************************/
-static int fts_get_chip_types(
-    struct fts_ts_data *ts_data,
-    u8 id_h, u8 id_l, bool fw_valid)
-{
-    int i = 0;
-    struct ft_chip_t ctype[] = FTS_CHIP_TYPE_MAPPING;
-    u32 ctype_entries = sizeof(ctype) / sizeof(struct ft_chip_t);
-
-    if ((0x0 == id_h) || (0x0 == id_l)) {
-        FTS_ERROR("id_h/id_l is 0");
-        return -EINVAL;
-    }
-
-    FTS_DEBUG("verify id:0x%02x%02x", id_h, id_l);
-    for (i = 0; i < ctype_entries; i++) {
-        if (VALID == fw_valid) {
-            if ((id_h == ctype[i].chip_idh) && (id_l == ctype[i].chip_idl))
-                break;
-        } else {
-            if (((id_h == ctype[i].rom_idh) && (id_l == ctype[i].rom_idl))
-                || ((id_h == ctype[i].pb_idh) && (id_l == ctype[i].pb_idl))
-                || ((id_h == ctype[i].bl_idh) && (id_l == ctype[i].bl_idl)))
-                break;
-        }
-    }
-
-    if (i >= ctype_entries) {
-        return -ENODATA;
-    }
-
-    ts_data->ic_info.ids = ctype[i];
-    return 0;
-}
-
-/*****************************************************************************
-*  Name: fts_get_ic_information
-*  Brief:
-*  Input:
-*  Output:
-*  Return: return 0 if success, otherwise return error code
-*****************************************************************************/
-static int fts_get_ic_information(struct fts_ts_data *ts_data)
-{
-    int ret = 0;
-    int cnt = 0;
-    u8 chip_id[2] = { 0 };
-    u8 id_cmd[4] = { 0 };
-    struct i2c_client *client = ts_data->client;
-
-    do {
-        ret = fts_i2c_read_reg(client, FTS_REG_CHIP_ID, &chip_id[0]);
-        ret = fts_i2c_read_reg(client, FTS_REG_CHIP_ID2, &chip_id[1]);
-        if ((ret < 0) || (0x0 == chip_id[0]) || (0x0 == chip_id[1])) {
-            FTS_DEBUG("i2c read error, read:0x%02x%02x", chip_id[0], chip_id[1]);
-        } else {
-            ret = fts_get_chip_types(ts_data, chip_id[0], chip_id[1], VALID);
-            if (!ret)
-                break;
-            else
-                FTS_DEBUG("TP not ready, read:0x%02x%02x", chip_id[0], chip_id[1]);
-        }
-
-        cnt++;
-        msleep(INTERVAL_READ_REG);
-    } while ((cnt * INTERVAL_READ_REG) < TIMEOUT_READ_REG);
-
-    if ((cnt * INTERVAL_READ_REG) >= TIMEOUT_READ_REG) {
-        FTS_INFO("fw is invalid, need read boot id");
-#if FTS_HID_SUPPORTTED
-        fts_i2c_hid2std(client);
-#endif
-        id_cmd[0] = FTS_CMD_START1;
-        id_cmd[1] = FTS_CMD_START2;
-        ret = fts_i2c_write(client, id_cmd, 2);
-        if (ret < 0) {
-            FTS_ERROR("start cmd write fail");
-            return ret;
-        }
-        id_cmd[0] = FTS_CMD_READ_ID;
-        id_cmd[1] = id_cmd[2] = id_cmd[3] = 0x00;
-        ret = fts_i2c_read(client, id_cmd, 4, chip_id, 2);
-        if ((ret < 0) || (0x0 == chip_id[0]) || (0x0 == chip_id[1])) {
-            FTS_ERROR("read boot id fail");
-            return -EIO;
-        }
-        ret = fts_get_chip_types(ts_data, chip_id[0], chip_id[1], INVALID);
-        if (ret < 0) {
-            FTS_ERROR("can't get ic informaton");
-            return ret;
-        }
-    }
-
-    ts_data->ic_info.is_incell = FTS_CHIP_IDC;
-    ts_data->ic_info.hid_supported = FTS_HID_SUPPORTTED;
-    FTS_INFO("get ic information, chip id = 0x%02x%02x",
-             ts_data->ic_info.ids.chip_idh, ts_data->ic_info.ids.chip_idl);
-
-    return 0;
 }
 
 /*****************************************************************************
@@ -244,13 +133,6 @@ void fts_tp_state_recovery(struct i2c_client *client)
 {
     /* wait tp stable */
     fts_wait_tp_to_valid(client);
-    /* recover TP charger state 0x8B */
-    /* recover TP glove state 0xC0 */
-    /* recover TP cover state 0xC1 */
-    fts_ex_mode_recovery(client);
-#if FTS_PSENSOR_EN
-    fts_proximity_recovery(client);
-#endif
 
     /* recover TP gesture state 0xD0 */
 #if FTS_GESTURE_EN
@@ -732,24 +614,12 @@ static int touch_event_handler(void *unused)
         set_current_state(TASK_RUNNING);
 
         FTS_DEBUG("touch_event_handler start");
-#if FTS_PSENSOR_EN
-        if (fts_proximity_readdata(ts_data->client) == 0)
-            continue;
-#endif
 
 #if FTS_GESTURE_EN
         if (0 == fts_gesture_readdata(ts_data)) {
             FTS_INFO("succuss to get gesture data in irq handler");
             continue;
         }
-#endif
-
-#if FTS_POINT_REPORT_CHECK_EN
-        fts_prc_queue_work(ts_data);
-#endif
-
-#if FTS_ESDCHECK_EN
-        fts_esdcheck_set_intr(1);
 #endif
 
         ret = fts_read_touchdata(ts_data);
@@ -767,9 +637,6 @@ static int touch_event_handler(void *unused)
         }
 #endif
 
-#if FTS_ESDCHECK_EN
-        fts_esdcheck_set_intr(0);
-#endif
     } while (!kthread_should_stop());
 
     return 0;
@@ -804,7 +671,6 @@ static int fts_input_init(struct fts_ts_data *ts_data)
 
     ts_data->events = (struct ts_event *)kzalloc(point_num * sizeof(struct ts_event), GFP_KERNEL);
     if (!ts_data->events) {
-
         FTS_ERROR("failed to alloc memory for point events!");
         ret = -ENOMEM;
         goto err_event_buf;
@@ -873,41 +739,10 @@ static int tpd_probe(struct i2c_client *client, const struct i2c_device_id *id)
     ret = fts_input_init(ts_data);
     if (ret) {
         FTS_ERROR("fts input initialize fail");
-	goto err_input_init;
+	    goto err_input_init;
     }
 
     fts_reset_proc(200);
-	
-    ret = fts_get_ic_information(ts_data);
-    if (ret) {
-        FTS_ERROR("not focal IC, ignore");
-    }
-	
-#if FTS_APK_NODE_EN
-    ret = fts_create_apk_debug_channel(ts_data);
-    if (ret) {
-        FTS_ERROR("create apk debug node fail");
-    }
-#endif
-
-#if FTS_SYSFS_NODE_EN
-    ret = fts_create_sysfs(client);
-    if (ret) {
-        FTS_ERROR("create sysfs node fail");
-    }
-#endif
-
-#if FTS_POINT_REPORT_CHECK_EN
-    ret = fts_point_report_check_init(ts_data);
-    if (ret) {
-        FTS_ERROR("init point report check fail");
-    }
-#endif
-
-    ret = fts_ex_mode_init(client);
-    if (ret) {
-        FTS_ERROR("init glove/cover/charger fail");
-    }
 
 #if FTS_GESTURE_EN
     ret = fts_gesture_init(ts_data);
@@ -916,24 +751,6 @@ static int tpd_probe(struct i2c_client *client, const struct i2c_device_id *id)
     }
 #endif
 
-#if FTS_PSENSOR_EN
-    fts_proximity_init(client);
-#endif
-
-#if FTS_TEST_EN
-    ret = fts_test_init(client);
-    if (ret) {
-        FTS_ERROR("init production test fail");
-    }
-#endif
-
-#if FTS_ESDCHECK_EN
-    ret = fts_esdcheck_init(ts_data);
-    if (ret) {
-        FTS_ERROR("init esd check fail");
-    }
-#endif
-	
     ts_data->thread_tpd = kthread_run(touch_event_handler, 0, TPD_DEVICE);
     if (IS_ERR(ts_data->thread_tpd)) {
         ret = PTR_ERR(ts_data->thread_tpd);
@@ -951,13 +768,6 @@ static int tpd_probe(struct i2c_client *client, const struct i2c_device_id *id)
         FTS_ERROR("request irq failed");
         goto err_irq_req;
     }
-
-#if FTS_AUTO_UPGRADE_EN
-    ret = fts_fwupg_init(ts_data);
-    if (ret) {
-        FTS_ERROR("init fw upgrade fail");
-    }
-#endif
 
     tpd_load_status = 1;
     FTS_DEBUG("TPD_RES_Y:%d", (int)TPD_RES_Y);
@@ -993,35 +803,6 @@ static int tpd_remove(struct i2c_client *client)
     struct fts_ts_data *ts_data = i2c_get_clientdata(client);
 
     FTS_FUNC_ENTER();
-
-#if FTS_TEST_EN
-    fts_test_exit(client);
-#endif
-
-#if FTS_POINT_REPORT_CHECK_EN
-    fts_point_report_check_exit();
-#endif
-
-#if FTS_SYSFS_NODE_EN
-    fts_remove_sysfs(client);
-#endif
-
-    fts_ex_mode_exit(client);
-
-#if FTS_PSENSOR_EN
-    fts_proximity_exit(client);
-#endif
-#if FTS_APK_NODE_EN
-    fts_release_apk_debug_channel(ts_data);
-#endif
-
-#if FTS_AUTO_UPGRADE_EN
-    fts_fwupg_exit(ts_data);
-#endif
-
-#if FTS_ESDCHECK_EN
-    fts_esdcheck_exit(ts_data);
-#endif
 
 #if FTS_GESTURE_EN
     fts_gesture_exit(client);
@@ -1064,10 +845,8 @@ static int tpd_local_init(void)
     }
 
     if (tpd_dts_data.use_tpd_button) {
-		
         tpd_button_setting(tpd_dts_data.tpd_key_num, tpd_dts_data.tpd_key_local,
                            tpd_dts_data.tpd_key_dim_local);
-                           
     }
 
 #if (defined(TPD_WARP_START) && defined(TPD_WARP_END))
@@ -1115,23 +894,6 @@ static void tpd_suspend(struct device *h)
         FTS_INFO("Already in suspend state");
         return;
     }
-
-    if (ts_data->fw_loading) {
-        FTS_INFO("fw upgrade in process, can't suspend");
-        return;
-    }
-
-#if FTS_PSENSOR_EN
-    if (fts_proximity_suspend() == 0) {
-        fts_release_all_finger();
-        ts_data->suspended = true;
-        return;
-    }
-#endif
-
-#if FTS_ESDCHECK_EN
-    fts_esdcheck_suspend();
-#endif
 
 #if FTS_GESTURE_EN
     ret = fts_gesture_suspend(ts_data->client);
@@ -1188,29 +950,18 @@ static void tpd_resume(struct device *h)
         return;
     }
 
-#if FTS_PSENSOR_EN
-    if (fts_proximity_resume() == 0) {
-        ts_data->suspended = false;
-        return;
-    }
-#endif
-
     fts_release_all_finger();
 
 #if FTS_POWER_SOURCE_CUST_EN && !FTS_MT_PROTOCOL_B_EN
     fts_power_resume();
 #endif
 
-    if (!ts_data->ic_info.is_incell) {
+/*  if (!ts_data->ic_info.is_incell) {
         fts_reset_proc(200);
-    }
+    } */
 
     /* Before read/write TP register, need wait TP to valid */
     fts_tp_state_recovery(ts_data->client);
-
-#if FTS_ESDCHECK_EN
-    fts_esdcheck_resume();
-#endif
 
 #if FTS_GESTURE_EN
     if (fts_gesture_resume(ts_data->client) == 0) {
@@ -1223,6 +974,7 @@ static void tpd_resume(struct device *h)
 #if !FTS_MT_PROTOCOL_B_EN
     fts_irq_enable();
 #endif
+
     ts_data->suspended = false;
     FTS_FUNC_EXIT();
 }
@@ -1250,12 +1002,16 @@ static int __init tpd_driver_init(void)
 	
     FTS_FUNC_ENTER();
     FTS_INFO("Driver version: %s", FTS_DRIVER_VERSION);
+	
     tpd_get_dts_info();
+	
     if (tpd_dts_data.touch_max_num < 2)
         tpd_dts_data.touch_max_num = 2;
     else if (tpd_dts_data.touch_max_num > FTS_MAX_POINTS_SUPPORT)
         tpd_dts_data.touch_max_num = FTS_MAX_POINTS_SUPPORT;
+	
     FTS_INFO("tpd max touch num:%d", tpd_dts_data.touch_max_num);
+	
     if (tpd_driver_add(&tpd_device_driver) < 0) {
         FTS_ERROR("[TPD]: Add FTS Touch driver failed!!");
     }

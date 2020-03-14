@@ -52,6 +52,7 @@ Module.symvers
 out/
 BGH-Out/
 toolchain/
+gcc/
 
 #
 # Debian directory (make deb-pkg)

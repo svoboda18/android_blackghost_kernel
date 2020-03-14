@@ -78,11 +78,11 @@ if [[ ! -d gcc ]]; then
     echo "${GRN} #        Cloning TOOLCHAIN...       #"
     echo "${GRN} #                                   #"
     echo "${GRN} #####################################"
-    git clone -q https://github.com/svoboda18/android_gcc_6.4.1_arm-eabi gcc
-    export ARCH=arm CROSS_COMPILE=${PWD}/gcc/bin/arm-eabi-
+    git clone -q https://github.com/svoboda18/android_gcc_4.9_arm-linux-androideabi gcc
+    export ARCH=arm CROSS_COMPILE=${PWD}/gcc/bin/arm-linux-androideabi-
     export SUBARCH=arm
 else
-    export ARCH=arm CROSS_COMPILE=${PWD}/gcc/bin/arm-eabi-
+    export ARCH=arm CROSS_COMPILE=${PWD}/gcc/bin/arm-linux-androideabi-
     export SUBARCH=arm
 fi
 }
@@ -157,7 +157,7 @@ function TRANSFER() {
         file="$1"
         zipname=$(echo "${file}" | awk -F '/' '{print $NF}')
         destination="$2"
-        url=$(curl -# -T "${file}" https://transfer.sh/${destination})
+        url=$(curl -# -T -F"file=${file}" http://0x0.st)
         echo "Download $zipname at $url"
 }
 

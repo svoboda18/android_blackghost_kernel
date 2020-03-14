@@ -27,7 +27,7 @@
 #include <linux/platform_device.h>
 #include <linux/gpio.h>
 #include <linux/atomic.h>
-#include <hal_kpd.h>
+#include "mt6580/hal_kpd.h"
 #include <linux/kernel.h>
 #include <linux/delay.h>
 

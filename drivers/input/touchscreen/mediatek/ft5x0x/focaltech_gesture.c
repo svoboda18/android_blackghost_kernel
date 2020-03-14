@@ -32,6 +32,8 @@
 * 1.Included header files
 *****************************************************************************/
 #include "focaltech_core.h"
+#include "kpd.h"
+
 #if FTS_GESTURE_EN
 /******************************************************************************
 * Private constant and macro definitions using #define
@@ -93,10 +95,6 @@ struct fts_gesture_st {
 * Static variables
 *****************************************************************************/
 static struct fts_gesture_st fts_gesture_data;
-
-/*****************************************************************************
-* Global variable or extern global variabls/functions
-*****************************************************************************/
 
 /*****************************************************************************
 * Static function prototypes
@@ -295,7 +293,10 @@ static void fts_gesture_report(struct input_dev *input_dev, int gesture_id)
     /* report event key */
     if (gesture != -1) {
         FTS_DEBUG("Gesture Code=%d", gesture);
-        input_report_key(input_dev, gesture, 1);
+kpd_pmic_pwrkey_hal(1);
+kpd_pmic_pwrkey_hal(0);	
+
+	input_report_key(input_dev, gesture, 1);
         input_sync(input_dev);
         input_report_key(input_dev, gesture, 0);
         input_sync(input_dev);
