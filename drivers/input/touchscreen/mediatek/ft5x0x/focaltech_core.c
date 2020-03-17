@@ -506,6 +506,16 @@ static int fts_read_touchdata(struct fts_ts_data *data)
         return ret;
     }
     data->point_num = buf[FTS_TOUCH_POINT_NUM] & 0x0F;
+
+    if (data->suspended) {
+        if ((data->point_num == 0x0F) && (buf[1] == 0xFF) && (buf[2] == 0xFF)
+            && (buf[3] == 0xFF) && (buf[4] == 0xFF) && (buf[5] == 0xFF) && (buf[6] == 0xFF)) {
+            FTS_INFO("touch buff is 0xff, need recovery state");
+            fts_tp_state_recovery(data->client);
+            return -EIO;
+        }
+    }
+
     if (data->point_num > max_touch_num) {
         FTS_INFO("invalid point_num(%d)", data->point_num);
         return -EIO;
