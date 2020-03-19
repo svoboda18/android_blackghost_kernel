@@ -32,15 +32,8 @@
 *  THE RULES OF THE INTERNATIONAL CHAMBER OF COMMERCE (ICC).
 *
 *****************************************************************************/
-
+#include <linux/proc_fs.h>
 #include "lcm_drv.h"
-
-#if defined(BUILD_LK)
-#else
-
-#include <linux/proc_fs.h>   //proc file use 
-#endif
-
 
 // ---------------------------------------------------------------------------
 //  Local Constants
@@ -211,45 +204,27 @@ static void lcm_get_params(struct LCM_PARAMS *params)
 	params->width  = FRAME_WIDTH;
 	params->height = FRAME_HEIGHT;
 
-	// enable tearing-free
-	params->dbi.te_mode 			= LCM_DBI_TE_MODE_DISABLED;
+	params->dbi.te_mode = LCM_DBI_TE_MODE_DISABLED;
+	params->dsi.mode = SYNC_EVENT_VDO_MODE;
 
-	params->dsi.mode   =SYNC_EVENT_VDO_MODE;
-
-	// DSI
-	/* Command mode setting */
-	params->dsi.LANE_NUM			= LCM_THREE_LANE;
-	//The following defined the fomat for data coming from LCD engine. 
-	params->dsi.data_format.color_order 	= LCM_COLOR_ORDER_RGB;
-	params->dsi.data_format.trans_seq   	= LCM_DSI_TRANS_SEQ_MSB_FIRST; 
-	params->dsi.data_format.padding     	= LCM_DSI_PADDING_ON_LSB;
-	params->dsi.data_format.format      	= LCM_DSI_FORMAT_RGB888;
-	// Highly depends on LCD driver capability.
-	// Not support in MT6573
-	params->dsi.packet_size=256;
-	// Video mode setting		
+	params->dsi.LANE_NUM = LCM_THREE_LANE;
+	params->dsi.data_format.color_order = LCM_COLOR_ORDER_RGB;
+	params->dsi.data_format.trans_seq = LCM_DSI_TRANS_SEQ_MSB_FIRST; 
+	params->dsi.data_format.padding = LCM_DSI_PADDING_ON_LSB;
+	params->dsi.data_format.format = LCM_DSI_FORMAT_RGB888;
+	params->dsi.packet_size = 256;
 	params->dsi.intermediat_buffer_num 	= 2;
-	params->dsi.PS=LCM_PACKED_PS_24BIT_RGB888;
-        //params->dsi.word_count=720 * 3;
-	params->dsi.vertical_sync_active				= 4;//5
-	params->dsi.vertical_backporch					= 12;
-	params->dsi.vertical_frontporch					= 15;
-	params->dsi.vertical_active_line				= FRAME_HEIGHT; 
-
-	params->dsi.horizontal_sync_active				= 10;//37;//10;
-	params->dsi.horizontal_backporch				= 20;//60;//20;
-	params->dsi.horizontal_frontporch				= 40;//60;//40;
-	params->dsi.horizontal_active_pixel				= FRAME_WIDTH;
-
-	//params->dsi.ssc_disable=1;
-	params->dsi.cont_clock=0;
-	params->dsi.esd_check_enable = 1;
-	params->dsi.customization_esd_check_enable      = 1;
- 
-	params->dsi.lcm_esd_check_table[0].cmd          = 0xd9;
-	params->dsi.lcm_esd_check_table[0].count        = 1;
-	params->dsi.lcm_esd_check_table[0].para_list[0] = 0x80;
-	params->dsi.PLL_CLOCK=230;
+	params->dsi.PS = LCM_PACKED_PS_24BIT_RGB888;
+	params->dsi.vertical_sync_active = 4;
+	params->dsi.vertical_backporch = 12;
+	params->dsi.vertical_frontporch	= 15;
+	params->dsi.vertical_active_line = FRAME_HEIGHT; 
+	params->dsi.horizontal_sync_active = 10;
+	params->dsi.horizontal_backporch = 20;
+	params->dsi.horizontal_frontporch = 40;
+	params->dsi.horizontal_active_pixel = FRAME_WIDTH;
+	params->dsi.cont_clock = 0;
+	params->dsi.PLL_CLOCK= 230;
 }
 
 static void lcm_init(void)
@@ -278,7 +253,7 @@ static void lcm_suspend(void)
 
 static void lcm_resume(void)
 {
-	lcm_init();
+    lcm_init();
 }
 
 static unsigned int lcm_compare_id(void)
@@ -317,6 +292,7 @@ static unsigned int lcm_compare_id(void)
 // ---------------------------------------------------------------------------
 //  Get LCM Driver Hooks
 // ---------------------------------------------------------------------------
+
 struct LCM_DRIVER hct_hx8394f_dsi_vdo_hd_cmi = 
 {
 	.name		= "hct_hx8394f_dsi_vdo_hd_cmi",

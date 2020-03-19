@@ -157,7 +157,8 @@ function TRANSFER() {
         file="$1"
         zipname=$(echo "${file}" | awk -F '/' '{print $NF}')
         destination="$2"
-        url=$(curl -# -T -F"file=${file}" http://0x0.st)
+        url=$(curl -# -T "${file}" https://transfer.sh/${destination})
+
         echo "Download $zipname at $url"
 }
 

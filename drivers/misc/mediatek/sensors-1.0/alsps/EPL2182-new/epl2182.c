@@ -94,8 +94,6 @@ static int epl2182_i2c_detect(struct i2c_client *client, struct i2c_board_info *
 static int alsps_local_init(void);
 static int alsps_remove(void);
 /*----------------------------------------------------------------------------*/
-static int epl2182_i2c_suspend(struct device *dev);
-static int epl2182_i2c_resume(struct device *dev);
 static irqreturn_t epl2182_eint_func(int irq, void *desc);
 static int set_psensor_intr_threshold(uint16_t low_thd, uint16_t high_thd);
 static int set_psensor_threshold(struct i2c_client *client);
@@ -188,12 +186,6 @@ static const struct of_device_id alsps_of_match[] = {
 };
 #endif
 
-#ifdef CONFIG_PM_SLEEP
-static const struct dev_pm_ops epl2182_i2c_pm_ops = {
-	SET_SYSTEM_SLEEP_PM_OPS(epl2182_i2c_suspend, epl2182_i2c_resume)
-};
-#endif
-
 /*----------------------------------------------------------------------------*/
 static struct i2c_driver epl2182_i2c_driver = {
 	.probe = epl2182_i2c_probe,
@@ -202,9 +194,6 @@ static struct i2c_driver epl2182_i2c_driver = {
 	.id_table = epl2182_i2c_id,
 	.driver = {
 		   .name = EPL2182_DEV_NAME,
-#ifdef CONFIG_PM_SLEEP
-		   .pm = &epl2182_i2c_pm_ops,
-#endif
 #ifdef CONFIG_OF
 	           .of_match_table = alsps_of_match,
 #endif
@@ -302,7 +291,6 @@ static int elan_epl2182_psensor_enable(struct epl2182_priv *epl_data, int enable
 	int ps_state;
 	struct i2c_client *client = epl_data->client;
 
-
 	APS_DBG("[ELAN epl2182] %s enable = %d\n", __func__, enable);
 
 	epl_data->enable_pflag = enable;
@@ -328,6 +316,9 @@ static int elan_epl2182_psensor_enable(struct epl2182_priv *epl_data, int enable
 		ret = elan_epl2182_I2C_Read(client, REG_13, R_SINGLE_BYTE, 0x01, read_data);
 
 		ps_state = !((read_data[0] & 0x04) >> 2);
+
+		if (gRawData.ps_state == ps_state) return 0;
+
 		APS_DBG("epl2182 ps state = %d, gRawData.ps_state = %d, %s\n", ps_state,
 		       gRawData.ps_state, __func__);
 
@@ -1090,27 +1081,6 @@ static int set_psensor_threshold(struct i2c_client *client)
 	res = set_psensor_intr_threshold(databuf[0], databuf[1]);
 #endif
 	return res;
-}
-
-/*----------------------------------------------------------------------------*/
-static int epl2182_i2c_suspend(struct device *dev)
-{
-	/* struct epl2182_priv *obj = i2c_get_clientdata(client); */
-	int err = 0;
-
-	APS_FUN();
-	return err;
-
-}
-
-/*----------------------------------------------------------------------------*/
-static int epl2182_i2c_resume(struct device *dev)
-{
-	/* struct epl2182_priv *obj = i2c_get_clientdata(client); */
-	int err = 0;
-
-	APS_FUN();
-	return err;
 }
 
 /*--------------------------------------------------------------------------------*/
