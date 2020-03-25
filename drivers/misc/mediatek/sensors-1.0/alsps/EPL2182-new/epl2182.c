@@ -53,7 +53,7 @@ int psEableTimes = 0;
 #define I2C_RETRY_COUNT		3
 
 /* TODO: change delay time */
-#define PS_DELAY			10
+#define PS_DELAY			40
 #define ALS_DELAY			40
 
 /* TODO: parameters for lux equation y = ax + b */
@@ -316,8 +316,6 @@ static int elan_epl2182_psensor_enable(struct epl2182_priv *epl_data, int enable
 		ret = elan_epl2182_I2C_Read(client, REG_13, R_SINGLE_BYTE, 0x01, read_data);
 
 		ps_state = !((read_data[0] & 0x04) >> 2);
-
-		if (gRawData.ps_state == ps_state) return 0;
 
 		APS_DBG("epl2182 ps state = %d, gRawData.ps_state = %d, %s\n", ps_state,
 		       gRawData.ps_state, __func__);
