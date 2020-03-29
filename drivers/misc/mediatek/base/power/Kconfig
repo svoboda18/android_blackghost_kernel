@@ -42,3 +42,9 @@ config MTK_LP_OPP
 	  This kernel config can be used to enable MTK LP OPP. When enable
 	  this option, cpudvfs opp will be changed for low power.
 	  If unsure, say N.
+
+config CPU_UC
+	bool "CPU_UNDERCLOCK"
+	default n
+	help
+	  Underclock MT6580 to 260 MHz
