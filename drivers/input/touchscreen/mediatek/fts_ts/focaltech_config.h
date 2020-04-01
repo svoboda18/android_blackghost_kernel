@@ -14,6 +14,7 @@
  * GNU General Public License for more details.
  *
  */
+
 /************************************************************************
  * File Name: focaltech_config.h
  *
@@ -26,6 +27,13 @@
  *   Version: v1.0
  *
  ************************************************************************/
+
+/*************************
+ * Rewirted by svoboda18 *
+ *    Edition: cleaned   *
+ *        GPL: V3        *
+ **************************/
+
 #ifndef _LINUX_FOCLATECH_CONFIG_H_
 #define _LINUX_FOCLATECH_CONFIG_H_
 

@@ -11,5 +11,5 @@ obj-y   +=  tpd_default.o
 obj-y   +=  tpd_misc.o
 obj-y   +=  tpd_setting.o
 
-obj-$(CONFIG_TOUCHSCREEN_MTK_FOCALTECH_TS)	+=  ft5x0x/
+obj-$(CONFIG_TOUCHSCREEN_MTK_FOCALTECH_TS)	+=  fts_ts/
 

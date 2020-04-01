@@ -31,6 +31,6 @@ config TOUCHSCREEN_PHYSICAL_ROTATION_WITH_LCM
 
 	  If unsure, say Y.
 
-source "drivers/input/touchscreen/mediatek/ft5x0x/Kconfig"
+source "drivers/input/touchscreen/mediatek/fts_ts/Kconfig"
 
 endif
