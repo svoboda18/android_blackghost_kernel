@@ -35,6 +35,7 @@
 #include "kpd.h"
 
 #if FTS_GESTURE_EN
+extern int gesture_status;
 /******************************************************************************
 * Private constant and macro definitions using #define
 *****************************************************************************/
@@ -161,9 +162,11 @@ static ssize_t fts_gesture_store(struct device *dev, struct device_attribute *at
     if (FTS_SYSFS_ECHO_ON(buf)) {
         FTS_INFO("[GESTURE]enable gesture");
         fts_gesture_data.mode = ENABLE;
+	gesture_status = ENABLE;
     } else if (FTS_SYSFS_ECHO_OFF(buf)) {
         FTS_INFO("[GESTURE]disable gesture");
         fts_gesture_data.mode = DISABLE;
+	gesture_status = DISABLE;
     }
     mutex_unlock(&input_dev->mutex);
 
@@ -291,10 +294,9 @@ static void fts_gesture_report(struct input_dev *input_dev, int gesture_id)
         break;
     }
     /* report event key */
-    if (gesture != -1) {
-        FTS_DEBUG("Gesture Code=%d", gesture);
-kpd_pmic_pwrkey_hal(1);
-kpd_pmic_pwrkey_hal(0);	
+    if (fts_gesture_data.mode == ENABLE && gesture != -1) {
+	kpd_pmic_pwrkey_hal(1);
+        kpd_pmic_pwrkey_hal(0);
 
 	input_report_key(input_dev, gesture, 1);
         input_sync(input_dev);
@@ -410,7 +412,6 @@ int fts_gesture_readdata(struct fts_ts_data *ts_data)
 *****************************************************************************/
 void fts_gesture_recovery(struct i2c_client *client)
 {
-    if (fts_gesture_data.mode == ENABLE) {
         fts_i2c_write_reg(client, 0xD1, 0xff);
         fts_i2c_write_reg(client, 0xD2, 0xff);
         fts_i2c_write_reg(client, 0xD5, 0xff);
@@ -418,7 +419,6 @@ void fts_gesture_recovery(struct i2c_client *client)
         fts_i2c_write_reg(client, 0xD7, 0xff);
         fts_i2c_write_reg(client, 0xD8, 0xff);
         fts_i2c_write_reg(client, FTS_REG_GESTURE_EN, ENABLE);
-    }
 }
 
 /*****************************************************************************
@@ -435,12 +435,6 @@ int fts_gesture_suspend(struct i2c_client *client)
     u8 state;
 
     FTS_INFO("gesture suspend...");
-    /* gesture not enable, return immediately */
-    if (fts_gesture_data.mode == DISABLE) {
-        FTS_INFO("gesture is disabled");
-        return -EINVAL;
-    }
-
     for (i = 0; i < 5; i++) {
         fts_i2c_write_reg(client, 0xd1, 0xff);
         fts_i2c_write_reg(client, 0xd2, 0xff);
@@ -485,12 +479,6 @@ int fts_gesture_resume(struct i2c_client *client)
     u8 state;
 
     FTS_INFO("gesture resume...");
-    /* gesture not enable, return immediately */
-    if (fts_gesture_data.mode == DISABLE) {
-        FTS_DEBUG("gesture is disabled");
-        return -EINVAL;
-    }
-
     for (i = 0; i < 5; i++) {
         fts_i2c_write_reg(client, FTS_REG_GESTURE_EN, DISABLE);
         msleep(1);
@@ -560,7 +548,8 @@ int fts_gesture_init(struct fts_ts_data *ts_data)
     __set_bit(KEY_GESTURE_Z, input_dev->keybit);
 
     fts_create_gesture_sysfs(client);
-    fts_gesture_data.mode = ENABLE;
+    fts_gesture_data.mode = DISABLE;
+    gesture_status = DISABLE;
 
     FTS_FUNC_EXIT();
     return 0;

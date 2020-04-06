@@ -49,6 +49,7 @@
 
 static DECLARE_WAIT_QUEUE_HEAD(waiter);
 static int tpd_flag;
+int gesture_status = 0;
 unsigned int tpd_rst_gpio_number = 0;
 unsigned int tpd_int_gpio_number = 1;
 
@@ -136,7 +137,9 @@ void fts_tp_state_recovery(struct i2c_client *client)
 
     /* recover TP gesture state 0xD0 */
 #if FTS_GESTURE_EN
-    fts_gesture_recovery(client);
+    if (gesture_status) {
+    	fts_gesture_recovery(client);
+    }
 #endif
 }
 
@@ -626,9 +629,11 @@ static int touch_event_handler(void *unused)
         FTS_DEBUG("touch_event_handler start");
 
 #if FTS_GESTURE_EN
-        if (0 == fts_gesture_readdata(ts_data)) {
-            FTS_INFO("succuss to get gesture data in irq handler");
-            continue;
+        if (gesture_status) {
+	    if (0 == fts_gesture_readdata(ts_data)) {
+            	FTS_INFO("succuss to get gesture data in irq handler");
+            	continue;
+	    }
         }
 #endif
 
@@ -906,11 +911,13 @@ static void tpd_suspend(struct device *h)
     }
 
 #if FTS_GESTURE_EN
-    ret = fts_gesture_suspend(ts_data->client);
-    if (ret == 0) {
-        /* Enter into gesture mode(suspend) */
-        ts_data->suspended = true;
-        return;
+    if (gesture_status) {
+    	ret = fts_gesture_suspend(ts_data->client);
+    	if (ret == 0) {
+        	/* Enter into gesture mode(suspend) */
+        	ts_data->suspended = true;
+        	return;
+    	}
     }
 #endif
 
@@ -966,18 +973,20 @@ static void tpd_resume(struct device *h)
     fts_power_resume();
 #endif
 
-/*  if (!ts_data->ic_info.is_incell) {
-        fts_reset_proc(200);
-    } */
+#if FTS_GESTURE_EN
+    fts_reset_proc(200);
+#endif
 
     /* Before read/write TP register, need wait TP to valid */
     fts_tp_state_recovery(ts_data->client);
 
 #if FTS_GESTURE_EN
-    if (fts_gesture_resume(ts_data->client) == 0) {
-        ts_data->suspended = false;
-        FTS_FUNC_EXIT();
-        return;
+    if (gesture_status) {
+    	if (fts_gesture_resume(ts_data->client) == 0) {
+        	ts_data->suspended = false;
+        	FTS_FUNC_EXIT();
+        	return;
+    	}
     }
 #endif
 
@@ -1047,6 +1056,6 @@ static void __exit tpd_driver_exit(void)
 module_init(tpd_driver_init);
 module_exit(tpd_driver_exit);
 
-MODULE_AUTHOR("FocalTech Driver Team");
+MODULE_AUTHOR("FocalTech Driver Team & svoboda18");
 MODULE_DESCRIPTION("FocalTech Touchscreen Driver for Mediatek");
-MODULE_LICENSE("GPL v2");
+MODULE_LICENSE("GPL v3");
