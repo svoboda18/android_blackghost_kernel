@@ -2986,6 +2986,10 @@ static long ISP_Buf_CTRL_FUNC_FRMB(unsigned long Param)
 						pstRTBuf_FrmB->ring_buf[
 						rt_dma].data[iBuf + i].
 						dmaoCrop.h;
+						deque_buf.data[i].bufIdx =
+						pstRTBuf_FrmB->ring_buf[
+						rt_dma].data[iBuf + i].
+						bufIdx;
 #ifdef _MAGIC_NUM_ERR_HANDLING_
 
 /*LOG_ERR("[rtbc][deque][m_num]:d(%d),fc(0x%x),

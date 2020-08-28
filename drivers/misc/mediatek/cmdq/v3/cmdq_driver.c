@@ -123,6 +123,15 @@ static const struct file_operations cmdqDebugInstructionCountOp = {
 };
 #endif
 
+static u64 job_mapping_idx = 1;
+static struct list_head job_mapping_list;
+struct cmdq_job_mapping_struct {
+	u64 id;
+	struct cmdqRecStruct *job;
+	struct list_head list_entry;
+};
+static DEFINE_MUTEX(cmdq_job_mapping_list_mutex);
+
 static int cmdq_open(struct inode *pInode, struct file *pFile)
 {
 	struct cmdqFileNodeStruct *pNode;
@@ -328,11 +337,12 @@ static void cmdq_driver_process_read_address_request(
 static long cmdq_driver_destroy_secure_medadata(
 	struct cmdqCommandStruct *pCommand)
 {
+#ifdef CMDQ_SECURE_PATH_SUPPORT
 	if (pCommand->secData.addrMetadatas) {
 		kfree(CMDQ_U32_PTR(pCommand->secData.addrMetadatas));
 		pCommand->secData.addrMetadatas = 0;
 	}
-
+#endif
 	return 0;
 }
 
@@ -532,6 +542,9 @@ static s32 cmdq_driver_copy_handle_prop_from_user(void *from, u32 size,
 		}
 
 		*to = task_prop;
+	} else if (to) {
+		CMDQ_LOG("Initialize prop_addr to NULL...\n");
+		*to = NULL;
 	}
 
 	return 0;
@@ -539,8 +552,10 @@ static s32 cmdq_driver_copy_handle_prop_from_user(void *from, u32 size,
 
 static void cmdq_release_handle_property(void **prop_addr, u32 *prop_size)
 {
-	if (!prop_addr || !prop_size)
+	if (!prop_addr || !prop_size || !*prop_size) {
+		CMDQ_LOG("Return w/o need of kfree(prop_addr)\n");
 		return;
+	}
 
 	kfree(*prop_addr);
 	*prop_addr = NULL;
@@ -615,6 +630,8 @@ static s32 cmdq_driver_ioctl_async_job_exec(struct file *pf,
 	struct cmdqRecStruct *handle = NULL;
 	u32 userRegCount;
 	s32 status;
+
+	struct cmdq_job_mapping_struct *mapping_job = NULL;
 
 	if (copy_from_user(&job, (void *)param, sizeof(job)))
 		return -EFAULT;
@@ -694,7 +711,24 @@ static s32 cmdq_driver_ioctl_async_job_exec(struct file *pf,
 	/* free secure path metadata */
 	cmdq_driver_destroy_secure_medadata(&job.command);
 
-	job.hJob = (unsigned long)handle;
+	/* privateData can reset since it has passed to handle */
+	job.command.privateData = 0;
+
+	mapping_job = kzalloc(sizeof(*mapping_job), GFP_KERNEL);
+	if (!mapping_job)
+		return -ENOMEM;
+
+	INIT_LIST_HEAD(&mapping_job->list_entry);
+	mutex_lock(&cmdq_job_mapping_list_mutex);
+	if (job_mapping_idx == 0)
+		job_mapping_idx = 1;
+	mapping_job->id = job_mapping_idx;
+	job.hJob = job_mapping_idx;
+	job_mapping_idx++;
+	mapping_job->job = handle;
+	list_add_tail(&mapping_job->list_entry, &job_mapping_list);
+	mutex_unlock(&cmdq_job_mapping_list_mutex);
+
 	if (copy_to_user((void *)param, (void *)&job, sizeof(job))) {
 		CMDQ_ERR("CMDQ_IOCTL_ASYNC_JOB_EXEC copy_to_user failed\n");
 		return -EFAULT;
@@ -710,14 +744,29 @@ static s32 cmdq_driver_ioctl_async_job_wait_and_close(unsigned long param)
 	u32 *userRegValue = NULL;
 	/* backup value after task release */
 	s32 status;
+	struct cmdq_job_mapping_struct *mapping_job = NULL, *tmp = NULL;
 
 	if (copy_from_user(&jobResult, (void *)param, sizeof(jobResult))) {
 		CMDQ_ERR("copy_from_user jobResult fail\n");
 		return -EFAULT;
 	}
 
+	handle = NULL;
 	/* verify job handle */
-	handle = cmdq_mdp_get_valid_handle((unsigned long)jobResult.hJob);
+	mutex_lock(&cmdq_job_mapping_list_mutex);
+	list_for_each_entry_safe(mapping_job, tmp, &job_mapping_list,
+		list_entry) {
+		if (mapping_job->id == jobResult.hJob) {
+			handle = mapping_job->job;
+			CMDQ_MSG("find handle:%p with id:%llx\n",
+				handle, jobResult.hJob);
+			list_del(&mapping_job->list_entry);
+			kfree(mapping_job);
+			break;
+		}
+	}
+	mutex_unlock(&cmdq_job_mapping_list_mutex);
+
 	if (!handle) {
 		CMDQ_ERR("job does not exists:0x%016llx\n", jobResult.hJob);
 		return -EFAULT;
@@ -1142,6 +1191,8 @@ static int cmdq_probe(struct platform_device *pDevice)
 #ifdef CMDQ_INSTRUCTION_COUNT
 	device_create_file(&pDevice->dev, &dev_attr_instruction_count_level);
 #endif
+
+	INIT_LIST_HEAD(&job_mapping_list);
 
 	CMDQ_LOG("CMDQ driver probe end\n");
 
