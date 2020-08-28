@@ -111,7 +111,7 @@
 		ps_threshold_low = <500>;
 		is_batch_supported_ps = <0>;
 		is_batch_supported_als	= <0>;
-                };
+       };
 };
 
 &pio {
@@ -189,11 +189,11 @@
 	tpd-key-num = <4>;
 	tpd-key-local= <139 158 217 172 0>;
 	tpd-key-dim-local = <160 2000 70 40    950 2000 70 40    200 2000 70 40    540 2000 70 40    0 0 0 0>;
-	tpd-max-touch-num = <2>;
-	tpd-filter-enable = <1>;
+	tpd-max-touch-num = <5>;
+	tpd-filter-enable = <0>;
 	tpd-filter-pixel-density = <93>;
 	tpd-filter-custom-prameters = <0 0 0 0 0 0 0 0 0 0 0 0>;
-	tpd-filter-custom-speed = <15 15 0>;
+	tpd-filter-custom-speed = <0 0 0>;
 	pinctrl-names = "default", "state_eint_as_int", "state_eint_output0", "state_eint_output1",
 		"state_rst_output0", "state_rst_output1";
 	pinctrl-0 = <&ctp_pins_default>;
