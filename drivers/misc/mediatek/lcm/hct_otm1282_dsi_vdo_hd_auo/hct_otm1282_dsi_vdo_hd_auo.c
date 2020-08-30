@@ -104,13 +104,11 @@
     #define FALSE 0
 #endif
 
-static unsigned int lcm_esd_test = FALSE;      ///only for ESD test
-
 // ---------------------------------------------------------------------------
 //  Local Variables
 // ---------------------------------------------------------------------------
 
-static LCM_UTIL_FUNCS lcm_util = {0};
+static struct LCM_UTIL_FUNCS lcm_util = {0};
 
 #define SET_RESET_PIN(v)    (lcm_util.set_reset_pin((v)))
 
@@ -568,14 +566,6 @@ static struct LCM_setting_table lcm_sleep_mode_in_setting[] = {
         {REGFLAG_DELAY, 200, {}},
         {REGFLAG_END_OF_TABLE, 0x00, {}}
 };
-static struct LCM_setting_table lcm_compare_id_setting[] = {
-        // Display off sequence
-        {0xF0,  5,      {0x55, 0xaa, 0x52,0x08,0x00}},
-        {REGFLAG_DELAY, 10, {}},
-
-        {REGFLAG_END_OF_TABLE, 0x00, {}}
-};
-
 
 static void push_table(struct LCM_setting_table *table, unsigned int count, unsigned char force_update)
 {
@@ -610,16 +600,16 @@ static void push_table(struct LCM_setting_table *table, unsigned int count, unsi
 //  LCM Driver Implementations
 // ---------------------------------------------------------------------------
 
-static void lcm_set_util_funcs(const LCM_UTIL_FUNCS *util)
+static void lcm_set_util_funcs(const struct LCM_UTIL_FUNCS *util)
 {
-    memcpy(&lcm_util, util, sizeof(LCM_UTIL_FUNCS));
+    memcpy(&lcm_util, util, sizeof(struct LCM_UTIL_FUNCS));
 }
 
 
-static void lcm_get_params(LCM_PARAMS *params)
+static void lcm_get_params(struct LCM_PARAMS *params)
 {
 
-            memset(params, 0, sizeof(LCM_PARAMS));
+            memset(params, 0, sizeof(struct LCM_PARAMS));
         
                 params->type   = LCM_TYPE_DSI;
 
@@ -817,54 +807,9 @@ static unsigned int lcm_compare_id(void)
 //extern void hct_restore_HS_read();
 
 
-static unsigned int lcm_esd_check(void)
+struct LCM_DRIVER hct_otm1282_dsi_vdo_hd_auo = 
 {
-  #ifndef BUILD_LK
-        char  buffer[3];
-        int   array[4];
-
-        if(lcm_esd_test)
-        {
-                lcm_esd_test = FALSE;
-                return TRUE;
-        }
-
-
-	//hct_set_hs_read();
-	array[0] = 0x00013708;
-	dsi_set_cmdq(array, 1, 1);
-	 read_reg_v2(0x0a, buffer, 1);
-	// printk("otm1282 lcm_esd_check %x %x\n",buffer[0]);
-	//hct_restore_HS_read();
-
-
-      //  array[0] = 0x00013700;
-        //dsi_set_cmdq(array, 1, 1);
-
-     //   read_reg_v2(0x36, buffer, 1);
-        if(buffer[0]==0x9c)
-        {
-                return FALSE;
-        }
-        else
-        {                        
-                return TRUE;
-        }
- #endif
-
-}
-
-static unsigned int lcm_esd_recover(void)
-{
-        lcm_init();
-        lcm_resume();
-
-        return TRUE;
-}
-
-LCM_DRIVER hct_otm1282_dsi_vdo_hd_auo = 
-{
-    .name                       = "hct_otm1282_dsi_vdo_hd_auo",
+        .name           = "hct_otm1282_dsi_vdo_hd_auo",
         .set_util_funcs = lcm_set_util_funcs,
         .get_params     = lcm_get_params,
         .init           = lcm_init,

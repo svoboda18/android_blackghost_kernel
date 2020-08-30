@@ -64,13 +64,11 @@
 
 #define FALSE 0
 #define TRUE 1
-//HQ_fujin 131104
-static unsigned int lcm_esd_test = FALSE;      ///only for ESD test
 // ---------------------------------------------------------------------------
 //  Local Variables
 // ---------------------------------------------------------------------------
 
-static LCM_UTIL_FUNCS lcm_util = {0};
+static struct LCM_UTIL_FUNCS lcm_util = {0};
 
 #define SET_RESET_PIN(v)    (lcm_util.set_reset_pin((v)))
 
@@ -99,15 +97,15 @@ struct LCM_setting_table {
 //  LCM Driver Implementations
 // ---------------------------------------------------------------------------
 
-static void lcm_set_util_funcs(const LCM_UTIL_FUNCS *util)
+static void lcm_set_util_funcs(const struct LCM_UTIL_FUNCS *util)
 {
-    memcpy(&lcm_util, util, sizeof(LCM_UTIL_FUNCS));
+    memcpy(&lcm_util, util, sizeof(struct LCM_UTIL_FUNCS));
 }
 
-static void lcm_get_params(LCM_PARAMS *params)
+static void lcm_get_params(struct LCM_PARAMS *params)
 {
 
-		memset(params, 0, sizeof(LCM_PARAMS));
+		memset(params, 0, sizeof(struct LCM_PARAMS));
 
 		params->type   = LCM_TYPE_DSI;
 
@@ -365,7 +363,6 @@ static struct LCM_setting_table lcm_initialization_setting[] = {
 
 static void lcm_init(void)
 {
-    unsigned int data_array[16];   
     SET_RESET_PIN(1);
     SET_RESET_PIN(0);
     MDELAY(50);
@@ -373,47 +370,6 @@ static void lcm_init(void)
     MDELAY(120);
    // lcm_initialization();
     push_table(lcm_initialization_setting, sizeof(lcm_initialization_setting) / sizeof(struct LCM_setting_table), 1);
-}
-
-static void lcm_update(unsigned int x, unsigned int y,
-        unsigned int width, unsigned int height)
-{
-    unsigned int x0 = x;
-    unsigned int y0 = y;
-    unsigned int x1 = x0 + width - 1;
-    unsigned int y1 = y0 + height - 1;
-
-    unsigned char x0_MSB = ((x0>>8)&0xFF);
-    unsigned char x0_LSB = (x0&0xFF);
-    unsigned char x1_MSB = ((x1>>8)&0xFF);
-    unsigned char x1_LSB = (x1&0xFF);
-    unsigned char y0_MSB = ((y0>>8)&0xFF);
-    unsigned char y0_LSB = (y0&0xFF);
-    unsigned char y1_MSB = ((y1>>8)&0xFF);
-    unsigned char y1_LSB = (y1&0xFF);
-
-    unsigned int data_array[16];
-
-    data_array[0]= 0x00053902;
-    data_array[1]= (x1_MSB<<24)|(x0_LSB<<16)|(x0_MSB<<8)|0x2a;
-    data_array[2]= (x1_LSB);
-    dsi_set_cmdq(data_array, 3, 1);
-    //MDELAY(1);
-   
-    data_array[0]= 0x00053902;
-    data_array[1]= (y1_MSB<<24)|(y0_LSB<<16)|(y0_MSB<<8)|0x2b;
-    data_array[2]= (y1_LSB);
-    dsi_set_cmdq(data_array, 3, 1);
-    //MDELAY(1);
-   
-    data_array[0]= 0x00290508;
-    dsi_set_cmdq(data_array, 1, 1);
-    //MDELAY(1);
-   
-    data_array[0]= 0x002c3909;
-    dsi_set_cmdq(data_array, 1, 0);
-    //MDELAY(1);
-
 }
 
 static void lcm_suspend(void)
@@ -481,82 +437,17 @@ static unsigned int lcm_compare_id(void)
 }
 
 
-
-
-static int err_count = 0;
-
-static unsigned int lcm_esd_check(void)
-{
-#ifndef BUILD_LK
-    unsigned char buffer[8] = {0};
-    unsigned int array[4];
-    int i =0;
-
-    array[0] = 0x00013700;   
-    dsi_set_cmdq(array, 1,1);
-    read_reg_v2(0x0A, buffer,8);
-
-    printk( "nt35521_JDI lcm_esd_check: buffer[0] = %d,buffer[1] = %d,buffer[2] = %d,buffer[3] = %d,buffer[4] = %d,buffer[5] = %d,buffer[6] = %d,buffer[7] = %d\n",buffer[0],buffer[1],buffer[2],buffer[3],buffer[4],buffer[5],buffer[6],buffer[7]);
-
-    if((buffer[0] != 0x9C))/*LCD work status error,need re-initalize*/
-    {
-        printk( "nt35521_JDI lcm_esd_check buffer[0] = %d\n",buffer[0]);
-        return TRUE;
-    }
-    else
-    {
-        if(buffer[3] != 0x02) //error data type is 0x02
-        {
-             //return FALSE;
-        err_count = 0;
-        }
-        else
-        {
-             //if(((buffer[4] != 0) && (buffer[4] != 0x40)) ||  (buffer[5] != 0x80))
-        if( (buffer[4] == 0x40) || (buffer[5] == 0x80))
-             {
-                  err_count = 0;
-             }
-             else
-             {
-                  err_count++;
-             }            
-             if(err_count >=2 )
-             {
-                 err_count = 0;
-                 printk( "nt35521_JDI lcm_esd_check buffer[4] = %d , buffer[5] = %d\n",buffer[4],buffer[5]);
-                 return TRUE;
-             }
-        }
-        return FALSE;
-    }
-#endif
-   
-}
-
-static unsigned int lcm_esd_recover(void)
-{
-    lcm_init();
-    return TRUE;
-}
-
 // ---------------------------------------------------------------------------
 //  Get LCM Driver Hooks
 // ---------------------------------------------------------------------------
-LCM_DRIVER hct_nt35521s_dsi_vdo_hd_boe_50_xld= 
+struct LCM_DRIVER hct_nt35521s_dsi_vdo_hd_boe_50_xld= 
 {
-    .name			= "hct_nt35521s_dsi_vdo_hd_boe_50_xld",
+    .name 	    = "hct_nt35521s_dsi_vdo_hd_boe_50_xld",
     .set_util_funcs = lcm_set_util_funcs,
     .get_params     = lcm_get_params,
     .init           = lcm_init,
     .suspend        = lcm_suspend,
     .resume         = lcm_resume,
     .compare_id    = lcm_compare_id,
-#if 0//defined(LCM_DSI_CMD_MODE)
-//    .set_backlight	= lcm_setbacklight,
-    //.set_pwm        = lcm_setpwm,
-    //.get_pwm        = lcm_getpwm,
-    .update         = lcm_update
-#endif
 };
 
