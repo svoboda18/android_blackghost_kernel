@@ -6,9 +6,11 @@ This BlackGHost custom kernel (4.9.x) source made to DOOGEE X5 (MT6580).
 |-----------|-------------|--------------|---------|
 | LCM driver | `hct_hx8394f_dsi_vdo_hd_cmi` | Yes | Yes |
 | LCM driver #2 | `hct_rm68200_dsi_vdo_hd_cpt` | Yes | Yes |
-| LCM driver #3 | `hct_otm1282_dsi_vdo_hd_auo` | - | - |
+| LCM driver #3 | `hct_otm1282_dsi_vdo_hd_auo` | Yes | - |
 | LCM driver #4 | `hct_ili9881_dsi_vdo_hd_cpt` | Yes | No |
-| LCM driver #5 | `hct_otm1285a_dsi_vdo_hd_boe` | - | - |
+| LCM driver #5 | `hct_otm1285a_dsi_vdo_hd_boe` | Yes | - |
+| LCM driver #6 | `hct_hx8394d_dsi_vdo_hd_cmi` | Yes | - |
+| LCM driver #7 | `hct_nt35521s_dsi_vdo_hd_boe_50_xld` | Yes | - |
 | Touch panel | `fts_ts (FT5X05) (i2c 1-0038)` | Yes | Yes |
 | GPU | `Mali-400 MP2` | Yes | Yes |
 | Camera #1 | `s5k5e2y_mipi_raw` | Yes | Yes |
@@ -24,6 +26,9 @@ This BlackGHost custom kernel (4.9.x) source made to DOOGEE X5 (MT6580).
 
 ## Current kernel features:
 * Upstream to Linux v4.9.120
+* Underclock to 260MHz
+* Schedutil as default governor
+* Rebased with new `fts_ts` Touch Driver
 
 ## Build process:
 * Clone that repo, by running:
