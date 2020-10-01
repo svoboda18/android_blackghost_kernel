@@ -875,6 +875,7 @@
 			audclk-gpio = <26 0>;
 			audmiso-gpio = <28 0>;
 			audmosi-gpio = <27 0>;
+			extspkamp-gpio = <4 0>;
 		};
 
 		mt_soc_ul1_PCM {
@@ -1247,15 +1248,9 @@
 		flashlight_core: flashlight_core {
 			compatible = "mediatek,flashlight_core";
 		};
-	        flashlights_lm3642: flashlights_lm3642 {
-        	        compatible = "mediatek,flashlights_lm3642";
-                	decouple = <1>;
-	                channel@1 {
-        	                type = <0>;
-                	        ct = <0>;
-                        	part = <0>;
-	                };
-        	};
+ 	        flashlights_gpio: flashlights_dummy_gpio {
+ 	     		compatible = "mediatek,flashlights_dummy_gpio";
+ 	    	};
 
 		seninf_top@15008000 {
 			compatible = "mediatek,SENINF_TOP";

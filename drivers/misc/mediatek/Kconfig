@@ -42,7 +42,7 @@ config DMAUSER_PAGES
 
 config MTK_DTBO_FEATURE
 	bool "Support Device Tree Overlay"
-	default y
+	default n
 	select BUILD_ARM_DTB_OVERLAY_IMAGE if !ARM64
 	select BUILD_ARM64_DTB_OVERLAY_IMAGE if ARM64
 	help
@@ -392,7 +392,7 @@ config MTK_DM_VERITY_OFF
 
 config SYSTEM_AS_ROOT
 	bool "Support system-as-root"
-	default y
+	default n
 	help
 	  Y means to enable system-as-root.
 	  This option merges ramdisk into system image

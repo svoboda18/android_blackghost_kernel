@@ -1835,10 +1835,6 @@ bool SetI2SDacEnable(bool bEnable)
 		Afe_Set_Reg(AFE_ADDA_DL_SRC2_CON0, bEnable, 0x01);
 		Afe_Set_Reg(AFE_I2S_CON1, bEnable, 0x1);
 		SetADDAEnable(false);
-
-		/* should delayed 1/fs(smallest is 8k) = 125us before afe off */
-		udelay(125);
-
 		Afe_Set_Reg(FPGA_CFG1, 1 << 4, 0x10);	/* For FPGA Pin the same with DAC */
 	}
 	return true;
