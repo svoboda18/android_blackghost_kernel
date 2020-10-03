@@ -392,7 +392,7 @@ config MTK_DM_VERITY_OFF
 
 config SYSTEM_AS_ROOT
 	bool "Support system-as-root"
-	default n
+	default y
 	help
 	  Y means to enable system-as-root.
 	  This option merges ramdisk into system image
