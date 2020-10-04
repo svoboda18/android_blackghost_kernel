@@ -308,11 +308,11 @@ CONFIG_CRYPTO_TWOFISH=y
 
 # Project
 CONFIG_MTK_PLATFORM="mt6580"
-CONFIG_ARCH_MTK_PROJECT="x5_bsp"
+CONFIG_ARCH_MTK_PROJECT="X5"
 
 # DTS
 CONFIG_BUILD_ARM_APPENDED_DTB_IMAGE=y
-CONFIG_BUILD_ARM_APPENDED_DTB_IMAGE_NAMES="x5_bsp"
+CONFIG_BUILD_ARM_APPENDED_DTB_IMAGE_NAMES="X5"
 
 # LCM
 CONFIG_CUSTOM_KERNEL_LCM="hct_otm1285a_dsi_vdo_hd_boe hct_ili9881_dsi_vdo_hd_cpt hct_hx8394f_dsi_vdo_hd_cmi hct_otm1282_dsi_vdo_hd_auo hct_rm68200_dsi_vdo_hd_cpt hct_nt35521s_dsi_vdo_hd_boe_50_xld hct_hx8394d_dsi_vdo_hd_cmi"
