@@ -60,6 +60,25 @@
 #include "mt_soc_pcm_common.h"
 #include "AudDrv_Common_func.h"
 
+/*
+ *    declaration
+ */
+
+struct mtk_voice_property {
+	/* speech mixctrl instead property usage */
+	int speech_a2m_msg_id;
+	int speech_md_status;
+	int speech_md_ext_status;
+	int speech_mic_mute;
+	int speech_dl_mute;
+	int speech_ul_mute;
+	int speech_phone1_md_idx;
+	int speech_phone2_md_idx;
+	int speech_phone_id;
+	int speech_md_epof;
+	int speech_bt_sco_wb;
+	int speech_md_active;
+};
 
 /*
  *    function implementation
@@ -116,35 +135,126 @@ static struct snd_pcm_hardware mtk_pcm_hardware = {
 	.fifo_size = 0,
 };
 
-static int speech_md_usage_control;
-static const char const *speech_md_usage[] = {"Off", "On"};
-static const struct soc_enum Audio_Speech_Enum[] = {
-	SOC_ENUM_SINGLE_EXT(ARRAY_SIZE(speech_md_usage), speech_md_usage),
+static struct mtk_voice_property voice_property = {
+	.speech_a2m_msg_id = 0,
+	.speech_md_status = 0,
+	.speech_md_ext_status = 0,
+	.speech_mic_mute = 0,
+	.speech_dl_mute = 0,
+	.speech_ul_mute = 0,
+	.speech_phone1_md_idx = 0,
+	.speech_phone2_md_idx = 0,
+	.speech_phone_id = 0,
+	.speech_md_epof = 0,
+	.speech_bt_sco_wb = 0,
+	.speech_md_active = 0,
 };
 
-static int Audio_Speech_MD_Control_Get(struct snd_kcontrol *kcontrol,
-				       struct snd_ctl_elem_value *ucontrol)
+/* speech mixctrl instead property usage */
+static void *get_sph_property_by_name(struct mtk_voice_property *voice_priv,
+				      const char *name)
 {
-	pr_warn("Audio_Speech_MD_Control_Get = %d\n", speech_md_usage_control);
-	ucontrol->value.integer.value[0] = speech_md_usage_control;
-	return 0;
+	if (strcmp(name, "Speech_A2M_Msg_ID") == 0)
+		return &(voice_priv->speech_a2m_msg_id);
+	else if (strcmp(name, "Speech_MD_Status") == 0)
+		return &(voice_priv->speech_md_status);
+	else if (strcmp(name, "Speech_MD_Ext_Status") == 0)
+		return &(voice_priv->speech_md_ext_status);
+	else if (strcmp(name, "Speech_Mic_Mute") == 0)
+		return &(voice_priv->speech_mic_mute);
+	else if (strcmp(name, "Speech_DL_Mute") == 0)
+		return &(voice_priv->speech_dl_mute);
+	else if (strcmp(name, "Speech_UL_Mute") == 0)
+		return &(voice_priv->speech_ul_mute);
+	else if (strcmp(name, "Speech_Phone1_MD_Idx") == 0)
+		return &(voice_priv->speech_phone1_md_idx);
+	else if (strcmp(name, "Speech_Phone2_MD_Idx") == 0)
+		return &(voice_priv->speech_phone2_md_idx);
+	else if (strcmp(name, "Speech_Phone_ID") == 0)
+		return &(voice_priv->speech_phone_id);
+	else if (strcmp(name, "Speech_MD_EPOF") == 0)
+		return &(voice_priv->speech_md_epof);
+	else if (strcmp(name, "Speech_BT_SCO_WB") == 0)
+		return &(voice_priv->speech_bt_sco_wb);
+	else if (strcmp(name, "Speech_MD_Active") == 0)
+		return &(voice_priv->speech_md_active);
+	else
+		return NULL;
 }
 
-static int Audio_Speech_MD_Control_Set(struct snd_kcontrol *kcontrol,
-				       struct snd_ctl_elem_value *ucontrol)
+static int speech_property_get(struct snd_kcontrol *kcontrol,
+			       struct snd_ctl_elem_value *ucontrol)
 {
-	if (ucontrol->value.enumerated.item[0] > ARRAY_SIZE(speech_md_usage)) {
-		pr_warn("return -EINVAL\n");
+	int *sph_property;
+
+	sph_property = (int *)get_sph_property_by_name(&voice_property,
+						       kcontrol->id.name);
+	if (!sph_property) {
+		pr_warn("%s(), sph_property == NULL\n", __func__);
 		return -EINVAL;
 	}
-	speech_md_usage_control = ucontrol->value.integer.value[0];
-	pr_warn("%s(), speech_md_usage_control=%d\n", __func__, speech_md_usage_control);
+	ucontrol->value.integer.value[0] = *sph_property;
+
+	pr_info("%s(), %s = 0x%x\n", __func__,
+		 kcontrol->id.name, *sph_property);
 	return 0;
 }
 
-static const struct snd_kcontrol_new Audio_snd_speech_controls[] = {
-	SOC_ENUM_EXT("Speech_MD_USAGE", Audio_Speech_Enum[0], Audio_Speech_MD_Control_Get,
-		     Audio_Speech_MD_Control_Set),
+static int speech_property_set(struct snd_kcontrol *kcontrol,
+			       struct snd_ctl_elem_value *ucontrol)
+{
+	int *sph_property;
+
+	sph_property = (int *)get_sph_property_by_name(&voice_property,
+						       kcontrol->id.name);
+	if (!sph_property) {
+		pr_warn("%s(), sph_property == NULL\n", __func__);
+		return -EINVAL;
+	}
+	*sph_property = ucontrol->value.integer.value[0];
+
+	pr_info("%s(), %s = 0x%x\n", __func__,
+		 kcontrol->id.name, *sph_property);
+	return 0;
+}
+
+static const struct snd_kcontrol_new mtk_voice_speech_controls[] = {
+	SOC_SINGLE_EXT("Speech_A2M_Msg_ID",
+		       SND_SOC_NOPM, 0, 0xFFFF, 0,
+		       speech_property_get, speech_property_set),
+	SOC_SINGLE_EXT("Speech_MD_Status",
+		       SND_SOC_NOPM, 0, 0xFFFFFFFF, 0,
+		       speech_property_get, speech_property_set),
+	SOC_SINGLE_EXT("Speech_MD_Ext_Status",
+		       SND_SOC_NOPM, 0, 0xFFFFFFFF, 0,
+		       speech_property_get, speech_property_set),
+	SOC_SINGLE_EXT("Speech_Mic_Mute",
+		       SND_SOC_NOPM, 0, 0x1, 0,
+		       speech_property_get, speech_property_set),
+	SOC_SINGLE_EXT("Speech_DL_Mute",
+		       SND_SOC_NOPM, 0, 0x1, 0,
+		       speech_property_get, speech_property_set),
+	SOC_SINGLE_EXT("Speech_UL_Mute",
+		       SND_SOC_NOPM, 0, 0x1, 0,
+		       speech_property_get, speech_property_set),
+	SOC_SINGLE_EXT("Speech_Phone1_MD_Idx",
+		       SND_SOC_NOPM, 0, 0x2, 0,
+		       speech_property_get, speech_property_set),
+	SOC_SINGLE_EXT("Speech_Phone2_MD_Idx",
+		       SND_SOC_NOPM, 0, 0x2, 0,
+		       speech_property_get, speech_property_set),
+	SOC_SINGLE_EXT("Speech_Phone_ID",
+		       SND_SOC_NOPM, 0, 0x1, 0,
+		       speech_property_get, speech_property_set),
+	SOC_SINGLE_EXT("Speech_MD_EPOF",
+		       SND_SOC_NOPM, 0, 0x1, 0,
+		       speech_property_get, speech_property_set),
+	SOC_SINGLE_EXT("Speech_BT_SCO_WB",
+		       SND_SOC_NOPM, 0, 0x1, 0,
+		       speech_property_get, speech_property_set),
+	SOC_SINGLE_EXT("Speech_MD_Active",
+		       SND_SOC_NOPM, 0, 0x1, 0,
+		       speech_property_get, speech_property_set),
 };
 
 static int mtk_voice_pcm_open(struct snd_pcm_substream *substream)
@@ -375,8 +485,8 @@ static int mtk_voice_platform_probe(struct snd_soc_platform *platform)
 {
 	pr_info("mtk_voice_platform_probe\n");
 
-	snd_soc_add_platform_controls(platform, Audio_snd_speech_controls,
-				      ARRAY_SIZE(Audio_snd_speech_controls));
+	snd_soc_add_platform_controls(platform, mtk_voice_speech_controls,
+				      ARRAY_SIZE(mtk_voice_speech_controls));
 
 	return 0;
 }
@@ -400,11 +510,11 @@ static int mtk_voice_pm_ops_suspend(struct device *device)
 	b_modem1_speech_on = (bool) (Afe_Get_Reg(PCM2_INTF_CON) & 0x1);
 	b_modem2_speech_on = (bool) (Afe_Get_Reg(PCM_INTF_CON) & 0x1);
 	AudDrv_Clk_Off();	/* should enable clk for access reg */
-	pr_warn
-	    ("mtk_voice_pm_ops_suspend, b_modem1_speech_on=%d, b_modem2_speech_on=%d, speech_md_usage_control=%d\n",
-	     b_modem1_speech_on, b_modem2_speech_on, speech_md_usage_control);
+	pr_debug("%s, b_modem1_speech_on=%d, b_modem2_speech_on=%d, speech_md_active=%d\n",
+		 __func__, b_modem1_speech_on, b_modem2_speech_on,
+		 voice_property.speech_md_active);
 	if (b_modem1_speech_on == true || b_modem2_speech_on == true
-	    || speech_md_usage_control == true) {
+	    || voice_property.speech_md_active == true) {
 #ifndef CONFIG_FPGA_EARLY_PORTING
 		/* select 26M */
 		clkmux_sel(MT_CLKMUX_AUD_HF_26M_SEL, MT_CG_SYS_26M, "AUDIO ");

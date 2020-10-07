@@ -55,7 +55,6 @@
 #include <linux/mutex.h>
 #include <linux/time.h>
 #include <linux/timer.h>
-#include <mach/irqs.h>
 #include <mt-plat/sync_write.h>
 /*#include <linux/xlog.h>*/
 /*#include <mach/mt_typedefs.h>*/

@@ -71,6 +71,7 @@
 #include "mt_soc_analog_type.h"
 #include <mach/mt_clkbuf_ctl.h>
 
+
 #include "mt_soc_afe_control.h"
 #include <mt-plat/upmu_common.h>
 
@@ -79,9 +80,6 @@
 #endif
 
 #include "mt_soc_pcm_common.h"
-#include "AudDrv_Common_func.h"
-#include "AudDrv_Gpio.h"
-#include "mt_soc_codec_63xx.h"
 
 /* AW8736 PA output power mode control */
 /* #define AW8736_MODE_CTRL */
@@ -1301,10 +1299,10 @@ static void Audio_Amp_Change(int channels, bool enable)
 			Ana_Set_Reg(AUDTOP_CON5, 0x0014, 0xffff);	/* set RCH/LCH buffer gain to smallest -5dB */
 			if (mIsExtSPKUse) {
 				/* enable audio bias. only enable audio-R DAC, HP buffers (L needs to turn off) */
-				Ana_Set_Reg(AUDTOP_CON4, 0x003C, 0xffff);
+				Ana_Set_Reg(AUDTOP_CON4, 0x005C, 0xffff);
 			} else {
 				/* enable audio bias. enable audio DAC, HP buffers */
-				Ana_Set_Reg(AUDTOP_CON4, 0x003C, 0xffff);
+				Ana_Set_Reg(AUDTOP_CON4, 0x007C, 0xffff);
 			}
 			/* udelay(10 * 1000); */
 			mdelay(10);
@@ -3933,6 +3931,7 @@ static struct snd_soc_codec_driver soc_mtk_codec = {
 	/* use add control to replace */
 	/* .controls = mt6350_snd_controls, */
 	/* .num_controls = ARRAY_SIZE(mt6350_snd_controls), */
+
 	.component_driver = {
 		.dapm_widgets = mt6350_dapm_widgets,
 		.num_dapm_widgets = ARRAY_SIZE(mt6350_dapm_widgets),
