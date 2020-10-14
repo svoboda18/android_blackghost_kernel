@@ -64,6 +64,7 @@
 #include <linux/page_owner.h>
 #include <linux/kthread.h>
 #include <linux/memcontrol.h>
+#include <linux/khugepaged.h>
 #include <linux/psi.h>
 #include <linux/khugepaged.h>
 
