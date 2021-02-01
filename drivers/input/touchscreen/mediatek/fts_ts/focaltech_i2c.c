@@ -3,6 +3,7 @@
  * FocalTech TouchScreen driver.
  *
  * Copyright (c) 2010-2017, FocalTech Systems, Ltd., all rights reserved.
+ * Copyright (c) 2020, svoboda18
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -14,25 +15,6 @@
  * GNU General Public License for more details.
  *
  */
-/************************************************************************
-*
-* File Name: focaltech_i2c.c
-*
-*    Author: fupeipei
-*
-*   Created: 2016-08-04
-*
-*  Abstract: i2c communication with TP
-*
-*   Version: v1.0
-*
-* Revision History:
-*        v1.0:
-*            First release. By fupeipei 2016-08-04
-*        v2.0:
-*            1. Add retry times after I2C transfer error
-*            2. Move HID2STD function
-************************************************************************/
 
 /*****************************************************************************
 * Included header files
@@ -58,10 +40,6 @@ static DEFINE_MUTEX(i2c_rw_access);
 u8 *g_dma_buff_va = NULL;
 dma_addr_t g_dma_buff_pa = 0;
 #endif
-
-/*****************************************************************************
-* Global variable or extern global variabls/functions
-*****************************************************************************/
 
 /*****************************************************************************
 * Static function prototypes
@@ -318,6 +296,7 @@ int fts_i2c_write_reg(struct i2c_client *client, u8 regaddr, u8 regvalue)
     buf[1] = regvalue;
     return fts_i2c_write(client, buf, sizeof(buf));
 }
+
 /************************************************************************
 * Name: fts_i2c_read_reg
 * Brief: read register
@@ -355,7 +334,6 @@ void fts_i2c_hid2std(struct i2c_client *client)
     }
 }
 
-
 /************************************************************************
 * Name: fts_i2c_init
 * Brief: fts i2c init
@@ -373,6 +351,7 @@ int fts_i2c_init(void)
     FTS_FUNC_EXIT();
     return 0;
 }
+
 /************************************************************************
 * Name: fts_i2c_exit
 * Brief: fts i2c exit
@@ -389,4 +368,3 @@ int fts_i2c_exit(void)
     FTS_FUNC_EXIT();
     return 0;
 }
-

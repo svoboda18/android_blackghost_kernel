@@ -3,6 +3,7 @@
  * FocalTech fts TouchScreen driver.
  *
  * Copyright (c) 2010-2017, Focaltech Ltd. All rights reserved.
+ * Copyright (c) 2020, svoboda18
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -14,19 +15,6 @@
  * GNU General Public License for more details.
  *
  */
-/*****************************************************************************
-*
-* File Name: focaltech_common.h
-*
-* Author: Focaltech Driver Team
-*
-* Created: 2016-08-16
-*
-* Abstract:
-*
-* Reference:
-*
-*****************************************************************************/
 
 #ifndef __LINUX_FOCALTECH_COMMON_H__
 #define __LINUX_FOCALTECH_COMMON_H__
@@ -36,7 +24,8 @@
 /*****************************************************************************
 * Macro definitions using #define
 *****************************************************************************/
-#define FTS_DRIVER_VERSION                  "Focaltech V2.0 20170919"
+#define FTS_DRIVER_VERSION      "svbFocaltech V1.0 2021"
+#define FTS_DRIVER_NAME         "svbfts_ts"
 
 #define BYTE_OFF_0(x)           (u8)((x) & 0xFF)
 #define BYTE_OFF_8(x)           (u8)((x >> 8) & 0xFF)
@@ -54,10 +43,12 @@
 #define DISABLE                             0
 #define VALID                               1
 #define INVALID                             0
+#define FTS_GESTURE_INIT_PIXLE_X            TPD_RES_X
+#define FTS_GESTURE_INIT_PIXLE_Y            TPD_RES_Y
+#define FTS_GESTURE_TIME_FRAME              60
 #define FTS_CMD_START1                      0x55
 #define FTS_CMD_START2                      0xAA
 #define FTS_CMD_READ_ID                     0x90
-/*register address*/
 #define FTS_REG_INT_CNT                     0x8F
 #define FTS_REG_FLOW_WORK_CNT               0x91
 #define FTS_REG_WORKMODE                    0x00
@@ -86,22 +77,21 @@
 /*****************************************************************************
 * DEBUG function define here
 *****************************************************************************/
-#if FTS_DEBUG_EN///1
-#define FTS_DEBUG_LEVEL     1
-#if (FTS_DEBUG_LEVEL == 2)////1
-#define FTS_DEBUG(fmt, args...) printk("[FTS][%s]"fmt"\n", __func__, ##args)
+
+#if FTS_DEBUG_EN
+#define FTS_DEBUG_LEVEL 2
+
+#define FTS_DEBUG(fmt, args...) printk("[svbFTS][%s] "fmt"\n", __func__, ##args)
+#define FTS_FUNC_ENTER() printk("[svbFTS][%s]: Enter\n", __func__)
+#define FTS_FUNC_EXIT()  printk("[svbFTS][%s]: Exit(%d)\n", __func__, __LINE__)
+
 #else
-#define FTS_DEBUG(fmt, args...) printk("[FTS]"fmt"\n", ##args)
-#endif
-#define FTS_FUNC_ENTER() printk("[FTS]%s: Enter\n", __func__)
-#define FTS_FUNC_EXIT()  printk("[FTS]%s: Exit(%d)\n", __func__, __LINE__)
-#else /* #if FTS_DEBUG_EN*/
 #define FTS_DEBUG(fmt, args...)
 #define FTS_FUNC_ENTER()
 #define FTS_FUNC_EXIT()
 #endif
 
-#define FTS_INFO(fmt, args...) printk(KERN_INFO "[FTS][Info]"fmt"\n", ##args)
-#define FTS_ERROR(fmt, args...) printk(KERN_ERR "[FTS][Error]"fmt"\n", ##args)
+#define FTS_INFO(fmt, args...) printk(KERN_INFO "[svbFTS][INFO][%s] "fmt"\n", __func__, ##args)
+#define FTS_ERROR(fmt, args...) printk(KERN_ERR "[svbFTS][ERROR][%s] "fmt"\n", __func__, ##args)
 
 #endif /* __LINUX_FOCALTECH_COMMON_H__ */

@@ -1,9 +1,9 @@
 /*
  *
- 
  * FocalTech TouchScreen driver.
  *
  * Copyright (c) 2010-2017, FocalTech Systems, Ltd., all rights reserved.
+ * Copyright (c) 2020, svoboda18
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -15,19 +15,6 @@
  * GNU General Public License for more details.
  *
  */
-/*****************************************************************************
-*
-* File Name: focaltech_core.c
-*
-* Author: Focaltech Driver Team
-*
-* Created: 2016-08-08
-*
-* Abstract: entrance for focaltech ts driver
-*
-* Version: V1.0
-*
-*****************************************************************************/
 
 /*****************************************************************************
 * Included header files
@@ -43,15 +30,14 @@
 * Private constant and macro definitions using #define
 *****************************************************************************/
 
-#define FTS_DRIVER_NAME                     "fts_ts"
 #define INTERVAL_READ_REG                   100  //interval time per read reg unit:ms
 #define TIMEOUT_READ_REG                    1000 //timeout of read reg unit:ms
 
 static DECLARE_WAIT_QUEUE_HEAD(waiter);
 static int tpd_flag;
-int gesture_status = 0;
-unsigned int tpd_rst_gpio_number = 0;
-unsigned int tpd_int_gpio_number = 1;
+unsigned int tpd_gesture_status = DISABLE; // "1" is enable
+unsigned int tpd_rst_gpio_number = DISABLE;
+unsigned int tpd_int_gpio_number = ENABLE;
 
 #if (defined(CONFIG_TPD_HAVE_CALIBRATION) && !defined(CONFIG_TPD_CUSTOM_CALIBRATION))
 static int tpd_def_calmat_local_normal[8]  = TPD_CALIBRATION_MATRIX_ROTATION_NORMAL;
@@ -137,7 +123,7 @@ void fts_tp_state_recovery(struct i2c_client *client)
 
     /* recover TP gesture state 0xD0 */
 #if FTS_GESTURE_EN
-    if (gesture_status) {
+    if (tpd_gesture_status) {
     	fts_gesture_recovery(client);
     }
 #endif
@@ -219,9 +205,9 @@ int fts_power_init(void)
 {
 
     int ret;
-    /*set TP volt*/
+    /* set TP volt */
     tpd->reg = regulator_get(tpd->tpd_dev, "vtouch");
-    ret = regulator_set_voltage(tpd->reg, 2800000, 2800000);
+	regulator_set_voltage(tpd->reg, 2800000, 2800000);
 
     ret = regulator_enable(tpd->reg);
     if (ret != 0) {
@@ -629,11 +615,11 @@ static int touch_event_handler(void *unused)
         FTS_DEBUG("touch_event_handler start");
 
 #if FTS_GESTURE_EN
-        if (gesture_status) {
-	    if (0 == fts_gesture_readdata(ts_data)) {
-            	FTS_INFO("succuss to get gesture data in irq handler");
+        if (tpd_gesture_status) {
+			if (0 == fts_gesture_readdata(ts_data)) {
+				FTS_INFO("succuss to get gesture data in irq handler");
             	continue;
-	    }
+			}
         }
 #endif
 
@@ -748,7 +734,7 @@ static int tpd_probe(struct i2c_client *client, const struct i2c_device_id *id)
     spin_lock_init(&ts_data->irq_lock);
     mutex_init(&ts_data->report_mutex);
 
-    /* Init I2C */
+    /* init I2C */
     fts_i2c_init();
 
     ret = fts_input_init(ts_data);
@@ -911,7 +897,7 @@ static void tpd_suspend(struct device *h)
     }
 
 #if FTS_GESTURE_EN
-    if (gesture_status) {
+    if (tpd_gesture_status) {
     	ret = fts_gesture_suspend(ts_data->client);
     	if (ret == 0) {
         	/* Enter into gesture mode(suspend) */
@@ -981,7 +967,7 @@ static void tpd_resume(struct device *h)
     fts_tp_state_recovery(ts_data->client);
 
 #if FTS_GESTURE_EN
-    if (gesture_status) {
+    if (tpd_gesture_status) {
     	if (fts_gesture_resume(ts_data->client) == 0) {
         	ts_data->suspended = false;
         	FTS_FUNC_EXIT();

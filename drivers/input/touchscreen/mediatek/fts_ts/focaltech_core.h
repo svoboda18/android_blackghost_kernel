@@ -3,6 +3,7 @@
  * FocalTech TouchScreen driver.
  *
  * Copyright (c) 2010-2017, Focaltech Ltd. All rights reserved.
+ * Copyright (c) 2020, svoboda18
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -14,22 +15,10 @@
  * GNU General Public License for more details.
  *
  */
-/*****************************************************************************
-*
-* File Name: focaltech_core.h
-
-* Author: Focaltech Driver Team
-*
-* Created: 2016-08-08
-*
-* Abstract:
-*
-* Reference:
-*
-*****************************************************************************/
 
 #ifndef __LINUX_FOCALTECH_CORE_H__
 #define __LINUX_FOCALTECH_CORE_H__
+
 /*****************************************************************************
 * 1.Included header files
 *****************************************************************************/
