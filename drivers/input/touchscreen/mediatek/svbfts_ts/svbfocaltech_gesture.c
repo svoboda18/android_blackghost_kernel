@@ -1,25 +1,25 @@
 /*
-*
-* FocalTech TouchScreen driver.
-*
-* Copyright (c) 2010-2017, Focaltech Ltd. All rights reserved.
-* Copyright (c) 2020, svoboda18
-*
-* This software is licensed under the terms of the GNU General Public
-* License version 2, as published by the Free Software Foundation, and
-* may be copied, distributed, and modified under those terms.
-*
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
+ *
+ * svbFocalTech TouchScreen driver.
+ *
+ * Copyright (c) 2010-2017, Focaltech Ltd. All rights reserved.
+ * Copyright (c) 2020, svoboda18
+ *
+ * This software is licensed under the terms of the GNU General Public
+ * License version 2, as published by the Free Software Foundation, and
+ * may be copied, distributed, and modified under those terms.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
 */
 
 /*****************************************************************************
 * 1.Included header files
 *****************************************************************************/
-#include "focaltech_core.h"
+#include "svbfocaltech_core.h"
 #include "kpd.h"
 
 extern unsigned int tpd_gesture_status;
@@ -30,7 +30,7 @@ extern unsigned int tpd_gesture_status;
 *****************************************************************************/
 #define GESTURE_LEFT		0x20
 #define GESTURE_RIGHT		0x21
-#define GESTURE_UP			0x22
+#define GESTURE_UP		0x22
 #define GESTURE_DOWN		0x23
 #define GESTURE_DOUBLECLICK	0x24
 #define GESTURE_O		0x30
@@ -100,14 +100,14 @@ static struct kobject *fts_gesture_kobj;
 int fetch_object_sample(unsigned char *buf, short pointnum);
 void init_para(int x_pixel, int y_pixel, int time_slot, int cut_x_pixel, int cut_y_pixel);
 
-static ssize_t fts_gesture_show(struct device *dev, struct device_attribute *attr, char *buf);
-static ssize_t fts_gesture_store(struct device *dev, struct device_attribute *attr, const char *buf, size_t count);
-static ssize_t fts_gesture_buf_show(struct device *dev, struct device_attribute *attr, char *buf);
-static ssize_t fts_gesture_buf_store(struct device *dev, struct device_attribute *attr, const char *buf, size_t count);
+static ssize_t svbfts_gesture_show(struct device *dev, struct device_attribute *attr, char *buf);
+static ssize_t svbfts_gesture_store(struct device *dev, struct device_attribute *attr, const char *buf, size_t count);
+static ssize_t svbfts_gesture_buf_show(struct device *dev, struct device_attribute *attr, char *buf);
+static ssize_t svbfts_gesture_buf_store(struct device *dev, struct device_attribute *attr, const char *buf, size_t count);
 
 /* Sysfs attributes cannot be world-writable. */
-static DEVICE_ATTR (fts_gesture_mode, S_IRUGO | S_IWUSR, fts_gesture_show, fts_gesture_store);
-static DEVICE_ATTR (fts_gesture_buf, S_IRUGO | S_IWUSR, fts_gesture_buf_show, fts_gesture_buf_store);
+static DEVICE_ATTR (svbfts_gesture_mode, S_IRUGO | S_IWUSR, svbfts_gesture_show, svbfts_gesture_store);
+static DEVICE_ATTR (svbfts_gesture_buf, S_IRUGO | S_IWUSR, svbfts_gesture_buf_show, svbfts_gesture_buf_store);
 
 static struct fts_gesture_item fts_gesture_array[] = 
 {
@@ -127,36 +127,36 @@ static struct fts_gesture_item fts_gesture_array[] =
     {0}
 };
 
-static struct attribute *fts_gesture_mode_attrs[] = {
-    &dev_attr_fts_gesture_mode.attr,
-    &dev_attr_fts_gesture_buf.attr,
+static struct attribute *svbfts_gesture_mode_attrs[] = {
+    &dev_attr_svbfts_gesture_mode.attr,
+    &dev_attr_svbfts_gesture_buf.attr,
     NULL,
 };
 
-static struct attribute_group fts_gesture_group = {
-    .attrs = fts_gesture_mode_attrs,
+static struct attribute_group svbfts_gesture_group = {
+    .attrs = svbfts_gesture_mode_attrs,
 };
 
 /************************************************************************
-* Name: fts_gesture_show
+* Name: svbfts_gesture_show
 *  Brief:
 *  Input: device, device attribute, char buf
 * Output:
 * Return:
 ***********************************************************************/
-static ssize_t fts_gesture_show(struct device *dev, struct device_attribute *attr, char *buf)
+static ssize_t svbfts_gesture_show(struct device *dev, struct device_attribute *attr, char *buf)
 {   
     return snprintf(buf, PAGE_SIZE, "Gesture Mode: %s\n", fts_gesture_data.mode ? "on" : "off");
 }
 
 /************************************************************************
-* Name: fts_gesture_store
+* Name: svbfts_gesture_store
 *  Brief:
 *  Input: device, device attribute, char buf, char count
 * Output:
 * Return:
 ***********************************************************************/
-static ssize_t fts_gesture_store(struct device *dev, struct device_attribute *attr, const char *buf, size_t count)
+static ssize_t svbfts_gesture_store(struct device *dev, struct device_attribute *attr, const char *buf, size_t count)
 {
     struct input_dev *input_dev = fts_data->input_dev;
     
@@ -177,13 +177,13 @@ static ssize_t fts_gesture_store(struct device *dev, struct device_attribute *at
     return count;
 }
 /************************************************************************
-* Name: fts_gesture_buf_show
+* Name: svbfts_gesture_buf_show
 *  Brief:
 *  Input: device, device attribute, char buf
 * Output:
 * Return:
 ***********************************************************************/
-static ssize_t fts_gesture_buf_show(struct device *dev, struct device_attribute *attr, char *buf)
+static ssize_t svbfts_gesture_buf_show(struct device *dev, struct device_attribute *attr, char *buf)
 {
     int count;
     int i = 0;
@@ -208,13 +208,13 @@ static ssize_t fts_gesture_buf_show(struct device *dev, struct device_attribute 
 }
 
 /************************************************************************
-* Name: fts_gesture_buf_store
+* Name: svbfts_gesture_buf_store
 *  Brief:
 *  Input: device, device attribute, char buf, char count
 * Output:
 * Return:
 ***********************************************************************/
-static ssize_t fts_gesture_buf_store(struct device *dev, struct device_attribute *attr, const char *buf, size_t count)
+static ssize_t svbfts_gesture_buf_store(struct device *dev, struct device_attribute *attr, const char *buf, size_t count)
 {
     /* place holder for future use */
     return -EPERM;
@@ -233,12 +233,12 @@ int fts_create_gesture_sysfs(void)
     fts_gesture_kobj = kobject_create_and_add(FTS_DRIVER_NAME, kernel_kobj);
     
     if (!fts_gesture_kobj)
-		return -ENOMEM;
+	return -ENOMEM;
     
-    ret = sysfs_create_group(fts_gesture_kobj, &fts_gesture_group);
+    ret = sysfs_create_group(fts_gesture_kobj, &svbfts_gesture_group);
     if ( ret != 0) {
         FTS_ERROR( "[GESTURE]fts_gesture_mode_group(sysfs) create failed!");
-        sysfs_remove_group(fts_gesture_kobj, &fts_gesture_group);
+        sysfs_remove_group(fts_gesture_kobj, &svbfts_gesture_group);
         return ret;
     }
     return 0;
@@ -403,7 +403,7 @@ int fts_gesture_readdata(struct fts_ts_data *ts_data)
     goto report_gesture;
     
 report_gesture:
-    FTS_DEBUG("[%d] gesture_id: %d, pointnum: %d", __LINE__, gesture_id, pointnum);
+    FTS_DEBUG("[%d] gesture_id: %d, pointnum: %d, is_valid: %d", __LINE__, gesture_id, pointnum, is_valid);
     
     fts_gesture_report(input_dev, gesture_id);
     
@@ -468,7 +468,7 @@ int fts_gesture_suspend(struct i2c_client *client)
         msleep(1);
         fts_i2c_read_reg(client, FTS_REG_GESTURE_EN, &state);
         if (state == ENABLE)
-        break;
+        	break;
     }
     
     if (i >= 5) {
@@ -508,7 +508,7 @@ int fts_gesture_resume(struct i2c_client *client)
         msleep(1);
         fts_i2c_read_reg(client, FTS_REG_GESTURE_EN, &state);
         if (state == DISABLE)
-        break;
+        	break;
     }
     
     if (i >= 5) {
@@ -541,7 +541,7 @@ int fts_gesture_init(struct fts_ts_data *ts_data)
     
     FTS_FUNC_ENTER();
     
-    init_para(FTS_GESTURE_INIT_PIXLE_X, FTS_GESTURE_INIT_PIXLE_Y, FTS_GESTURE_TIME_FRAME, 0, 0);
+    init_para(FTS_GESTURE_INIT_PIXLE_X, FTS_GESTURE_INIT_PIXLE_Y, FTS_GESTURE_TIME_FRAME, FTS_GESTURE_CUT_PIXLE_X, FTS_GESTURE_CUT_PIXLE_Y);
     
     while(items->gesture_id)
     {
@@ -568,7 +568,7 @@ int fts_gesture_exit(struct i2c_client *client)
 {
     FTS_FUNC_ENTER();
     
-    sysfs_remove_group(fts_gesture_kobj, &fts_gesture_group);
+    sysfs_remove_group(fts_gesture_kobj, &svbfts_gesture_group);
     
     FTS_FUNC_EXIT();
     return 0;

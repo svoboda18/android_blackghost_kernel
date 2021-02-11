@@ -6,7 +6,7 @@ ccflags-y += -I$(srctree)/drivers/misc/mediatek/include/mt-plat/$(MTK_PLATFORM)/
 ccflags-y += -I$(srctree)/drivers/base
 ccflags-y += -I$(srctree)/drivers/misc/mediatek/hwmon/include
 
-obj-$(CONFIG_TOUCHSCREEN_MTK_FOCALTECH_TS)    +=  focaltech_gesture.o
-obj-$(CONFIG_TOUCHSCREEN_MTK_FOCALTECH_TS)    +=  focaltech_gesture.a
-obj-$(CONFIG_TOUCHSCREEN_MTK_FOCALTECH_TS)    +=  focaltech_core.o
-obj-$(CONFIG_TOUCHSCREEN_MTK_FOCALTECH_TS)    +=  focaltech_i2c.o
+obj-$(CONFIG_TOUCHSCREEN_MTK_SVB_FOCALTECH_TS)    +=  svbfocaltech_gesture.o
+obj-$(CONFIG_TOUCHSCREEN_MTK_SVB_FOCALTECH_TS)    +=  svbfocaltech_gesture.a
+obj-$(CONFIG_TOUCHSCREEN_MTK_SVB_FOCALTECH_TS)    +=  svbfocaltech_core.o
+obj-$(CONFIG_TOUCHSCREEN_MTK_SVB_FOCALTECH_TS)    +=  svbfocaltech_i2c.o

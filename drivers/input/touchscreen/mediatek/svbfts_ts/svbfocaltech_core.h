@@ -1,6 +1,6 @@
 /*
  *
- * FocalTech TouchScreen driver.
+ * svbFocalTech TouchScreen driver.
  *
  * Copyright (c) 2010-2017, Focaltech Ltd. All rights reserved.
  * Copyright (c) 2020, svoboda18
@@ -16,8 +16,8 @@
  *
  */
 
-#ifndef __LINUX_FOCALTECH_CORE_H__
-#define __LINUX_FOCALTECH_CORE_H__
+#ifndef __LINUX_SVB_FOCALTECH_CORE_H__
+#define __LINUX_SVB_FOCALTECH_CORE_H__
 
 /*****************************************************************************
 * 1.Included header files
@@ -44,7 +44,7 @@
 #include <linux/dma-mapping.h>
 #include <linux/vmalloc.h>
 #include "tpd.h"
-#include "focaltech_common.h"
+#include "svbfocaltech_common.h"
 
 /*****************************************************************************
 * Private constant and macro definitions using #define
@@ -150,4 +150,4 @@ int fts_reset_proc(int hdelayms);
 int fts_wait_tp_to_valid(struct i2c_client *client);
 void fts_tp_state_recovery(struct i2c_client *client);
 
-#endif /* __LINUX_FOCALTECH_CORE_H__ */
+#endif /* __LINUX_SVB_FOCALTECH_CORE_H__ */

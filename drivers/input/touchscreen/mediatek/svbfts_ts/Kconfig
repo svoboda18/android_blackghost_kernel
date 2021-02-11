@@ -2,7 +2,7 @@
 # Touchscreen driver configuration
 #
 
-config TOUCHSCREEN_MTK_FOCALTECH_TS
+config TOUCHSCREEN_MTK_SVB_FOCALTECH_TS
 	bool "svbfts_ts for Mediatek package"
 	default n
 	help

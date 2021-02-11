@@ -1,6 +1,6 @@
 /*
  *
- * FocalTech TouchScreen driver.
+ * svbFocalTech TouchScreen driver.
  *
  * Copyright (c) 2010-2017, FocalTech Systems, Ltd., all rights reserved.
  * Copyright (c) 2020, svoboda18
@@ -16,8 +16,8 @@
  *
  */
  
-#ifndef _LINUX_FOCLATECH_CONFIG_H_
-#define _LINUX_FOCLATECH_CONFIG_H_
+#ifndef _LINUX_SVB_FOCLATECH_CONFIG_H_
+#define _LINUX_SVB_FOCLATECH_CONFIG_H_
 
 /*
  * show debug log info
@@ -57,4 +57,4 @@
  */
 #define FTS_POWER_SOURCE_CUST_EN 1
 
-#endif /* _LINUX_FOCLATECH_CONFIG_H_ */
+#endif /* _LINUX_SVB_FOCLATECH_CONFIG_H_ */

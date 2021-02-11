@@ -1,6 +1,6 @@
 /*
  *
- * FocalTech TouchScreen driver.
+ * svbFocalTech TouchScreen driver.
  *
  * Copyright (c) 2010-2017, FocalTech Systems, Ltd., all rights reserved.
  * Copyright (c) 2020, svoboda18
@@ -19,7 +19,7 @@
 /*****************************************************************************
 * Included header files
 *****************************************************************************/
-#include "focaltech_core.h"
+#include "svbfocaltech_core.h"
 
 /*****************************************************************************
 * Private constant and macro definitions using #define

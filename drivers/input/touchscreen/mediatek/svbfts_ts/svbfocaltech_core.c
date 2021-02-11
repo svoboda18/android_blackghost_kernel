@@ -1,6 +1,6 @@
 /*
  *
- * FocalTech TouchScreen driver.
+ * svbFocalTech TouchScreen driver.
  *
  * Copyright (c) 2010-2017, FocalTech Systems, Ltd., all rights reserved.
  * Copyright (c) 2020, svoboda18
@@ -24,7 +24,7 @@
 #include <linux/of_device.h>
 #include <linux/of_gpio.h>
 #include <linux/of_irq.h>
-#include "focaltech_core.h"
+#include "svbfocaltech_core.h"
 
 /*****************************************************************************
 * Private constant and macro definitions using #define
@@ -207,7 +207,7 @@ int fts_power_init(void)
     int ret;
     /* set TP volt */
     tpd->reg = regulator_get(tpd->tpd_dev, "vtouch");
-	regulator_set_voltage(tpd->reg, 2800000, 2800000);
+    regulator_set_voltage(tpd->reg, 2800000, 2800000);
 
     ret = regulator_enable(tpd->reg);
     if (ret != 0) {
@@ -616,10 +616,10 @@ static int touch_event_handler(void *unused)
 
 #if FTS_GESTURE_EN
         if (tpd_gesture_status) {
-			if (0 == fts_gesture_readdata(ts_data)) {
-				FTS_INFO("succuss to get gesture data in irq handler");
-            	continue;
-			}
+		if (0 == fts_gesture_readdata(ts_data)) {
+			FTS_INFO("succuss to get gesture data in irq handler");
+            		continue;
+		}
         }
 #endif
 
@@ -771,7 +771,6 @@ static int tpd_probe(struct i2c_client *client, const struct i2c_device_id *id)
     }
 
     tpd_load_status = 1;
-    FTS_DEBUG("TPD_RES_Y:%d", (int)TPD_RES_Y);
     FTS_FUNC_EXIT();
     return 0;
 
@@ -1014,8 +1013,6 @@ static int __init tpd_driver_init(void)
         tpd_dts_data.touch_max_num = 2;
     else if (tpd_dts_data.touch_max_num > FTS_MAX_POINTS_SUPPORT)
         tpd_dts_data.touch_max_num = FTS_MAX_POINTS_SUPPORT;
-	
-    FTS_INFO("tpd max touch num:%d", tpd_dts_data.touch_max_num);
 	
     if (tpd_driver_add(&tpd_device_driver) < 0) {
         FTS_ERROR("[TPD]: Add FTS Touch driver failed!!");

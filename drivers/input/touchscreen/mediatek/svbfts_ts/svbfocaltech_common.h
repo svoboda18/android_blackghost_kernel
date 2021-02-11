@@ -1,6 +1,6 @@
 /*
  *
- * FocalTech fts TouchScreen driver.
+ * svbFocalTech TouchScreen driver.
  *
  * Copyright (c) 2010-2017, Focaltech Ltd. All rights reserved.
  * Copyright (c) 2020, svoboda18
@@ -16,10 +16,10 @@
  *
  */
 
-#ifndef __LINUX_FOCALTECH_COMMON_H__
-#define __LINUX_FOCALTECH_COMMON_H__
+#ifndef __LINUX_SVB_FOCALTECH_COMMON_H__
+#define __LINUX_SVB_FOCALTECH_COMMON_H__
 
-#include "focaltech_config.h"
+#include "svbfocaltech_config.h"
 
 /*****************************************************************************
 * Macro definitions using #define
@@ -45,6 +45,8 @@
 #define INVALID                             0
 #define FTS_GESTURE_INIT_PIXLE_X            TPD_RES_X
 #define FTS_GESTURE_INIT_PIXLE_Y            TPD_RES_Y
+#define FTS_GESTURE_CUT_PIXLE_X             10
+#define FTS_GESTURE_CUT_PIXLE_Y             5
 #define FTS_GESTURE_TIME_FRAME              60
 #define FTS_CMD_START1                      0x55
 #define FTS_CMD_START2                      0xAA
@@ -94,4 +96,4 @@
 #define FTS_INFO(fmt, args...) printk(KERN_INFO "[svbFTS][INFO][%s] "fmt"\n", __func__, ##args)
 #define FTS_ERROR(fmt, args...) printk(KERN_ERR "[svbFTS][ERROR][%s] "fmt"\n", __func__, ##args)
 
-#endif /* __LINUX_FOCALTECH_COMMON_H__ */
+#endif /* __LINUX_SVB_FOCALTECH_COMMON_H__ */
