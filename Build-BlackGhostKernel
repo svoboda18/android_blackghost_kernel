@@ -23,31 +23,28 @@ BLINK_BLU=$'\033[05;34m'
 function START_SCRIPT() {
     HELP
     read -rsn1 answer
-	case "${answer}" in
-        "b"|"build")
-            BUILD=y
+    case "${answer}" in
+         "b"|"build")
+            	BUILD=y
             ;;
-		"c"|"clean")
-			CLEAN=y
-			;;
-		*)			
-            echo -e "${RST}"
-            exit 1;
-			;;
-	esac
-	shift
+	 "c"|"clean")
+		CLEAN=y
+	    ;;
+	 *)			
+            	echo -e "${RST}"
+            	exit 1
+	    ;;
+     esac
+     shift
 }
 
 function BANNER() {
-echo "${BLINK_RED}        
-
-
+echo "${BLINK_RED}
 ______________              ______ ______________  _______________________
 ___  __ )__  / ______ _________  /___  ____/__  / / /_  __ \_  ___/__  __/
 __  __  |_  /  _  __ //  ___/_  //_/  / __ __  /_/ /_  / / /____ \__  /   
 _  /_/ /_  /___/ /_/ // /__ _  ,<  / /_/ / _  __  / / /_/ /____/ /_  /    
 /_____/ /_____/\__,_/ \___/ /_/|_| \____/  /_/ /_/  \____/ /____/ /_/     
-
 
 ${RST} "
 }
@@ -55,14 +52,14 @@ ${RST} "
 function BINFO() {
         VERSION="V0.2"
         BUILD_DATE=$(echo "$(date)" | sed 'y/ /-/' | sed 's/--/-/')
-        export KBUILD_BUILD_USER=SaMad
-        export KBUILD_BUILD_HOST=BlackHost
+	[ -f .scmversion ] || {
+        	export KBUILD_BUILD_USER=SaMad
+        	export KBUILD_BUILD_HOST=BlackHost
+	}
 }
 
 function TOOLCHAIN() {
 if [[ ! -d gcc ]]; then 
-    sudo rm -rf linaro
-#   sudo rm -rf gcc/.git
     echo "${GRN} #####################################"
     echo "${GRN} #                                   #"
     echo "${GRN} #        Cloning TOOLCHAIN...       #"
@@ -79,12 +76,14 @@ fi
 
 function BUILD() {
         mkdir -p out
+        BANNER
         echo "${PURP} #####################################"
         echo "${PURP} #                                   #"
         echo "${PURP} #        READING DEFCONFIG          #"
         echo "${PURP} #                                   #"
         echo "${PURP} #####################################"
         make O=BGH-Out/ TARGET_ARCH=arm blackghost_defconfig | tee -a defconfig.log
+        BANNER
         echo "${YLW} #####################################"
         echo "${YLW} #                                   #"
         echo "${YLW} #       REAL BUILDING STARTED       #"
@@ -118,7 +117,7 @@ else
         echo "${GRN} Output: BlackGHostKernel-${VERSION}-${BUILD_DATE} ($(du -sh zImage | sed 's/M.*/M/'))"
         mv ${OIMAGE} zImage
         zip -r9 BlackGHostKernel-${VERSION}-${BUILD_DATE}.zip zImage >> /dev/null
-#	rm zImage
+	rm zImage
         echo " "
         echo "${GRN} #    DO YOU WANT TO UPLOAD BGHK?    #"
         echo " "
@@ -136,7 +135,8 @@ function CLEAN() {
         rm -rf *.log *.zip out BGH-Out
         make clean >> /dev/null
         make mrproper >> /dev/null
-clear
+	
+	MAIN
 }
 
 function HELP() {
@@ -191,12 +191,14 @@ fi
         echo ${TIME_STRING}
 }
 
+function MAIN() {
+	clear
         BANNER
 
 if [[ ${BUILDING_ON_CI} = 'y' ]]; then
         START_SCRIPT "${@}"
 else
-	START_SCRIPT
+        START_SCRIPT
 fi
 
 if [[ "${BUILD}" = 'y' ]]; then
@@ -212,6 +214,8 @@ clear
         TIME_STRING="$(FORMAT_TIME "${START}" "${END}")"
         echo "${GRN}Completed In: ${TIME_STRING}"
 elif [[ "${CLEAN}" == 'y' ]]; then
+	clear
+        BANNER
         CLEAN
 else
 if [[ "${HELP}" == 'y' ]]; then
@@ -219,3 +223,6 @@ clear
         HELP
 fi
 fi
+}
+
+	MAIN
