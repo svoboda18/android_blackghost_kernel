@@ -267,10 +267,10 @@
 			pinmux = <PINMUX_GPIO26__FUNC_GPIO26>;
 		};
 		pins_cmd1_dat {
-			pinmux = <PINMUX_GPIO28__FUNC_GPIO28>;
+			pinmux = <PINMUX_GPIO27__FUNC_GPIO27>;
 		};
 		pins_cmd2_dat {
-			pinmux = <PINMUX_GPIO27__FUNC_GPIO27>;
+			pinmux = <PINMUX_GPIO28__FUNC_GPIO28>;
 		};
 	};
 	AUD_pins_pmicclk_mode1: pmicclkmode1 {
@@ -278,10 +278,10 @@
 			pinmux = <PINMUX_GPIO26__FUNC_AUD_CLK_MOSI>;
 		};
 		pins_cmd1_dat {
-			pinmux = <PINMUX_GPIO28__FUNC_AUD_DAT_MISO>;
+			pinmux = <PINMUX_GPIO27__FUNC_AUD_DAT_MOSI>;
 		};
 		pins_cmd2_dat {
-			pinmux = <PINMUX_GPIO27__FUNC_AUD_DAT_MOSI>;
+			pinmux = <PINMUX_GPIO28__FUNC_AUD_DAT_MISO>;
 		};
 	};
 
@@ -562,7 +562,7 @@
 			pinmux = <PINMUX_GPIO3__FUNC_GPIO3>;
 			slew-rate = <0>;
 			bias-disable;
-			output-low;
+			output-low;	
 		};
 	};
 
@@ -599,4 +599,3 @@
 
 #include "x5_bsp/cust.dtsi"
 /*End of this file, DO NOT ADD ANYTHING HERE*/
-
