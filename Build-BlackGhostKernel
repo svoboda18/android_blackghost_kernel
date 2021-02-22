@@ -52,7 +52,7 @@ function BANNER() {
 function BINFO() {
     VERSION="V0.3"
     BUILD_DATE=$(echo "$(date)" | sed 'y/ /-/' | sed 's/--/-/')
-	[[ -f ".host_build" ]]; {
+    [[ -f ".host_build" ]]; {
         export KBUILD_BUILD_USER="$USER"
         export KBUILD_BUILD_HOST="$NAME"
     } || {
@@ -76,7 +76,7 @@ function TOOLCHAIN() {
         git clone -q https://github.com/svoboda18/android_gcc_4.9_arm-linux-androideabi gcc
         export ARCH=arm CROSS_COMPILE=${PWD}/gcc/bin/arm-linux-androideabi-
         export SUBARCH=arm
-        else
+    else
         export ARCH=arm CROSS_COMPILE=${PWD}/gcc/bin/arm-linux-androideabi-
         export SUBARCH=arm
     fi
@@ -143,7 +143,7 @@ function CLEAN() {
     make clean >> /dev/null
     make mrproper >> /dev/null
 	
-	MAIN
+    MAIN
 }
 
 function HELP() {
@@ -199,7 +199,7 @@ function FORMAT_TIME() {
 }
 
 function MAIN() {
-	clear
+    clear
     BANNER
     
     if [[ ${BUILDING_ON_CI} = 'y' ]]; then

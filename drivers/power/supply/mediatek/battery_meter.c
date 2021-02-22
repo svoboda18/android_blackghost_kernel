@@ -3102,7 +3102,7 @@ signed int get_dynamic_period(int first_use, int first_wakeup_time, int battery_
 		car_instant = car_instant - (car_instant * 2);
 
 
-	if (BMT_status.UI_SOC != BMT_status.SOC && gDisableGM != true) {
+	if (BMT_status.UI_SOC != BMT_status.SOC) {
 		last_time = 60;
 		g_spm_timer = 60;
 		bm_print(BM_LOG_CRTI, "[get_dynamic_period] UISOC:%d SOC:%d vbat:%d current:%d car:%d new_time:%d\n",
