@@ -56,9 +56,9 @@
 	sd-uhs-ddr50;
 	no-mmc;
 	no-sdio;
-        non-removable; 
-    
-        pinctrl-names = "default","insert_cfg";
+	non-removable; 
+
+	pinctrl-names = "default","insert_cfg";
 	pinctrl-0 = <&mmc1_pins_insert_default>;
 	pinctrl-1 = <&mmc1_pins_insert_cfg>;
 	pinctl = <&msdc1_pins_default>;
@@ -125,15 +125,14 @@
 		rdata_edge = /bits/ 8 <MSDC_SMPL_FALLING>;	
 		wdata_edge = /bits/ 8 <MSDC_SMPL_FALLING>;
 	};
-    
-        mmc1_pins_insert_default: mmc1_ins_default {
-    
+	mmc1_pins_insert_default: mmc1_ins_default {
+
 	};
 
 	// change GPIO3 to GPIO10, since GPIO3 is GPS_LNA_PIN
 	// GPIO10 is not used and choosed for msdc1 out ins ops
 	// you wont find this in stock dts
-        mmc1_pins_insert_cfg: mmc1_ins_cfg {
+	mmc1_pins_insert_cfg: mmc1_ins_cfg {
 		pins_insert {
 			pins = <PINMUX_GPIO10__FUNC_EINT10>;
 			input-schmitt-enable =<1>;
