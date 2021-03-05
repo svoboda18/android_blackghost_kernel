@@ -43,18 +43,6 @@ config TOUCHSCREEN_MTK_SOLOMON
 
 source "drivers/input/touchscreen/mediatek/SOLOMON/Kconfig"
 
-config TOUCHSCREEN_MTK_FOCALTECH_TS
-	bool "FOCALTECH_TS for Mediatek package"
-	default n
-	help
-	  Say Y here if you have focaltech_touch touch panel.
-
-	  If unsure, say N.
-
-	  To compile this dirver as a module, choose M here: the
-	  module will be called.
-
-source "drivers/input/touchscreen/mediatek/focaltech_touch/Kconfig"
 config TOUCHSCREEN_MTK_GT1151
 	bool "GT1151 for Mediatek package"
 	default n
@@ -92,5 +80,6 @@ config TOUCHSCREEN_MTK_NT36xxx
 
 source "drivers/input/touchscreen/mediatek/NT36xxx/Kconfig"
 
+source "drivers/input/touchscreen/mediatek/svbfts_ts/Kconfig"
 
 endif

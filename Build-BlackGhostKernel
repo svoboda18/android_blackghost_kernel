@@ -8,195 +8,212 @@
 # Script To Compile Kernels
 
 # Colors
-ORNG=$'\033[0;33m'
-CYN=$'\033[0;36m'
-PURP=$'\033[0;35m'
-BLINK_RED=$'\033[05;31m'
-BLUE=$'\033[01;34m'
-BLD=$'\033[1m'
-GRN=$'\033[01;32m'
-RED=$'\033[01;31m'
 RST=$'\033[0m'
+BLD=$'\033[1m'
+CYN=$'\033[0;36m'
+RED=$'\033[01;31m'
+GRN=$'\033[01;32m'
 YLW=$'\033[01;33m'
+ORNG=$'\033[0;33m'
+BLUE=$'\033[01;34m'
+PURP=$'\033[0;35m'
+BLINK_RED=${BLD}$'\033[05;32m'${BLD}${RED}
+BLINK_BLU=$'\033[05;34m'
 
 function START_SCRIPT() {
-        HELP
-        read -rsn1 answer
-	case "${answer}" in
-                "b"|"build")
-                        BUILD=y
-                        ;;
-		"c"|"clean")
-			CLEAN=y
-			;;
-		*)			
-                        echo "${RED}Opps:Invalid Option${RST}"
-                        exit 1;
-			;;
-		esac
-		shift
+    HELP
+    read -rsn1 answer
+    case "${answer}" in
+        "b"|"build")
+        BUILD=y
+        ;;
+        "c"|"clean")
+		CLEAN=y
+	    ;;
+        *)			
+        echo -e "${RST}"
+        exit 1
+	    ;;
+    esac
+    shift
 }
 
 function BANNER() {
-echo "${BLINK_RED}        
-
-
-______________              ______ ______________  _______________________
-___  __ )__  / ______ _________  /___  ____/__  / / /_  __ \_  ___/__  __/
-__  __  |_  /  _  __ //  ___/_  //_/  / __ __  /_/ /_  / / /____ \__  /   
-_  /_/ /_  /___/ /_/ // /__ _  ,<  / /_/ / _  __  / / /_/ /____/ /_  /    
-/_____/ /_____/\__,_/ \___/ /_/|_| \____/  /_/ /_/  \____/ /____/ /_/     
-                                                                         
-
-${RST} "
+    echo "${BLINK_RED}
+ ______________              ______ ______________  _______________________
+ ___  __ )__  / ______ _________  /___  ____/__  / / /_  __ \_  ___/__  __/
+ __  __  |_  /  _  __ //  ___/_  //_/  / __ __  /_/ /_  / / /____ \__  /   
+ _  /_/ /_  /___/ /_/ // /__ _  ,<  / /_/ / _  __  / / /_/ /____/ /_  /    
+ /_____/ /_____/\__,_/ \___/ /_/|_| \____/  /_/ /_/  \____/ /____/ /_/     
+    
+    ${RST} "
 }
 
 function BINFO() {
-        VERSION="V0.1"
-        BUILD_DATE=$(echo "$(date)" | sed 'y/ /-/')
+    VERSION="V0.1"
+    BUILD_DATE=$(echo "$(date)" | sed 'y/ /-/' | sed 's/--/-/')
+    [[ -f ".host_build" ]]; {
+        export KBUILD_BUILD_USER="$USER"
+        export KBUILD_BUILD_HOST="$NAME"
+    } || {
         export KBUILD_BUILD_USER=SaMad
         export KBUILD_BUILD_HOST=BlackHost
+    }
+    
+    echo "${GRN} * Building BalckGhost ${VERSION}"
+    echo "${GRN} - BUILD USER: ${KBUILD_BUILD_USER}"
+    echo "${GRN} - BUILD HOST: ${KBUILD_BUILD_HOST}"
+    echo "${GRN}"
 }
 
 function TOOLCHAIN() {
-if [[ ! -d gcc ]]; then 
-    sudo rm -rf linaro
-#   sudo rm -rf gcc/.git
-    echo "${GRN} #####################################"
-    echo "${GRN} #                                   #"
-    echo "${GRN} #        Cloning TOOLCHAIN...       #"
-    echo "${GRN} #                                   #"
-    echo "${GRN} #####################################"
-    git clone -q https://github.com/svoboda18/android_gcc_4.9_arm-linux-androideabi gcc
-    export ARCH=arm CROSS_COMPILE=${PWD}/gcc/bin/arm-linux-androideabi-
-    export SUBARCH=arm
-else
-    export ARCH=arm CROSS_COMPILE=${PWD}/gcc/bin/arm-linux-androideabi-
-    export SUBARCH=arm
-fi
+    if [[ ! -d gcc ]]; then 
+        echo "${GRN} #####################################"
+        echo "${GRN} #                                   #"
+        echo "${GRN} #        Cloning TOOLCHAIN...       #"
+        echo "${GRN} #                                   #"
+        echo "${GRN} #####################################"
+        git clone -q https://github.com/svoboda18/android_gcc_4.9_arm-linux-androideabi gcc
+        export ARCH=arm CROSS_COMPILE=${PWD}/gcc/bin/arm-linux-androideabi-
+        export SUBARCH=arm
+    else
+        export ARCH=arm CROSS_COMPILE=${PWD}/gcc/bin/arm-linux-androideabi-
+        export SUBARCH=arm
+    fi
 }
 
 function BUILD() {
-        mkdir -p out
-        echo "${PURP} #####################################"
-        echo "${PURP} #                                   #"
-        echo "${PURP} #        READING DEFCONFIG          #"
-        echo "${PURP} #                                   #"
-        echo "${PURP} #####################################"
-        make O=BGH-Out/ TARGET_ARCH=arm blackghost_defconfig | tee -a defconfig.log
-        echo "${YLW} #####################################"
-        echo "${YLW} #                                   #"
-        echo "${YLW} #       REAL BUILDING STARTED       #"
-        echo "${YLW} #                                   #"
-        echo "${YLW} #####################################"
-        make -j$(nproc --all) O=BGH-Out/ TARGET_ARCH=arm 2>&1 | tee -a kernel.log
-        OIMAGE=BGH-Out/arch/arm/boot/zImage-dtb
+    mkdir -p out
+    echo "${PURP} #####################################"
+    echo "${PURP} #                                   #"
+    echo "${PURP} #        READING DEFCONFIG          #"
+    echo "${PURP} #                                   #"
+    echo "${PURP} #####################################"
+    make O=BGH-Out/ TARGET_ARCH=arm blackghost_defconfig | tee -a defconfig.log
+    BANNER
+    echo "${YLW} #####################################"
+    echo "${YLW} #                                   #"
+    echo "${YLW} #       REAL BUILDING STARTED       #"
+    echo "${YLW} #                                   #"
+    echo "${YLW} #####################################"
+    make -j$(nproc --all) O=BGH-Out/ TARGET_ARCH=arm 2>&1 | tee -a kernel.log
+    OIMAGE=BGH-Out/arch/arm/boot/zImage-dtb
 }
 
 function CHECK() {
-if [[ ! -e ${OIMAGE} ]];
-then
+    if [[ ! -e ${OIMAGE} ]];
+        then
         echo "${RED} #####################################"
         echo "${RED} #                                   #"
         echo "${RED} #           BUILD ERROR             #"
         echo "${RED} #                                   #"
         echo "${RED} #####################################"
-        TRANSFER kernel.log
-else
+        echo " "
+        echo "${GRN} #    DO YOU WANT TO UPLOAD LOGS?    #"
+        echo " "
+        read -rsn1 option
+        [ "$option" == "y" ] && TRANSFER kernel.log
+    else
         BANNER
         echo "${GRN} #####################################"
         echo "${GRN} #                                   #"
-        echo "${GRN} #    SUCCESSFULLY BUILDED KERNEL    #"
+        echo "${GRN} #   SUCCESSFULLY BUILT THE KERNEL   #"
         echo "${GRN} #                                   #"
         echo "${GRN} #####################################"
-        mv ${OIMAGE} zImage
-        zip -r9 BlackGHostKernel-${VERSION}-${BUILD_DATE}.zip zImage >> /dev/null
-#	rm zImage
         echo " "
-        echo "${GRN} #      Do You Want To Upload?       #"
+        mv ${OIMAGE} zImage
+        echo "${GRN} Output: BlackGHostKernel-${VERSION}-${BUILD_DATE} ($(du -sh zImage | sed 's/M.*/M/'))"
+        zip -r9 BlackGHostKernel-${VERSION}-${BUILD_DATE}.zip zImage >> /dev/null
+        echo " "
+        echo "${GRN} * DO YOU WANT TO UPLOAD BGHK?"
         echo " "
         read -rsn1 option
+        rm zImage
         [ "$option" == "y" ] && TRANSFER BlackGHostKernel-${VERSION}-${BUILD_DATE}.zip
-fi
+    fi
 }
 
 function CLEAN() {
-        echo "${GRN} #####################################"
-        echo "${GRN} #                                   #"
-        echo "${GRN} #     Cleaning Kernel Source..      #"
-        echo "${GRN} #                                   #"
-        echo "${GRN} #####################################"
-	rm -rf *.log *.zip out BGH-Out
-        make clean >> /dev/null
-        make mrproper >> /dev/null
-clear
+    echo "${GRN} #####################################"
+    echo "${GRN} #                                   #"
+    echo "${GRN} #     Cleaning Kernel Source..      #"
+    echo "${GRN} #                                   #"
+    echo "${GRN} #####################################"
+    rm -rf *.log *.zip out BGH-Out
+    make clean >> /dev/null
+    make mrproper >> /dev/null
+	
+    MAIN
 }
 
 function HELP() {
-        echo "${GRN} #####################################"
-        echo "${GRN} #  BlackGHost Kernel Build Script   #"
-        echo "${GRN} #                                   #"
-        echo "${GRN} #  b, build  >   Build The Kernel   #"
-        echo "${GRN} #  c, clean  >   Clean The Source   #"
-        echo "${GRN} #                                   #"
-        echo "${GRN} #####################################"
+    echo "${GRN} #####################################"
+    echo "${GRN} #  BlackGHost Kernel Build Script   #"
+    echo "${GRN} #                                   #"
+    echo "${GRN} #  b, build  >   Build The Kernel   #"
+    echo "${GRN} #  c, clean  >   Clean The Source   #"
+    echo "${GRN} #                                   #"
+    echo "${GRN} #####################################"
 }
 
 function TRANSFER() {
-        file="$1"
-        zipname=$(echo "${file}" | awk -F '/' '{print $NF}')
-        destination="$2"
-        url=$(curl -# -T "${file}" https://transfer.sh/${destination})
-
-        echo "Download $zipname at $url"
+    file="$1"
+    zipname=$(echo "${file}" | awk -F '/' '{print $NF}')
+    destination="$2"
+    url=$(curl -# -T "${file}" https://transfer.sh/${destination})
+    
+    echo "Download $zipname at $url"
 }
 
 function FORMAT_TIME() {
-        MINS=$(((${1}-${2})/60))
-        SECS=$(((${1}-${2})%60))
-if [[ ${MINS} -ge 60 ]]; then
+    MINS=$(((${1}-${2})/60))
+    SECS=$(((${1}-${2})%60))
+    if [[ ${MINS} -ge 60 ]]; then
         HOURS=$((${MINS}/60))
         MINS=$((${MINS}%60))
-fi
-
-if [[ ${HOURS} -eq 1 ]]; then
+    fi
+    
+    if [[ ${HOURS} -eq 1 ]]; then
         TIME_STRING+="1 HOUR, "
-elif [[ ${HOURS} -ge 2 ]]; then
+        elif [[ ${HOURS} -ge 2 ]]; then
         TIME_STRING+="${HOURS} HOURS, "
-fi
-
-if [[ ${MINS} -eq 1 ]]; then
+    fi
+    
+    if [[ ${MINS} -eq 1 ]]; then
         TIME_STRING+="1 MINUTE"
-else
+        else
         TIME_STRING+="${MINS} MINUTES"
-fi
-
-if [[ ${SECS} -eq 1 && -n ${HOURS} ]]; then
+    fi
+    
+    if [[ ${SECS} -eq 1 && -n ${HOURS} ]]; then
         TIME_STRING+=", AND 1 SECOND"
-elif [[ ${SECS} -eq 1 && -z ${HOURS} ]]; then
+        elif [[ ${SECS} -eq 1 && -z ${HOURS} ]]; then
         TIME_STRING+=" AND 1 SECOND"
-elif [[ ${SECS} -ne 1 && -n ${HOURS} ]]; then
+        elif [[ ${SECS} -ne 1 && -n ${HOURS} ]]; then
         TIME_STRING+=", AND ${SECS} SECONDS"
-elif [[ ${SECS} -ne 1 && -z ${HOURS} ]]; then
+        elif [[ ${SECS} -ne 1 && -z ${HOURS} ]]; then
         TIME_STRING+=" AND ${SECS} SECONDS"
-fi
-
-        echo ${TIME_STRING}
+    fi
+    
+    echo ${TIME_STRING}
 }
 
-        BANNER
-
-if [[ ${BUILDING_ON_CI} = 'y' ]]; then
+function MAIN() {
+    clear
+    BANNER
+    
+    if [[ ${BUILDING_ON_CI} = 'y' ]]; then
         START_SCRIPT "${@}"
-else
-	START_SCRIPT
-fi
-
-if [[ "${BUILD}" = 'y' ]]; then
-clear
+    else
+        START_SCRIPT
+    fi
+    
+    if [[ "${BUILD}" = 'y' ]]; then
+        clear
         START=$(date +"%s")
         TOOLCHAIN
-clear
+        clear
+        BANNER
         BINFO
         sleep 0.3
         BUILD
@@ -204,11 +221,16 @@ clear
         END=$(date +%s)
         TIME_STRING="$(FORMAT_TIME "${START}" "${END}")"
         echo "${GRN}Completed In: ${TIME_STRING}"
-elif [[ "${CLEAN}" = 'y' ]]; then
+    elif [[ "${CLEAN}" == 'y' ]]; then
+        clear
+        BANNER
         CLEAN
-else
-if [[ "${HELP}" = 'y' ]]; then
-clear
-        HELP
-fi
-fi
+    else
+        if [[ "${HELP}" == 'y' ]]; then
+            clear
+            HELP
+        fi
+    fi
+}
+
+MAIN

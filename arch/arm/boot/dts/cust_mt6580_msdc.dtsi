@@ -14,20 +14,25 @@
 
 &msdc0 {
 	index = /bits/ 8 <0>;
-	clk_src = /bits/ 8 <MSDC0_CLKSRC_187MHZ>;
+	clk_src = /bits/ 8 <MSDC0_CLKSRC_208MHZ>;
 	bus-width = <8>;
-	max-frequency = <200000000>;
+	max-frequency = <208000000>;
 	cap-mmc-highspeed;
 	mmc-ddr-1_8v;
 	mmc-hs200-1_8v;
 	no-sd;
 	no-sdio;
 	non-removable;
+    
 	pinctl = <&msdc0_pins_default>;
 	pinctl_hs200 = <&msdc0_pins_hs200>;
+    
 	register_setting = <&msdc0_register_setting_default>;
+    
 	host_function = /bits/ 8 <MSDC_EMMC>;
+    
 	bootable;
+    
 	status = "okay";
 
 #ifndef CONFIG_FPGA_EARLY_PORTING
@@ -42,7 +47,7 @@
 	index = /bits/ 8 <1>;
 	clk_src = /bits/ 8 <MSDC1_CLKSRC_187MHZ>;
 	bus-width = <4>;
-	max-frequency = <200000000>;
+	max-frequency = <208000000>;
 	cap-sd-highspeed;
 	sd-uhs-sdr12;
 	sd-uhs-sdr25;
@@ -51,6 +56,7 @@
 	sd-uhs-ddr50;
 	no-mmc;
 	no-sdio;
+	non-removable; 
 
 	pinctrl-names = "default","insert_cfg";
 	pinctrl-0 = <&mmc1_pins_insert_default>;
@@ -59,6 +65,7 @@
 	pinctl_sdr104 = <&msdc1_pins_sdr104>;
 	pinctl_sdr50 = <&msdc1_pins_sdr50>;
 	pinctl_ddr50 = <&msdc1_pins_ddr50>;
+    
 	register_setting = <&msdc1_register_setting_default>;
 
 	host_function = /bits/ 8 <MSDC_SD>;
@@ -114,16 +121,20 @@
 	};
 
 	msdc0_register_setting_default: msdc0@register_default {
-		cmd_edge = /bits/ 8 <MSDC_SMPL_RISING>;
-		rdata_edge = /bits/ 8 <MSDC_SMPL_RISING>;
-		wdata_edge = /bits/ 8 <MSDC_SMPL_RISING>;
+		cmd_edge = /bits/ 8 <MSDC_SMPL_FALLING>;	
+		rdata_edge = /bits/ 8 <MSDC_SMPL_FALLING>;	
+		wdata_edge = /bits/ 8 <MSDC_SMPL_FALLING>;
+	};
+	mmc1_pins_insert_default: mmc1_ins_default {
+
 	};
 
-	mmc1_pins_insert_default: mmc1_ins_default {
-	};
+	// change GPIO3 to GPIO10, since GPIO3 is GPS_LNA_PIN
+	// GPIO10 is not used and choosed for msdc1 out ins ops
+	// you wont find this in stock dts
 	mmc1_pins_insert_cfg: mmc1_ins_cfg {
 		pins_insert {
-			pins = <PINMUX_GPIO3__FUNC_EINT3>;
+			pins = <PINMUX_GPIO10__FUNC_EINT10>;
 			input-schmitt-enable =<1>;
 			slew-rate = <0>;
 			bias-pull-up =<00>;
@@ -179,9 +190,9 @@
 	};
 
 	msdc1_register_setting_default: msdc1@register_default {
-		cmd_edge = /bits/ 8 <MSDC_SMPL_RISING>;
-		rdata_edge = /bits/ 8 <MSDC_SMPL_RISING>;
-		wdata_edge = /bits/ 8 <MSDC_SMPL_RISING>;
+		cmd_edge = /bits/ 8 <MSDC_SMPL_FALLING>;	
+		rdata_edge = /bits/ 8 <MSDC_SMPL_FALLING>;	
+		wdata_edge = /bits/ 8 <MSDC_SMPL_FALLING>;
 	};
 };
 
