@@ -1363,6 +1363,9 @@ static unsigned int avg_frame_time[_ChannelMax] = { 0, 0, 0, 0 };
  * 0 for normal , 2 for last working buffer. 0xF for hw error at previous frame
  */
 static int sof_pass1done[2] = { 0, 0 };
+// this flag is to record int_err happened or not.
+static bool bClrErrRecord = MFALSE;
+
 
 // static unsigned int gSof_camsvdone[2] = { 0, 0 };
 static bool g1stSof[4] = { MTRUE, MTRUE };
@@ -5865,6 +5868,7 @@ ISP_IRQ_INT_STATUS_FLK_ERR_ST|ISP_IRQ_INT_STATUS_LSC_ERR_ST)
 			g_bDmaERR_p1 = MTRUE;
 			g_bDmaERR_deepDump = MFALSE;
 			ISP_DumpDmaDeepDbg();
+			bClrErrRecord = MTRUE;
 		}
 		/* mark, can ignor fifo may overrun if dma_err isn't pulled. */
 		if (IrqStatus[ISP_IRQ_TYPE_INTX] & STATUSX_WARNING)
@@ -6040,10 +6044,11 @@ ISP_IRQ_INT_STATUS_FLK_ERR_ST|ISP_IRQ_INT_STATUS_LSC_ERR_ST)
 			"Lost p1 done_%d (0x%x): ",
 			sof_count[_PASS1], cur_v_cnt);
 		} else {
-			if (IrqStatus[ISP_IRQ_TYPE_INTX] & IspInfo_FrmB.
-				IrqInfo.ErrMask[ISP_IRQ_TYPE_INTX]) {
+			if (bClrErrRecord) {
 				/* error case */
 				sof_pass1done[0] = 0xF;
+				bClrErrRecord = MFALSE;
+				LOG_ERR("int_err happened before this SOF\n");
 			}
 			else{/* no error */
 				sof_pass1done[0] = 0;
