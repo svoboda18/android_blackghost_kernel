@@ -27,8 +27,8 @@
 
 #define __futex_atomic_op(insn, ret, oldval, uaddr, tmp, oparg)		\
 do {									\
-	uaccess_enable();						\
 	unsigned int loops = FUTEX_MAX_LOOPS;				\
+	uaccess_enable();						\
 									\
 	asm volatile(							\
 "	prfm	pstl1strm, %2\n"					\
@@ -48,8 +48,6 @@ do {									\
 "	.popsection\n"							\
 	_ASM_EXTABLE(1b, 4b)						\
 	_ASM_EXTABLE(2b, 4b)						\
-	ALTERNATIVE("nop", SET_PSTATE_PAN(1), ARM64_HAS_PAN,		\
-		    CONFIG_ARM64_PAN)					\
 	: "=&r" (ret), "=&r" (oldval), "+Q" (*uaddr), "=&r" (tmp),	\
 	  "+r" (loops)							\
 	: "r" (oparg), "Ir" (-EFAULT), "Ir" (-EAGAIN)			\
@@ -129,7 +127,6 @@ futex_atomic_cmpxchg_inatomic(u32 *uval, u32 __user *_uaddr,
 "	.popsection\n"
 	_ASM_EXTABLE(1b, 5b)
 	_ASM_EXTABLE(2b, 5b)
-ALTERNATIVE("nop", SET_PSTATE_PAN(1), ARM64_HAS_PAN, CONFIG_ARM64_PAN)
 	: "+r" (ret), "=&r" (val), "+Q" (*uaddr), "=&r" (tmp), "+r" (loops)
 	: "r" (oldval), "r" (newval), "Ir" (-EFAULT), "Ir" (-EAGAIN)
 	: "memory");
