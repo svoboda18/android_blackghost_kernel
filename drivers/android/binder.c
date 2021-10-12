@@ -3814,8 +3814,8 @@ static void binder_transaction(struct binder_proc *proc,
 #ifdef BINDER_WATCHDOG
 		strncpy(e->service, target_node->name, MAX_SERVICE_NAME_LEN-1);
 #endif
-		if (security_binder_transaction(proc->tsk,
-						target_proc->tsk) < 0) {
+		if (security_binder_transaction(proc->cred,
+						target_proc->cred) < 0) {
 		if (WARN_ON(proc == target_proc)) {
 			return_error = BR_FAILED_REPLY;
 			return_error_param = -EINVAL;
@@ -4083,12 +4083,51 @@ static void binder_transaction(struct binder_proc *proc,
 		case BINDER_TYPE_WEAK_BINDER: {
 			struct flat_binder_object *fp;
 
+<<<<<<< HEAD
 			fp = to_flat_binder_object(hdr);
 #ifdef BINDER_WATCHDOG
 			ret = binder_translate_binder(tr, fp, t, thread);
 #else
 			ret = binder_translate_binder(fp, t, thread);
 #endif
+=======
+			if (node == NULL) {
+				node = binder_new_node(proc, fp->binder, fp->cookie);
+				if (node == NULL) {
+					return_error = BR_FAILED_REPLY;
+					goto err_binder_new_node_failed;
+				}
+				node->min_priority = fp->flags & FLAT_BINDER_FLAG_PRIORITY_MASK;
+				node->accept_fds = !!(fp->flags & FLAT_BINDER_FLAG_ACCEPTS_FDS);
+			}
+			if (fp->cookie != node->cookie) {
+				binder_user_error("%d:%d sending u%016llx node %d, cookie mismatch %016llx != %016llx\n",
+					proc->pid, thread->pid,
+					(u64)fp->binder, node->debug_id,
+					(u64)fp->cookie, (u64)node->cookie);
+				return_error = BR_FAILED_REPLY;
+				goto err_binder_get_ref_for_node_failed;
+			}
+			if (security_binder_transfer_binder(proc->cred,
+							    target_proc->cred)) {
+				return_error = BR_FAILED_REPLY;
+				goto err_binder_get_ref_for_node_failed;
+			}
+			ref = binder_get_ref_for_node(target_proc, node);
+			if (ref == NULL) {
+				return_error = BR_FAILED_REPLY;
+				goto err_binder_get_ref_for_node_failed;
+			}
+			if (fp->type == BINDER_TYPE_BINDER)
+				fp->type = BINDER_TYPE_HANDLE;
+			else
+				fp->type = BINDER_TYPE_WEAK_HANDLE;
+			fp->binder = 0;
+			fp->handle = ref->desc;
+			fp->cookie = 0;
+			binder_inc_ref(ref, fp->type == BINDER_TYPE_HANDLE,
+				       &thread->todo);
+>>>>>>> 22d4a6dacee0 (binder: use cred instead of task for selinux checks)
 
 			if (ret < 0) {
 				return_error = BR_FAILED_REPLY;
@@ -4108,9 +4147,50 @@ static void binder_transaction(struct binder_proc *proc,
 			ret = binder_translate_handle(fp, t, thread);
 			if (ret < 0) {
 				return_error = BR_FAILED_REPLY;
+<<<<<<< HEAD
 				return_error_param = ret;
 				return_error_line = __LINE__;
 				goto err_translate_failed;
+=======
+				goto err_binder_get_ref_failed;
+			}
+			if (security_binder_transfer_binder(proc->cred,
+							    target_proc->cred)) {
+				return_error = BR_FAILED_REPLY;
+				goto err_binder_get_ref_failed;
+			}
+			if (ref->node->proc == target_proc) {
+				if (fp->type == BINDER_TYPE_HANDLE)
+					fp->type = BINDER_TYPE_BINDER;
+				else
+					fp->type = BINDER_TYPE_WEAK_BINDER;
+				fp->binder = ref->node->ptr;
+				fp->cookie = ref->node->cookie;
+				binder_inc_node(ref->node, fp->type == BINDER_TYPE_BINDER, 0, NULL);
+				trace_binder_transaction_ref_to_node(t, ref);
+				binder_debug(BINDER_DEBUG_TRANSACTION,
+					     "        ref %d desc %d -> node %d u%016llx\n",
+					     ref->debug_id, ref->desc, ref->node->debug_id,
+					     (u64)ref->node->ptr);
+			} else {
+				struct binder_ref *new_ref;
+
+				new_ref = binder_get_ref_for_node(target_proc, ref->node);
+				if (new_ref == NULL) {
+					return_error = BR_FAILED_REPLY;
+					goto err_binder_get_ref_for_node_failed;
+				}
+				fp->binder = 0;
+				fp->handle = new_ref->desc;
+				fp->cookie = 0;
+				binder_inc_ref(new_ref, fp->type == BINDER_TYPE_HANDLE, NULL);
+				trace_binder_transaction_ref_to_ref(t, ref,
+								    new_ref);
+				binder_debug(BINDER_DEBUG_TRANSACTION,
+					     "        ref %d desc %d -> ref %d desc %d (node %d)\n",
+					     ref->debug_id, ref->desc, new_ref->debug_id,
+					     new_ref->desc, ref->node->debug_id);
+>>>>>>> 22d4a6dacee0 (binder: use cred instead of task for selinux checks)
 			}
 			binder_alloc_copy_to_buffer(&target_proc->alloc,
 						    t->buffer, object_offset,
@@ -4122,6 +4202,38 @@ static void binder_transaction(struct binder_proc *proc,
 			int target_fd = binder_translate_fd(fp->fd, t, thread,
 							    in_reply_to);
 
+<<<<<<< HEAD
+=======
+			if (reply) {
+				if (!(in_reply_to->flags & TF_ACCEPT_FDS)) {
+					binder_user_error("%d:%d got reply with fd, %d, but target does not allow fds\n",
+						proc->pid, thread->pid, fp->handle);
+					return_error = BR_FAILED_REPLY;
+					goto err_fd_not_allowed;
+				}
+			} else if (!target_node->accept_fds) {
+				binder_user_error("%d:%d got transaction with fd, %d, but target does not allow fds\n",
+					proc->pid, thread->pid, fp->handle);
+				return_error = BR_FAILED_REPLY;
+				goto err_fd_not_allowed;
+			}
+
+			file = fget(fp->handle);
+			if (file == NULL) {
+				binder_user_error("%d:%d got transaction with invalid fd, %d\n",
+					proc->pid, thread->pid, fp->handle);
+				return_error = BR_FAILED_REPLY;
+				goto err_fget_failed;
+			}
+			if (security_binder_transfer_file(proc->cred,
+							  target_proc->cred,
+							  file) < 0) {
+				fput(file);
+				return_error = BR_FAILED_REPLY;
+				goto err_get_unused_fd_failed;
+			}
+			target_fd = task_get_unused_fd_flags(target_proc, O_CLOEXEC);
+>>>>>>> 22d4a6dacee0 (binder: use cred instead of task for selinux checks)
 			if (target_fd < 0) {
 				return_error = BR_FAILED_REPLY;
 				return_error_param = target_fd;
