@@ -869,10 +869,8 @@ static int rndis_set_response(struct rndis_params *params,
 		    return -EINVAL;
 
 	r = rndis_add_response(params, sizeof(rndis_set_cmplt_type));
-	if (!r) {
-		pr_info("rndis_set_response, rndis_add_response return NULL\n");
+	if (!r)
 		return -ENOMEM;
-	}
 	resp = (rndis_set_cmplt_type *)r->buf;
 
 #ifdef	VERBOSE_DEBUG
