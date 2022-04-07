@@ -1,0 +1,111 @@
+/**
+ Chipone fpsensor GPIO define. begjin.
+**/
+/ {
+	silead_spi: silead_spi@ {
+		compatible = "mediatek,spidev-pins"; 
+	};
+	silead_fp: silead_fp@ {
+		compatible = "sil,silead_fp-pins";
+	};
+};
+
+&spi1{
+	#address-cells = <1>;
+	#size-cells = <0>;
+	silead_spi@0 { 
+		compatible = "sil,silfp_ree";
+		reg = <0>;
+		spi-max-frequency = <8000000>;
+		status = "okay";
+	};
+};
+
+&silead_fp { 
+	pinctrl-names = "default", "rst-low", "rst-high" , "irq-init", "spi-default", "irq_rst-low", "irq_rst-high";
+	
+	pinctrl-0 = <&silfp_default>;
+	pinctrl-1 = <&silfp_rst_low>;
+	pinctrl-2 = <&silfp_rst_high>;
+	pinctrl-3 = <&silfp_irq>;
+	pinctrl-4 = <&fingerprint_pins_default>;
+	pinctrl-5 = <&silfp_irq_rst_low>;
+	pinctrl-6 = <&silfp_irq_rst_high>;
+	
+	interrupt-parent = <&eintc>;
+	interrupts = <12 IRQ_TYPE_EDGE_RISING>;
+	debounce = <12 0>;
+
+	status = "okay";
+};
+&silead_spi { 
+	pinctrl-names = "default";
+	pinctrl-0 = <&fingerprint_pins_default>;
+	status = "okay";
+};
+&pio {
+	fingerprint_pins_default: fp_default {
+		pins_cmd_dat {
+			pinmux = <PINMUX_GPIO0__FUNC_SPI1_CS>;
+			slew-rate = <1>;
+			bias-pull-up;
+		};
+		pins_cmd2_dat {
+			pinmux = <PINMUX_GPIO1__FUNC_SPI1_SCK>;
+			slew-rate = <1>;
+			driver-strength = <2>;
+			bias-disable;//bias-pull-down;
+		};
+		pins_cmd3_dat { 
+			pinmux = <PINMUX_GPIO3__FUNC_SPI1_MISO>;
+			slew-rate = <0>;
+			bias-disable;//bias-pull-down;
+		}; 
+		pins_cmd4_dat {
+			pinmux = <PINMUX_GPIO2__FUNC_SPI1_MOSI>;
+			slew-rate = <1>;
+			bias-disable;//bias-pull-down;
+		};
+	}; 
+ };
+
+&pio {
+	silfp_default: silfpdefault {
+	};
+	silfp_rst_high: state_reset_high {
+		pins_cmd_dat {
+			pinmux = <PINMUX_GPIO65__FUNC_GPIO65>;
+			slew-rate = <1>;
+			output-high;
+		};
+	};
+	silfp_rst_low: state_reset_low {
+		pins_cmd_dat {
+			pinmux = <PINMUX_GPIO65__FUNC_GPIO65>;
+			slew-rate = <1>;
+			output-low;
+		};
+	};
+	silfp_irq_rst_high: state_irq_to_reset_high {
+		pins_cmd_dat {
+			pinmux = <PINMUX_GPIO12__FUNC_GPIO12>;
+			slew-rate = <1>;
+			output-high;
+		};
+	};
+	silfp_irq_rst_low: state_irq_to_reset_low {
+		pins_cmd_dat {
+			pinmux = <PINMUX_GPIO12__FUNC_GPIO12>;
+			slew-rate = <1>;
+			output-low;
+		};
+	};
+	silfp_irq: fp_eint@5 {
+		pins_cmd_dat {
+			pinmux = <PINMUX_GPIO12__FUNC_EINT12>;
+			slew-rate = <0>; 
+			output-low; 
+		};
+	};
+};
+

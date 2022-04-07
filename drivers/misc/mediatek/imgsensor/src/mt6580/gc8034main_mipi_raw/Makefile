@@ -1,0 +1,1 @@
+obj-y += gc8034mainmipi_Sensor.o

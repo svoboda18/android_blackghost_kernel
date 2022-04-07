@@ -1,0 +1,8 @@
+config MTK_STK8BAXX_NEW
+	bool "MTK_STK8BAXX_NEW for MediaTek package"
+	default n
+	help
+	  It support different accelerometer sensor.
+          If this option is set,
+	  it will support
+          STK8BAXX Accelerometer.

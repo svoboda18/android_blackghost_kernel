@@ -1,0 +1,7 @@
+config MTK_HARDWAREINFO
+        bool "MTK_HARDWAREINFO"
+        default n
+        help
+          This will enable MTK_HARDWAREINFO
+          If you say Y, enable MTK_HARDWAREINFO
+

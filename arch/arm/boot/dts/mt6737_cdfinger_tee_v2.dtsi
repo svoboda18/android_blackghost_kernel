@@ -1,0 +1,151 @@
+/ {
+	cdfinger:cdfinger {
+		compatible = "mediatek,mtk_finger";
+	};
+};
+/*add for cdfinger start*/
+&pio {
+	fps_reset_high: fps_reset_high {
+		pins_cmd_dat {
+			pinmux = <PINMUX_GPIO64__FUNC_GPIO64>;
+			slew-rate = <1>;
+			bias-disable;
+			output-high;
+		};
+	};
+	fps_reset_low: fps_reset_low {
+		pins_cmd_dat {
+			pinmux = <PINMUX_GPIO64__FUNC_GPIO64>;
+			slew-rate = <1>;
+			bias-disable;
+			output-low;
+		};
+	};
+	fps_power_on: fps_power_on {
+		pins_cmd_dat {
+			pinmux = <PINMUX_GPIO80__FUNC_GPIO80>;
+			slew-rate = <1>;
+			bias-disable;
+			output-high;
+		};
+	};
+	fps_power_off: fps_power_off {
+		pins_cmd_dat {
+			pinmux = <PINMUX_GPIO80__FUNC_GPIO80>;
+			slew-rate = <1>;
+			bias-disable;
+			output-low;
+		};
+	};
+	fps_vio_on: fps_vio_on {
+		pins_cmd_dat {
+			pinmux = <PINMUX_GPIO78__FUNC_GPIO78>;
+			slew-rate = <1>;
+			bias-disable;
+			output-high;
+		};
+	};
+	fps_vio_off: fps_vio_off {
+		pins_cmd_dat {
+			pinmux = <PINMUX_GPIO78__FUNC_GPIO78>;
+			slew-rate = <1>;
+			bias-disable;
+			output-low;
+		};
+	};
+	fps_spi_miso:fps_spi_miso@0{
+		pins_cmd_dat {
+			pinmux = <PINMUX_GPIO67__FUNC_SPI_MIA>;
+			slew-rate = <0>;
+			bias-disable;
+			output-low;
+		};
+	};
+	fps_spi_mosi:fps_spi_mosi@0{
+		pins_cmd_dat {
+			pinmux = <PINMUX_GPIO68__FUNC_SPI_MOA>;
+			slew-rate = <1>;
+			bias-disable;
+			output-low;
+		};
+	};
+	fps_spi_sck:fps_spi_sck@0{
+		pins_cmd_dat {
+			pinmux = <PINMUX_GPIO66__FUNC_SPI_CKA>;
+			slew-rate = <1>;
+			bias-disable;
+			output-low;
+		};
+	};
+	fps_spi_cs:fps_spi_cs@0{
+		pins_cmd_dat {
+			pinmux = <PINMUX_GPIO65__FUNC_SPI_CSA>;
+			slew-rate = <1>;
+			bias-pull-up = <11>;
+			bias-disable;
+			output-low;
+		};
+	};
+	fps_irq: fps_irq {
+		pins_cmd_dat {
+			pinmux = <PINMUX_GPIO63__FUNC_GPIO63>;
+			slew-rate = <0>;
+			bias-disable;
+			output-low;
+		};
+	};
+};
+
+
+&spi0{
+	status = "okay";
+	#address-cells = <1> ;
+	#size-cells = <0> ;
+	cdfinger_fp@0{
+		compatible = "cdfinger,fps1098";
+		reg = <0>;
+		spi-max-frequency = <8000000>;
+		status = "okay";
+	};
+};
+
+&cdfinger{
+		interrupt-parent = <&eintc>;
+		interrupts = <63 IRQ_TYPE_EDGE_FALLING>;
+
+
+		vdd_ldo_enable = <0>;
+		vio_ldo_enable = <0>;
+		config_spi_pin = <1>;
+		spi-max-frequency = <8000000>;
+
+		pinctrl-names = "fingerprint_reset_high",
+			"fingerprint_reset_low",
+			"fingerprint_power_high",
+			"fingerprint_power_low",
+			"fingerprint_vio_high",
+			"fingerprint_vio_low",
+			"fingerprint_spi_miso",
+			"fingerprint_spi_mosi",
+			"fingerprint_spi_sck",
+			"fingerprint_spi_cs",
+			"fingerprint_irq";
+
+		pinctrl-0 = <&fps_reset_high>;
+		pinctrl-1 = <&fps_reset_low>;
+		pinctrl-2 = <&fps_power_on>;
+		pinctrl-3 = <&fps_power_off>;
+		pinctrl-4 = <&fps_vio_on>;
+		pinctrl-5 = <&fps_vio_off>;
+		pinctrl-6 = <&fps_spi_miso>;
+		pinctrl-7 = <&fps_spi_mosi>;
+		pinctrl-8 = <&fps_spi_sck>;
+		pinctrl-9 = <&fps_spi_cs>;
+		pinctrl-10 = <&fps_irq>;
+		status = "okay";
+	};
+/*add for cdfinger end*/
+
+
+
+

@@ -1,0 +1,70 @@
+config SUNRITEL_DCAM
+  bool "dcam support"
+  default n
+  help
+    dcam support.
+
+config DCAM_CAM2
+  bool "DCAM_CAM2 image sensor"
+  default n
+  depends on SUNRITEL_DCAM
+  help
+    Specify main2 sensor.	
+	
+config DCAM_CAM3
+  bool "DCAM_CAM3 image sensor"
+  default n
+  depends on SUNRITEL_DCAM
+  help
+    Specify sub2 sensor.
+
+config DCAM_CAM2_GC0310
+  bool "DCAM_CAM2_GC0310 image sensor"
+  default n
+  depends on DCAM_CAM2
+  help
+    DCAM_CAM2_GC0310 main2 sensor.
+	
+config DCAM_CAM2_GC032A
+  bool "DCAM_CAM2_GC032A image sensor"
+  default n
+  depends on DCAM_CAM2
+  help
+    DCAM_CAM2_GC032A main2 sensor.
+
+config DCAM_CAM3_GC0310
+  bool "DCAM_CAM3_GC0310 image sensor"
+  default n
+  depends on DCAM_CAM3
+  help
+    DCAM_CAM3_GC0310 sub2 sensor.	
+	
+config DCAM_CAM2_SP0A08
+  bool "DCAM_CAM2_SP0A08 image sensor"
+  default n
+  depends on DCAM_CAM2
+  help
+    DCAM_CAM2_GC0310 main2 sensor.
+
+config DCAM_CAM3_SP0A08
+  bool "DCAM_CAM3_SP0A08 image sensor"
+  default n
+  depends on DCAM_CAM3
+  help
+    DCAM_CAM3_GC0310 sub2 sensor.	
+	
+config DCAM_CAM2_GC030A
+  bool "DCAM_CAM2_GC030A image sensor"
+  default n
+  depends on DCAM_CAM2
+  help
+    DCAM_CAM2_GC030A main2 sensor.
+
+config DCAM_CAM3_GC030A
+  bool "DCAM_CAM3_GC030A image sensor"
+  default n
+  depends on DCAM_CAM3
+  help
+    DCAM_CAM3_GC030A sub2 sensor.	
+	
+	

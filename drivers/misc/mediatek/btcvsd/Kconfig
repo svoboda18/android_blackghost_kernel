@@ -1,0 +1,7 @@
+config MTK_BTCVSD
+	bool "MTK BT CVSD ARICHITECTURE"
+	help
+	  If you say Y, enable MTK_BTCVSD.
+	  This is for software BTCVSD. This enable
+	  the function for transferring/receiving
+	  BT encoded data to/from BT firmware.

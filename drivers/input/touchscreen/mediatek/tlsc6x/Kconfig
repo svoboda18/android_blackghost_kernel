@@ -1,0 +1,14 @@
+#
+# Touchscreen driver configuration
+#
+config TOUCHSCREEN_MTK_TLSC6X
+	bool "TLSC6X for Mediatek package"
+	default n
+	help
+	  Say Y here if you have TLSC6X touch panel TOUCHSCREEN_MTK_TLSC6X.
+
+	  If unsure, say N.
+
+	  To compile this dirver as a module, choose M here: the
+	  module will be called.
+    

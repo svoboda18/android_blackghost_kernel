@@ -1,0 +1,35 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Copyright (c) 2019 MediaTek Inc.
+ *
+ */
+
+&pio {
+	flashlights_ocp81373_pins_default: ocp81373default {
+	};
+
+	flashlights_ocp81373_pins_hwen_high: hwen_high {
+		pins_cmd_dat {
+			pinmux = <PINMUX_GPIO9__FUNC_GPIO9>;
+			slew-rate = <1>;
+			output-high;
+		};
+	};
+
+	flashlights_ocp81373_pins_hwen_low: hwen_low {
+		pins_cmd_dat {
+			pinmux = <PINMUX_GPIO9__FUNC_GPIO9>;
+			slew-rate = <1>;
+			output-low;
+		};
+	};
+};
+
+&flashlights_ocp81373 {
+	pinctrl-names = "ocp81373default", "hwen_high", "hwen_low";
+	pinctrl-0 = <&flashlights_ocp81373_pins_default>;
+	pinctrl-1 = <&flashlights_ocp81373_pins_hwen_high>;
+	pinctrl-2 = <&flashlights_ocp81373_pins_hwen_low>;
+	status = "okay";
+};
+

@@ -1,0 +1,22 @@
+&i2c1 {
+       #address-cells = <1>;
+       #size-cells = <0>;
+       clock-frequency = <400000>;
+#ifdef CONFIG_TOUCHSCREEN_MTK_FOCALTECH_TS
+       cap_touch_fts:cap_touch_fts@38 {
+               compatible = "mediatek,cap_touch_fts";
+               reg = <0x38>;
+               status = "okay";
+       };
+#endif
+};
+
+&i2c2 {
+#ifdef CONFIG_MTK_MIR3DA
+	gsensor2_mtk:gsensor@26 {
+		compatible = "mediatek,mir3da";
+		reg = <0x26>;
+		status = "okay";
+	};
+#endif
+};

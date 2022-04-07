@@ -1,0 +1,1 @@
+obj-y += gc6153serialyuv_Sensor.o

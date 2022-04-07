@@ -1,0 +1,9 @@
+config MTK_IMGSENSOR
+	tristate "MediaTek image sensor support"
+	help
+	  This is a driver for the MediaTek
+	  image sensors.
+	  To compile this driver as a module, choose M here: the
+	  module will be called imgsensor.
+
+source "drivers/misc/mediatek/imgsensor/src/Kconfig"

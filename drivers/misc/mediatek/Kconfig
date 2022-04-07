@@ -1,0 +1,183 @@
+source "drivers/misc/mediatek/Kconfig.default"
+source "drivers/misc/mediatek/uart/Kconfig"
+
+menuconfig MEDIATEK_SOLUTION
+	bool "MediaTek Properitary Configuration"
+	help
+	  Check this to enable MediaTek properity configuration.
+
+if MEDIATEK_SOLUTION
+config MTK_PLATFORM
+	string "MTK platform name"
+
+config ARCH_MTK_PROJECT
+	string "MTK project name"
+
+config MTK_ENG_BUILD
+	bool "MTK Engineer Build"
+	help
+	  This is an option for developers. Say Y here for MTK engineering
+	  mode, which will have more debugging features built-in.
+	  Please set N for user mode to avoid performance impact.
+	  If unsure, say N here.
+
+menu "Storage"
+source "drivers/misc/mediatek/blocktag/Kconfig"
+endmenu # Storage
+
+endif
+
+source "drivers/misc/mediatek/accdet/Kconfig"
+source "drivers/misc/mediatek/boot/Kconfig"
+source "drivers/misc/mediatek/boot_reason/Kconfig"
+source "drivers/misc/mediatek/chip/Kconfig"
+source "drivers/misc/mediatek/mtprof/Kconfig"
+source "drivers/misc/mediatek/dramc/Kconfig"
+source "drivers/misc/mediatek/gpio/Kconfig"
+source "drivers/misc/mediatek/devinfo/Kconfig"
+source "drivers/misc/mediatek/rtc/Kconfig"
+source "drivers/misc/mediatek/aee/Kconfig"
+source "drivers/misc/mediatek/m4u/Kconfig"
+source "drivers/misc/mediatek/vibrator/Kconfig"
+source "drivers/misc/mediatek/leds/Kconfig"
+source "drivers/misc/mediatek/auxadc/Kconfig"
+source "drivers/misc/mediatek/monitor_hang/Kconfig"
+
+menu "Power, PMIC, Battery & Low Power related configs"
+config MTK_BASE_POWER
+	bool "MediaTek power management"
+	help
+	  For MediaTek power management features, such as CPU idle,
+	  CPU suspend, CPU DVFS, GPU DVFS,
+	  Select if you want to enable MediaTek power
+	  management feature.
+
+config MTK_POWER_GS
+	bool "MediaTek power golden setting"
+	help
+	  For MediaTek power golden setting feature.
+	  Select if you want to enable MediaTek power
+	  golden setting feature.
+
+config MTK_FREQ_HOPPING
+  bool "MediaTek FREQHOPPING SUPPORT"
+  help
+    If you want to use MediaTek freqhopping, say Y here.If unsure, say N.
+	Please choose your desired freqhopping driver as well. E.g: MTK2712_FREQ_HOPPING=y
+source "drivers/misc/mediatek/pmic_wrap/Kconfig"
+source "drivers/misc/mediatek/power/Kconfig"
+source "drivers/misc/mediatek/base/power/Kconfig"
+source "drivers/misc/mediatek/freqhopping/Kconfig"
+source "drivers/misc/mediatek/thermal/Kconfig"
+endmenu  # Power
+
+menu "Other Peripherals"
+source "drivers/misc/mediatek/i2c/Kconfig"
+source "drivers/misc/mediatek/irq/Kconfig"
+source "drivers/misc/mediatek/usb20/Kconfig"
+source "drivers/misc/mediatek/usb2jtag/Kconfig"
+source "drivers/misc/mediatek/devapc/Kconfig"
+source "drivers/misc/mediatek/emi_bwl/Kconfig"
+source "drivers/misc/mediatek/emi_mpu/Kconfig"
+source "drivers/misc/mediatek/debug_latch/Kconfig"
+source "drivers/misc/mediatek/gpu/Kconfig"
+source "drivers/misc/mediatek/systracker/Kconfig"
+
+endmenu # Peripheral
+
+menu "MultiMedia, Display, Camera related configs"
+
+config CUSTOM_KERNEL_IMGSENSOR
+	string "Custom image sensor driver"
+	help
+	  Kernel space image sensor driver. Define  project used all image
+	  sensors .The value is combination of CUSTOM_KERNEL_MAIN_IMGSENSOR,
+	  CUSTOM_KERNEL_MAIN_BACKUP_IMGSENSOR, CUSTOM_KERNEL_SUB_IMGSENSOR,
+	  and CUSTOM_KERNEL_SUB_BACKUP_IMGSENSOR
+
+config MTK_SEC_VIDEO_PATH_SUPPORT
+	bool "Enable MTK Secure Video Path Support"
+	depends on MTK_IN_HOUSE_TEE_SUPPORT || TRUSTONIC_TEE_SUPPORT || TRUSTY
+	help
+	  This enable MTK Secure Video Path Support. (depending on
+	  MTK In-House TEE Support or Trustonic TEE Support)
+
+config MTK_LCM_PHYSICAL_ROTATION_HW
+	bool "Rotate LCM display for 180 degree using HW"
+	help
+	  Rotate LCM display for 180 degree using mediatek hardware engine
+	  Enable it when LCM hardware is intalled upside down,
+	  and you need to rotate the display content to adapting.
+
+source "drivers/misc/mediatek/m4u/Kconfig"
+source "drivers/misc/mediatek/mmp/Kconfig"
+source "drivers/misc/mediatek/cmdq/Kconfig"
+source "drivers/misc/mediatek/smi/Kconfig"
+source "drivers/misc/mediatek/imgsensor/Kconfig"
+source "drivers/misc/mediatek/flashlight/Kconfig"
+source "drivers/misc/mediatek/flashlight/richtek/Kconfig"
+source "drivers/misc/mediatek/lcm/Kconfig"
+source "drivers/misc/mediatek/sync/Kconfig"
+source "drivers/misc/mediatek/video/Kconfig"
+source "drivers/misc/mediatek/videocodec/Kconfig"
+source "drivers/misc/mediatek/jpeg/Kconfig"
+source "drivers/misc/mediatek/lens/Kconfig"
+source "drivers/misc/mediatek/cameraisp/Kconfig"
+
+endmenu  # MM
+
+menu "Sensors"
+
+config MTK_SENSOR_SUPPORT
+	bool "MTK SENSOR SUPPORT"
+	help
+	  Sensor config for sensor feature in project.
+	  Please say Y here if you want to support and sensors
+	  with mediatek sensor architecture.
+	  If unsure, say N.
+
+config MTK_SENSOR_ARCHITECTURE
+	string "MTK SENSOR ARCHITECTURE"
+	default "dummy"
+	help
+	  Sensor config for sensor architecture in project.
+	  Please set 1.0/2.0/3.0 etc if you want to support sensor
+	  with mediatek sensor architecture.
+	  If unsure, set dummy.
+
+source "drivers/misc/mediatek/sensors-1.0/Kconfig"
+endmenu # Sensors
+
+menu "Modem & Connectivity related configs"
+
+source "drivers/misc/mediatek/ccci_util/Kconfig"
+source "drivers/misc/mediatek/ccmni/Kconfig"
+source "drivers/misc/mediatek/dual_ccci/Kconfig"
+source "drivers/misc/mediatek/connectivity/Kconfig"
+source "drivers/misc/mediatek/conn_md/Kconfig"
+source "drivers/misc/mediatek/eccci/Kconfig"
+source "drivers/misc/mediatek/btif/Kconfig"
+source "drivers/misc/mediatek/btcvsd/Kconfig"
+source "drivers/misc/mediatek/sched/Kconfig"
+
+endmenu  # CONN
+
+menu "Security"
+source "drivers/misc/mediatek/masp/Kconfig"
+
+endmenu # Security
+
+menu "Other Peripherals"
+
+source "drivers/misc/mediatek/pwm/Kconfig"
+source "drivers/misc/mediatek/hardwareinfo/Kconfig"
+source "drivers/misc/mediatek/nfc/Kconfig"
+
+endmenu # Peripheral
+
+menu "Debug, log, trace"
+
+source "drivers/misc/mediatek/met_drv/Kconfig"
+source "drivers/misc/mediatek/mtprintk/Kconfig"
+source "drivers/misc/mediatek/fingerprint/Kconfig"
+endmenu # Debug

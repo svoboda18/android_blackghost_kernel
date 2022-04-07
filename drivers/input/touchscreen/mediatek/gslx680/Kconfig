@@ -1,0 +1,20 @@
+#
+# Touchscreen driver configuration
+#
+config TOUCHSCREEN_MTK_GSLX680
+	tristate "GSLX68X for Mediatek package"
+	default n
+	help
+	  Say Y here if you have GSLX68X touch panel.
+
+	  If unsure, say N.
+
+	  To compile this dirver as a module, choose M here: the
+	  module will be called.
+
+config GSLX68X_FIRMWARE
+	string "GSLX68X for Mediatek firmware"
+
+config GSL3680_CONFIG
+	string "GSLX68X for Mediatek config"
+

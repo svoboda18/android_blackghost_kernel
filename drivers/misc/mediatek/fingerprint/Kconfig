@@ -1,0 +1,47 @@
+#
+#Fingerprint
+#
+
+if MTK_FINGERPRINT_SUPPORT
+
+config MICROARRAY_FINGERPRINT
+	bool "Microarray Fingerprint"
+	default n
+	---help---
+	Microarray fingerprint Microarray's 121/112/88/64/48 device.
+	
+config MICROARRAY_TEE_FINGERPRINT
+	bool "Microarray Fingerprint"
+	default n
+	---help---
+	Microarray fingerprint Microarray's 121/112/88/64/48 device.	
+
+config CDFINGER_FINGERPRINT
+	bool "CDFINGER Fingerprint"
+	default n
+	---help---
+	CDFINGER fingerprint CDFINGER's 121/112/88/64/48 device.
+	
+config MTK_FINGERPRINT_FPSENSOR_REE
+       tristate "FPSENSOR Fingerprint"
+       default n
+       help
+          FPSENSOR Fingerprint	
+
+config MTK_CDFINGER_TEE_V2_FINGERPRINT_SUPPORT
+	bool "MTK_CDFINGER_TEE_V2_FINGERPRINT_SUPPORT"
+	help
+	  If the platform is supported for MTK_FP_SUPPORT, this 
+	  configuration should be configured, and the MTK_FP_SUPPORT
+	  driver configuration should be configured as well	
+	  
+
+if MICROARRAY_FINGERPRINT = ""
+config MTK_FINGERPRINT_SELECT
+	string "sensor type"
+	default "GF318M"
+endif
+
+source "drivers/misc/mediatek/fingerprint/silead/Kconfig"
+
+endif

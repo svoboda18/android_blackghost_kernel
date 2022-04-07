@@ -1,0 +1,155 @@
+/**
+ Chipone fpsensor GPIO define. begjin.
+**/
+/ {
+			icnfpsensor:icnfpsensor{
+		    compatible = "mediatek,icnfpsensor";
+		   };
+};
+/*
+&spi0{
+     #address-cells = <1>;
+     #size-cells = <0>;
+	 icnfpsensor@0{	
+		     compatible = "icnfpsensor,icnfpsensor";		
+		     reg = <0x0>;
+		     spi-max-frequency = <8000000>;	
+		     status = "okay";
+	};
+};
+*/
+
+&pio {
+	spi_default: spi_default {
+	};
+	spi_cs_mode_low: spi_cs_low {
+		pins_cmd_dat {
+			pinmux = <PINMUX_GPIO65__FUNC_GPIO65>;
+			slew-rate = <1>;
+			output-low;
+		};
+	};
+	spi_cs_mode_high: spi_cs_high {
+		pins_cmd_dat {
+			pinmux = <PINMUX_GPIO65__FUNC_GPIO65>;
+			slew-rate = <1>;
+			output-high;
+		};
+	};
+    spi_cs_mode_set: spi_cs_set {
+		pins_cmd_dat {
+			pinmux = <PINMUX_GPIO65__FUNC_SPI_CSA>;
+			input-enable;
+		};
+	};	
+	spi_mi_mode_low: spi_mi_low {
+		pins_cmd_dat {
+			pinmux = <PINMUX_GPIO67__FUNC_SPI_MIA>;
+			slew-rate = <0>;
+
+		};
+	};
+	spi_mi_mode_high: spi_mi_high {
+		pins_cmd_dat {
+			pinmux = <PINMUX_GPIO67__FUNC_SPI_MIA>;
+			bias-disable;
+		};
+	};	
+	spi_mo_mode_low: spi_mo_low {
+		pins_cmd_dat {
+			pinmux = <PINMUX_GPIO68__FUNC_SPI_MOA>;
+	                slew-rate = <1>;
+		};
+	};
+	spi_mo_mode_high: spi_mo_high {
+		pins_cmd_dat {
+			pinmux = <PINMUX_GPIO68__FUNC_SPI_MOA>;
+			slew-rate = <1>;
+		};
+	};	
+	spi_mclk_mode_low: spi_mclk_low {
+		pins_cmd_dat {
+			pinmux = <PINMUX_GPIO66__FUNC_SPI_CKA>;
+			slew-rate = <1>;
+		};
+	};
+	spi_mclk_mode_high: spi_mclk_high {
+		pins_cmd_dat {
+			pinmux = <PINMUX_GPIO66__FUNC_SPI_CKA>;
+			slew-rate = <1>;
+		};
+	};	
+    finger_rst_mode_low: finger_rst_low {
+        pins_cmd_dat {
+			pinmux = <PINMUX_GPIO64__FUNC_GPIO64>;
+            slew-rate = <1>;
+            output-low;
+        };
+    };
+    finger_rst_mode_high: finger_rst_high {
+        pins_cmd_dat {
+			pinmux = <PINMUX_GPIO64__FUNC_GPIO64>;
+            slew-rate = <1>;
+            output-high;
+        };
+    };
+	finger_eint_as_int: finger_eint {
+		pins_cmd_dat {
+			pinmux = <PINMUX_GPIO63__FUNC_GPIO63>;
+			slew-rate = <0>;
+			bias-disable;
+		};
+	};
+	finger_eint_in_low: finger_eint_low {
+		pins_cmd_dat {
+			pinmux = <PINMUX_GPIO63__FUNC_GPIO63>;
+			slew-rate = <0>;
+			bias-pull-down = <0>;
+		};
+	};
+	finger_eint_in_float: finger_eint_float {
+		pins_cmd_dat {
+			pinmux = <PINMUX_GPIO63__FUNC_GPIO63>;
+			slew-rate = <0>;
+			bias-disable;
+		};
+	};	
+	fingerprint_default: state_default {
+	};
+};
+
+&icnfpsensor{	
+	pinctrl-names = "spi_default","spi_cs_low","spi_cs_high","spi_mi_low","spi_mi_high","spi_mo_low",
+					"spi_mo_high","spi_mclk_low","spi_mclk_high","finger_rst_low","finger_rst_high",
+                    "finger_eint","finger_eint_low","finger_eint_float","spi_cs_set";
+	pinctrl-0 = <&spi_default>;
+	pinctrl-1 = <&spi_cs_mode_low>;
+	pinctrl-2 = <&spi_cs_mode_high>;
+	pinctrl-3 = <&spi_mi_mode_low>;
+	pinctrl-4 = <&spi_mi_mode_high>;
+	pinctrl-5 = <&spi_mo_mode_low>;
+	pinctrl-6 = <&spi_mo_mode_high>;
+	pinctrl-7 = <&spi_mclk_mode_low>;
+	pinctrl-8 = <&spi_mclk_mode_high>;
+	pinctrl-9 = <&finger_rst_mode_low>;
+	pinctrl-10 = <&finger_rst_mode_high>;
+	pinctrl-11 = <&finger_eint_as_int>;
+	pinctrl-12 = <&finger_eint_in_low>;
+	pinctrl-13 = <&finger_eint_in_float>;
+	pinctrl-14 = <&spi_cs_mode_set>;
+	
+	interrupt-parent = <&eintc>;
+	interrupts = <63 IRQ_TYPE_EDGE_FALLING>;
+	deb-gpio =<&pio 63 0>;
+	debounce = <63 0>;
+	status = "okay";
+
+};
+/*chipone fpsensor fingerprint node for dts and spi driver match
+* For example:put following codes to 'mt6739.dts' for MT6739 platform. 
+*			  path:kernel-4.4\arch\arm\boot\dts	
+*/
+
+/**
+ Chipone fpsensor GPIO define. end.
+**/

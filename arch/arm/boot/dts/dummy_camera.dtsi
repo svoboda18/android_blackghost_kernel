@@ -1,0 +1,88 @@
+/*dummy_camera start*/
+#ifdef CONFIG_SUNRITEL_DCAM
+&pio {
+       dummy_camera_default:dummy_camera_default@{
+       };
+       dummy_camera_cam2_rst1: dummy_camera_cam2_rst@1 {
+           pins_cmd_dat {
+                       pinmux = <PINMUX_GPIO59__FUNC_GPIO59>;
+                       slew-rate = <1>;
+            bias-disable;                      
+                       output-high;
+               };
+       };
+       dummy_camera_cam2_rst0: dummy_camera_cam2_rst@0 {
+           pins_cmd_dat {
+                       pinmux = <PINMUX_GPIO59__FUNC_GPIO59>;
+                       slew-rate = <1>;
+                       bias-disable;
+                       output-low;
+               };
+       };
+       dummy_camera_cam2_pnd1: dummy_camera_cam2_pnd@1 {
+           pins_cmd_dat {
+                       pinmux = <PINMUX_GPIO60__FUNC_GPIO60>;
+                       slew-rate = <1>;
+                       bias-disable;
+                       output-high;
+               };
+       };
+       dummy_camera_cam2_pnd0: dummy_camera_cam2_pnd@0 {
+           pins_cmd_dat {
+                       pinmux = <PINMUX_GPIO60__FUNC_GPIO60>;
+                       slew-rate = <1>;
+                       bias-disable;
+                       output-low;
+               };
+       };      
+       dummy_camera_cam2_d_vdd1: dummy_camera_cam2_d_vdd@1 {
+       };
+       dummy_camera_cam2_d_vdd0: dummy_camera_cam2_d_vdd@0 {
+       };      
+       dummy_camera_cam2_a_vdd1: dummy_camera_cam2_a_vdd@1 {
+           pins_cmd_dat {
+                       pinmux = <PINMUX_GPIO19__FUNC_GPIO19>;
+                       slew-rate = <1>;
+                       bias-disable;
+                       output-high;
+               };
+       };
+       dummy_camera_cam2_a_vdd0: dummy_camera_cam2_a_vdd@0 {
+           pins_cmd_dat {
+                       pinmux = <PINMUX_GPIO19__FUNC_GPIO19>;
+                       slew-rate = <1>;
+                       bias-disable;
+                       output-low;
+               };
+       };                      
+};
+
+&dummy_camera {
+       pinctrl-names = "default","cam2_rst1","cam2_rst0","cam2_pnd1","cam2_pnd0",
+                        "cam2_d_vdd1","cam2_d_vdd0","cam2_a_vdd1","cam2_a_vdd0";  
+       pinctrl-0  = <&dummy_camera_default>;
+       pinctrl-1  = <&dummy_camera_cam2_rst1>;
+       pinctrl-2  = <&dummy_camera_cam2_rst0>;
+       pinctrl-3  = <&dummy_camera_cam2_pnd1>;
+       pinctrl-4  = <&dummy_camera_cam2_pnd0>; 
+       pinctrl-5  = <&dummy_camera_cam2_d_vdd1>;       
+       pinctrl-6  = <&dummy_camera_cam2_d_vdd0>;       
+       pinctrl-7  = <&dummy_camera_cam2_a_vdd1>;       
+       pinctrl-8  = <&dummy_camera_cam2_a_vdd0>;       
+       
+       status = "okay";
+};
+#endif
+/*dummy_camera end*/
+
+&i2c2 {
+	#address-cells = <1>;
+	#size-cells = <0>;
+	camera_main_2_mtk:camera_main_2@21 {
+			compatible = "mediatek,camera_dcam2";
+			reg = <0x21>;
+			status = "okay";
+	};
+};
+
+

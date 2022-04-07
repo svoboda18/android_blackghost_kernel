@@ -1,0 +1,7 @@
+config MTK_MXC400X_NEW
+	bool "MTK_MXC400X_Q35 for MediaTek package"
+	help
+	  It support different accelerometer sensor.
+	  If this option is set, it will support
+	  MTK_MXC400X_Q35 Accelerometer.
+

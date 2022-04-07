@@ -1,0 +1,23 @@
+# Power Related
+config MTK_PMIC
+	bool "MediaTek PMIC driver"
+	---help---
+	  This selects for MediaTek(R) PMIC driver.
+	  It's main chip type and providing power features like auxadc,
+	  buck/ldo, interrupt-controller..etc
+	  Select y to support MTK PMIC feature.
+
+config MTK_REF_CHARGER
+	bool "MediaTek MT6580 reference phone charger driver"
+	---help---
+	  This selects for MediaTek(R) Charger driver.
+	  It's main chip type and providing charger features.
+	  Note this charger setting is only for reference phone.
+	  Select y to support MTK Ref charger feature.
+
+config MT6580_USE_FCHR_ENB_KEY
+       bool "MT6580_USE_FCHR_ENB_KEY"
+       default n
+       help
+         This will enable MT6580_USE_FCHR_ENB_KEY
+         If you say Y, enable MT6580_USE_FCHR_ENB_KEY
