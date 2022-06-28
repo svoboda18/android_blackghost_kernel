@@ -51,9 +51,9 @@
 #include <linux/syscalls.h>
 #include <linux/completion.h>
 #include <linux/uuid.h>
-#include <crypto/chacha.h>
 #include <linux/siphash.h>
 #include <linux/uio.h>
+#include <crypto/chacha.h>
 #include <crypto/blake2s.h>
 #include <asm/processor.h>
 #include <asm/uaccess.h>
