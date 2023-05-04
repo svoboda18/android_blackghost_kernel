@@ -16,6 +16,9 @@ config DEFCONFIG_LIST
 	default "$ARCH_DEFCONFIG"
 	default "arch/$ARCH/defconfig"
 
+config CC_IS_CLANG
+	bool "CLANG"
+
 config CONSTRUCTORS
 	bool
 	depends on !UML
