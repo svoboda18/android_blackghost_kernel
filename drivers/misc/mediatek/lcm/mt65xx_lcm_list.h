@@ -16,6 +16,8 @@
 
 #include <lcm_drv.h>
 
+extern struct LCM_DRIVER hct_hx8394f_dsi_vdo_hd_cmi;
+
 extern struct LCM_DRIVER otm1282a_hd720_dsi_vdo_60hz_lcm_drv;
 extern struct LCM_DRIVER otm1282a_hd720_dsi_vdo_lcm_drv;
 extern struct LCM_DRIVER nt35595_fhd_dsi_cmd_truly_8163_lcm_drv;
