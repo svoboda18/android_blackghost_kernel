@@ -520,8 +520,8 @@
 
 };
 /* CAMERA GPIO end */
-/*
-/* FLASHLIGHT GPIO standardization 
+
+/* FLASHLIGHT GPIO standardization */
 &pio {
     flashlight_pins_default: default {
     };
@@ -549,7 +549,8 @@
     pinctrl-2 = <&flashlight_pins_hwen_low>;
     status = "okay";
 };
-*/
+/* FLASHLIGHT GPIO END */
+
 /* CONSYS GPIO standardization */
 &pio {
 	consys_pins_default: consys_default {
