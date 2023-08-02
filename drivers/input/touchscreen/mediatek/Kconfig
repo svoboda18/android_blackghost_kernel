@@ -91,6 +91,6 @@ config TOUCHSCREEN_MTK_NT36xxx
 	  module will be called.
 
 source "drivers/input/touchscreen/mediatek/NT36xxx/Kconfig"
-
+source "drivers/input/touchscreen/mediatek/svbfts_ts/Kconfig"
 
 endif
