@@ -1105,9 +1105,10 @@ int msdc_dt_init(struct platform_device *pdev, struct mmc_host *mmc)
 	int id;
 
 #ifndef FPGA_PLATFORM
+#if 0
 	struct pinctrl *pinctrl;
 	struct pinctrl_state *pins_ins;
-
+#endif
 	static char const * const ioconfig_names[] = {
 		MSDC0_IOCFG_NAME, MSDC1_IOCFG_NAME
 	};
@@ -1149,6 +1150,7 @@ int msdc_dt_init(struct platform_device *pdev, struct mmc_host *mmc)
 			infracfg_ao_base);
 	}
 
+#if 0 // X5 doesn't have any msdc1 pins
 	if (id == 1) {
 		pinctrl = devm_pinctrl_get(&pdev->dev);
 		if (IS_ERR(pinctrl))
@@ -1161,6 +1163,7 @@ int msdc_dt_init(struct platform_device *pdev, struct mmc_host *mmc)
 		pinctrl_select_state(pinctrl, pins_ins);
 		pr_debug("msdc1 pinctl select state\n");
 	}
+#endif
 
 #endif
 
