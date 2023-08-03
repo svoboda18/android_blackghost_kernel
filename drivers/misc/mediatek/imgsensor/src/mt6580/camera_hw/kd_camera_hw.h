@@ -1,3 +1,4 @@
+    
 /*
  * Copyright (C) 2015 MediaTek Inc.
  *
@@ -86,7 +87,9 @@ typedef enum {
 	CAMRST,
 	CAM1PDN,
 	CAM1RST,
-	CAMLDO
+	CAMLDO,
+	CAMLDO1,
+	VCMPND
 } CAMPowerType;
 
 extern void ISP_MCLK1_EN(BOOL En);
