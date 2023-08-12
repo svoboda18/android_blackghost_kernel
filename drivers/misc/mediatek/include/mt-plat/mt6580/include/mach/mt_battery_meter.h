@@ -17,7 +17,7 @@
 /* ============================================================*/
 /* define*/
 /* ============================================================*/
-/*#define SOC_BY_AUXADC*/
+//#define SOC_BY_AUXADC
 /*#define SOC_BY_HW_FG*/
 /*#define HW_FG_FORCE_USE_SW_OCV*/
 #define SOC_BY_SW_FG
@@ -40,22 +40,22 @@
 #define FG_METER_RESISTANCE	0
 
 /* Qmax for battery  */
-#define Q_MAX_POS_50	((1872+1812)/2)	// 1842
-#define Q_MAX_POS_25	((1860+1800)/2)	// 1830
-#define Q_MAX_POS_0	((1736+1680)/2)	// 1708
-#define Q_MAX_NEG_10	((1653+1600)/2)	// 1626
+#define Q_MAX_POS_50	1940
+#define Q_MAX_POS_25	1840
+#define Q_MAX_POS_0	1753
+#define Q_MAX_NEG_10	1441
 
-#define Q_MAX_POS_50_H_CURRENT	((1842+1783)/2)	// 1812
-#define Q_MAX_POS_25_H_CURRENT	((1807+1749)/2)	// 1778
-#define Q_MAX_POS_0_H_CURRENT	((1568+1518)/2)	// 1543
-#define Q_MAX_NEG_10_H_CURRENT	((852+825)/2)	// 838
+#define Q_MAX_POS_50_H_CURRENT	1940
+#define Q_MAX_POS_25_H_CURRENT	1840
+#define Q_MAX_POS_0_H_CURRENT	1753
+#define Q_MAX_NEG_10_H_CURRENT	1441
 
 /* Discharge Percentage */
 #define OAM_D5	0	/*  1 : D5,   0: D2*/
 
 /* battery meter parameter */
 #define CHANGE_TRACKING_POINT
-#define CUST_TRACKING_POINT	0
+#define CUST_TRACKING_POINT	1
 #define CUST_R_SENSE	200
 #define CUST_HW_CC	0
 #define AGING_TUNING_VALUE	103
