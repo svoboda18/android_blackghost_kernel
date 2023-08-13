@@ -76,10 +76,10 @@ struct epl_raw_data {
 
 /*----------------------------------------------------------------------------*/
 #define APS_TAG                  "[ALS/PS] "
-#define APS_FUN(f)               pr_err(APS_TAG"%s\n", __func__)
+#define APS_FUN(f)
 #define APS_ERR(fmt, args...)    pr_err(APS_TAG"%s %d : "fmt, __func__, __LINE__, ##args)
-#define APS_LOG(fmt, args...)    pr_err(APS_TAG fmt, ##args)
-#define APS_DBG(fmt, args...)    pr_err(APS_TAG fmt, ##args)
+#define APS_LOG(fmt, args...)
+#define APS_DBG(fmt, args...)
 #define FTM_CUST_ALSPS           "/data/epl2182"
 
 static struct i2c_client *epl2182_i2c_client;
@@ -696,7 +696,7 @@ static void epl2182_eint_work(struct work_struct *work)
 	if (epld->enable_pflag == 0)
 		goto exit;
 
-	APS_ERR("epl2182 int top half time = %lld\n", int_top_time);
+	APS_LOG("epl2182 int top half time = %lld\n", int_top_time);
 
 	elan_epl2182_I2C_Read(epld->client, REG_16, R_TWO_BYTE, 0x02, read_data);
 	gRawData.ps_raw = (read_data[1] << 8) | read_data[0];
@@ -796,7 +796,6 @@ int epl2182_setup_eint(struct i2c_client *client)
 			APS_ERR("IRQ LINE NOT AVAILABLE!!\n");
 			return -EINVAL;
 		}
-		enable_irq(epl2182_obj->irq);
 	} else {
 		APS_ERR("null irq node!!\n");
 		return -EINVAL;
@@ -1071,7 +1070,7 @@ static int set_psensor_threshold(struct i2c_client *client)
 #else
 	int databuf[2];
 
-	APS_ERR("set_psensor_threshold function high: 0x%x, low:0x%x\n",
+	APS_LOG("set_psensor_threshold function high: 0x%x, low:0x%x\n",
 		atomic_read(&obj->ps_thd_val_high), atomic_read(&obj->ps_thd_val_low));
 	databuf[0] = atomic_read(&obj->ps_thd_val_low);
 	databuf[1] = atomic_read(&obj->ps_thd_val_high);	/* threshold value need to confirm */
@@ -1479,7 +1478,6 @@ static int epl2182_ps_factory_set_threshold(int32_t threshold[2])
 	int err = 0;
 	struct epl2182_priv *obj = epl2182_obj;
 
-	APS_ERR("%s set threshold high: 0x%x, low: 0x%x\n", __func__, threshold[0], threshold[1]);
 	atomic_set(&obj->ps_thd_val_high, (threshold[0] + obj->ps_cali));
 	atomic_set(&obj->ps_thd_val_low, (threshold[1] + obj->ps_cali));
 	err = set_psensor_threshold(obj->client);
