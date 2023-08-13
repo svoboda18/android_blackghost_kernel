@@ -20,7 +20,7 @@
 * 1.Included header files
 *****************************************************************************/
 #include "svbfocaltech_core.h"
-#include "kpd.h"
+#include "hal_kpd.h"
 
 extern unsigned int tpd_gesture_status;
 
