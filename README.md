@@ -18,7 +18,7 @@ is reversed from stock kernel.
 | GPU | `Mali-400 MP2` | Yes | Yes |
 | Camera #1 | `s5k5e2y_mipi_raw` | Yes | Yes |
 | Camera #2 | `gc2355_mipi_raw` | Yes | Yes |
-| Flashlight | `dummy_gpio` | Yes | Yes - Camera only |
+| Flashlight | `dummy_gpio` | Yes | Yes |
 | Accelerometer | `MXC400X (i2c 2-0015)` | Yes | Yes |
 | ALS/PS | `EPL2182 (i2c 2-0049)` | Yes | Yes |
 | Flash | `Samsung FNX2MB` | - | Yes |
