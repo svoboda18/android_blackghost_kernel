@@ -101,7 +101,7 @@ static bool no_update;
 	} while (0)
 
 
-static size_t mtkfb_log_on = true;
+static size_t mtkfb_log_on = false;
 #define MTKFB_LOG(fmt, arg...)					\
 	do {							\
 		if (mtkfb_log_on)				\

@@ -53,12 +53,12 @@ ccflags-y  += -I$(srctree)/$(obj)/include
 ccflags-y  += -I$(CCCI_DRIVER_DIR)/include
 ccflags-y  += -I$(CCCI_DRIVER_DIR)/$(CONFIG_MTK_PLATFORM)/include
 
-ifneq ($(CONFIG_MTK_ENG_BUILD),no)
+#ifneq ($(CONFIG_MTK_ENG_BUILD),no)
 #ccflags-y  += -DCCCI_DEBUG_ON -D__CCCI_LOG__  -DCCCI_MD_DEBUG_ON  #-save-temps
-ccflags-y  += -DCCCI_DEBUG_ON  -DCCCI_MD_DEBUG_ON  #-save-temps
+#ccflags-y  += -DCCCI_DEBUG_ON  -DCCCI_MD_DEBUG_ON  #-save-temps
 #ccflags-y  += -DENCRYPT_DEBUG -DCCCI_RPC_DEBUG_ON
-endif
-ccflags-y  += -D__CCCI_LOG__
+#endif
+#ccflags-y  += -D__CCCI_LOG__
 obj-y += $(subst ",,$(CONFIG_MTK_PLATFORM))/
 else
 obj- :=dummy.o
