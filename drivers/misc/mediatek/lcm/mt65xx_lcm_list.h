@@ -17,6 +17,12 @@
 #include <lcm_drv.h>
 
 extern struct LCM_DRIVER hct_hx8394f_dsi_vdo_hd_cmi;
+extern struct LCM_DRIVER hct_otm1285a_dsi_vdo_hd_boe;
+extern struct LCM_DRIVER hct_ili9881_dsi_vdo_hd_cpt;
+extern struct LCM_DRIVER hct_otm1282_dsi_vdo_hd_auo;
+extern struct LCM_DRIVER hct_rm68200_dsi_vdo_hd_cpt;
+extern struct LCM_DRIVER hct_nt35521s_dsi_vdo_hd_boe_50_xld;
+extern struct LCM_DRIVER hct_hx8394d_dsi_vdo_hd_cmi;
 
 extern struct LCM_DRIVER otm1282a_hd720_dsi_vdo_60hz_lcm_drv;
 extern struct LCM_DRIVER otm1282a_hd720_dsi_vdo_lcm_drv;
