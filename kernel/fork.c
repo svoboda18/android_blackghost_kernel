@@ -10,7 +10,7 @@
  * Fork is rather simple, once you get the hang of it, but the memory
  * management can be a bitch. See 'mm/memory.c': 'copy_page_range()'
  */
-#define DEBUG
+//#define DEBUG
 
 #include <linux/anon_inodes.h>
 #include <linux/slab.h>
