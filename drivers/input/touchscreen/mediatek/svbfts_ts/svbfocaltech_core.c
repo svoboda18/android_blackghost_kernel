@@ -35,7 +35,6 @@
 
 static DECLARE_WAIT_QUEUE_HEAD(waiter);
 static int tpd_flag;
-unsigned int tpd_gesture_status = DISABLE; // "1" is enable
 unsigned int tpd_rst_gpio_number = DISABLE;
 unsigned int tpd_int_gpio_number = ENABLE;
 
@@ -123,9 +122,7 @@ void fts_tp_state_recovery(struct i2c_client *client)
 
     /* recover TP gesture state 0xD0 */
 #if FTS_GESTURE_EN
-    if (tpd_gesture_status) {
-    	fts_gesture_recovery(client);
-    }
+    fts_gesture_recovery(client);
 #endif
 }
 
@@ -139,7 +136,7 @@ void fts_tp_state_recovery(struct i2c_client *client)
 int fts_reset_proc(int hdelayms)
 {
     FTS_FUNC_ENTER();
-	
+
     tpd_gpio_output(tpd_rst_gpio_number, 0);
     msleep(20);
     tpd_gpio_output(tpd_rst_gpio_number, 1);
@@ -339,7 +336,7 @@ static int fts_input_report_b(struct fts_ts_data *data)
 
     for (i = 0; i < data->touch_point; i++) {
         if (KEY_EN && TOUCH_IS_KEY(events[i].y, key_y_coor)) {
-			
+
             fts_input_report_key(data, i);
             continue;
         }
@@ -615,11 +612,9 @@ static int touch_event_handler(void *unused)
         FTS_DEBUG("touch_event_handler start");
 
 #if FTS_GESTURE_EN
-        if (tpd_gesture_status) {
-		if (0 == fts_gesture_readdata(ts_data)) {
-			FTS_INFO("succuss to get gesture data in irq handler");
-            		continue;
-		}
+        if (0 == fts_gesture_readdata(ts_data)) {
+           FTS_INFO("succuss to get gesture data in irq handler");
+           continue;
         }
 #endif
 
@@ -730,7 +725,7 @@ static int tpd_probe(struct i2c_client *client, const struct i2c_device_id *id)
     if (NULL == ts_data->ts_workqueue) {
         FTS_ERROR("failed to create fts workqueue");
     }
-	
+
     spin_lock_init(&ts_data->irq_lock);
     mutex_init(&ts_data->report_mutex);
 
@@ -751,6 +746,11 @@ static int tpd_probe(struct i2c_client *client, const struct i2c_device_id *id)
         FTS_ERROR("init gesture fail");
     }
 #endif
+
+    if ((fts_i2c_write_reg(client, 0x88, 0x8)) < 0) {
+      if ((fts_i2c_write_reg(client, 0x88, 0x8)) < 0)
+          FTS_ERROR("I2C write report rate error, line: %d\n", __LINE__);
+    }
 
     ts_data->thread_tpd = kthread_run(touch_event_handler, 0, TPD_DEVICE);
     if (IS_ERR(ts_data->thread_tpd)) {
@@ -863,7 +863,7 @@ static int tpd_local_init(void)
     memcpy(tpd_def_calmat, tpd_def_calmat_local_normal, 8 * 4);
 #endif
 
-    tpd_type_cap = 1;
+    //tpd_type_cap = 1;
 
     FTS_FUNC_EXIT();
     return 0;
@@ -896,19 +896,14 @@ static void tpd_suspend(struct device *h)
     }
 
 #if FTS_GESTURE_EN
-    if (tpd_gesture_status) {
-    	ret = fts_gesture_suspend(ts_data->client);
-    	if (ret == 0) {
-        	/* Enter into gesture mode(suspend) */
-        	ts_data->suspended = true;
-        	return;
-    	}
+    ret = fts_gesture_suspend(ts_data->client);
+    if (ret == 0) {
+        ts_data->suspended = true;
+        return;
     }
 #endif
 
-#if !FTS_MT_PROTOCOL_B_EN
     fts_irq_disable();
-#endif
 
     /* TP enter sleep mode */
     ret = fts_i2c_write_reg(ts_data->client, FTS_REG_POWER_MODE, FTS_REG_POWER_MODE_SLEEP_VALUE);
@@ -916,10 +911,9 @@ static void tpd_suspend(struct device *h)
         FTS_ERROR("Set TP to sleep mode fail, ret=%d!", ret);
     }
 
-#if FTS_POWER_SOURCE_CUST_EN && !FTS_MT_PROTOCOL_B_EN
     fts_power_suspend();
-#endif
 
+    fts_release_all_finger();
     ts_data->suspended = true;
     FTS_FUNC_EXIT();
 }
@@ -952,11 +946,15 @@ static void tpd_resume(struct device *h)
         return;
     }
 
-    fts_release_all_finger();
-
-#if FTS_POWER_SOURCE_CUST_EN && !FTS_MT_PROTOCOL_B_EN
-    fts_power_resume();
+#if FTS_GESTURE_EN
+    if (fts_gesture_resume(ts_data->client) == 0) {
+       ts_data->suspended = false;
+       FTS_FUNC_EXIT();
+       return;
+    }
 #endif
+
+    fts_power_resume();
 
 #if FTS_GESTURE_EN
     fts_reset_proc(200);
@@ -964,20 +962,9 @@ static void tpd_resume(struct device *h)
 
     /* Before read/write TP register, need wait TP to valid */
     fts_tp_state_recovery(ts_data->client);
+    fts_release_all_finger();
 
-#if FTS_GESTURE_EN
-    if (tpd_gesture_status) {
-    	if (fts_gesture_resume(ts_data->client) == 0) {
-        	ts_data->suspended = false;
-        	FTS_FUNC_EXIT();
-        	return;
-    	}
-    }
-#endif
-
-#if !FTS_MT_PROTOCOL_B_EN
     fts_irq_enable();
-#endif
 
     ts_data->suspended = false;
     FTS_FUNC_EXIT();
@@ -1003,17 +990,16 @@ static struct tpd_driver_t tpd_device_driver = {
 *****************************************************************************/
 static int __init tpd_driver_init(void)
 {
-	
     FTS_FUNC_ENTER();
     FTS_INFO("Driver version: %s", FTS_DRIVER_VERSION);
-	
+
     tpd_get_dts_info();
-	
+
     if (tpd_dts_data.touch_max_num < 2)
         tpd_dts_data.touch_max_num = 2;
     else if (tpd_dts_data.touch_max_num > FTS_MAX_POINTS_SUPPORT)
         tpd_dts_data.touch_max_num = FTS_MAX_POINTS_SUPPORT;
-	
+
     if (tpd_driver_add(&tpd_device_driver) < 0) {
         FTS_ERROR("[TPD]: Add FTS Touch driver failed!!");
     }
