@@ -544,7 +544,7 @@ static int tpd_probe(struct platform_device *pdev)
 #endif
 #endif
 
-	TPD_DMESG("enter %s, %d\n", __func__, __LINE__);
+	TPD_DEBUG("enter %s, %d\n", __func__, __LINE__);
 
 	if (misc_register(&tpd_misc_device))
 		pr_info("mtk_tpd: tpd_misc_device register failed\n");

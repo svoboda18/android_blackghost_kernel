@@ -615,7 +615,7 @@ static int kwdt_thread(void *arg)
 				 * avoid bulk of delayed printk happens here
 				 */
 				if (msg_buf[0] != '\0')
-					pr_info("%s", msg_buf);
+					pr_debug("%s", msg_buf);
 			}
 		}
 
