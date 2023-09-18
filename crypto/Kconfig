@@ -1628,6 +1628,16 @@ config CRYPTO_842
 	help
 	  This is the 842 algorithm.
 
+config CRYPTO_LZ4K
+	tristate "LZ4K compression algorithm"
+	default n
+	select CRYPTO_ALGAPI
+	select LZ4K
+	help
+	  Mediatek's proprietary LZ4K algorithm.
+	  It has better compression ratio than the one in LZO
+	  with less performance degradation.
+
 config CRYPTO_LZ4
 	tristate "LZ4 compression algorithm"
 	select CRYPTO_ALGAPI
