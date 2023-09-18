@@ -17,6 +17,8 @@
 #include <asm/fiq.h>
 #include <asm/fiq_glue.h>
 
+#define __get_cpu_var(var)      (*this_cpu_ptr(&(var)))
+
 extern unsigned char fiq_glue, fiq_glue_end;
 extern void fiq_glue_setup(void *func, void *data, void *sp,
 			   fiq_return_handler_t fiq_return_handler);
