@@ -138,7 +138,7 @@ static int mtk_pcm_dl2_stop(struct snd_pcm_substream *substream)
 		struct AFE_BLOCK_T *Afe_Block = &pMemControl->rBlock;
 
 		if (Afe_Block->u4DataRemained < 0) {
-			pr_warn("%s, dl2 underflow\n", __func__);
+			pr_debug("%s, dl2 underflow\n", __func__);
 			if (get_LowLatencyDebug() & DEBUG_DL2_AEE_UNDERFLOW)
 				AUDIO_AEE("mtk_pcm_dl2_stop - dl2 underflow");
 		}
@@ -179,7 +179,7 @@ static snd_pcm_uframes_t mtk_pcm_dl2_pointer(struct snd_pcm_substream *substream
 	if (GetMemoryPathEnable(Soc_Aud_Digital_Block_MEM_DL2) == true) {
 		HW_Cur_ReadIdx = Afe_Get_Reg(AFE_DL2_CUR);
 		if (HW_Cur_ReadIdx == 0) {
-			pr_warn("[Auddrv] HW_Cur_ReadIdx ==0\n");
+			pr_debug("[Auddrv] HW_Cur_ReadIdx ==0\n");
 			HW_Cur_ReadIdx = Afe_Block->pucPhysBufAddr;
 		}
 
@@ -236,7 +236,7 @@ static void SetDL2Buffer(struct snd_pcm_substream *substream, struct snd_pcm_hw_
 	pblock->u4DataRemained = 0;
 	pblock->u4fsyncflag = false;
 	pblock->uResetFlag = true;
-	pr_warn("SetDL2Buffer u4BufferSize = %d pucVirtBufAddr = %p pucPhysBufAddr = 0x%x\n",
+	pr_debug("SetDL2Buffer u4BufferSize = %d pucVirtBufAddr = %p pucPhysBufAddr = 0x%x\n",
 	       pblock->u4BufferSize, pblock->pucVirtBufAddr, pblock->pucPhysBufAddr);
 	/* set dram address top hardware */
 	Afe_Set_Reg(AFE_DL2_BASE, pblock->pucPhysBufAddr, 0xffffffff);
@@ -293,7 +293,7 @@ static int mtk_pcm_dl2_open(struct snd_pcm_substream *substream)
 	if (mPlaybackSramState == SRAM_STATE_PLAYBACKDRAM)
 		AudDrv_Emi_Clk_On();
 
-	pr_warn("mtk_pcm_dl2_hardware.buffer_bytes_max = %zu mPlaybackSramState = %d\n",
+	pr_debug("mtk_pcm_dl2_hardware.buffer_bytes_max = %zu mPlaybackSramState = %d\n",
 	       mtk_pcm_dl2_hardware.buffer_bytes_max, mPlaybackSramState);
 	runtime->hw = mtk_pcm_dl2_hardware;
 
@@ -309,9 +309,9 @@ static int mtk_pcm_dl2_open(struct snd_pcm_substream *substream)
 		pr_err("snd_pcm_hw_constraint_integer failed\n");
 
 	/* if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK)
-		pr_warn("SNDRV_PCM_STREAM_PLAYBACK mtkalsa_dl2playback_constraints\n");
+		pr_debug("SNDRV_PCM_STREAM_PLAYBACK mtkalsa_dl2playback_constraints\n");
 	else
-		pr_warn("SNDRV_PCM_STREAM_CAPTURE mtkalsa_dl2playback_constraints\n"); */
+		pr_debug("SNDRV_PCM_STREAM_CAPTURE mtkalsa_dl2playback_constraints\n"); */
 
 	if (ret < 0) {
 		pr_err("ret < 0 mtk_soc_pcm_dl2_close\n");
@@ -374,7 +374,7 @@ static int mtk_pcm_dl2_prepare(struct snd_pcm_substream *substream)
 	pr_debug("%s\n", __func__);
 
 	if (mPrepareDone == false) {
-		pr_warn
+		pr_debug
 		    ("%s format = %d SNDRV_PCM_FORMAT_S32_LE = %d SNDRV_PCM_FORMAT_U32_LE = %d\n",
 		     __func__, runtime->format, SNDRV_PCM_FORMAT_S32_LE, SNDRV_PCM_FORMAT_U32_LE);
 		SetMemifSubStream(Soc_Aud_Digital_Block_MEM_DL2, substream);
@@ -500,7 +500,7 @@ static int mtk_pcm_dl2_copy_(void __user *dst, snd_pcm_uframes_t *size, struct A
 			copy_size = count;
 	} else {
 		if (unlikely(get_LowLatencyDebug() & DEBUG_DL2_AEE_OTHERS)) {
-			pr_warn("%s, Insufficient data !\n", __func__);
+			pr_debug("%s, Insufficient data !\n", __func__);
 			AUDIO_AEE("ISRCopy has remaining data !!");
 		}
 	}
@@ -634,13 +634,13 @@ void mtk_dl2_copy2buffer(const void *addr, uint32_t size)
 retry:
 
 	if (unlikely(ISRCopyBuffer.u4BufferSize)) {
-		pr_warn("%s, remaining data %d\n", __func__, ISRCopyBuffer.u4BufferSize);
+		pr_debug("%s, remaining data %d\n", __func__, ISRCopyBuffer.u4BufferSize);
 		if (unlikely(get_LowLatencyDebug() & DEBUG_DL2_AEE_OTHERS))
 			AUDIO_AEE("ISRCopy has remaining data !!");
 	}
 
 	if (unlikely(!ISRCopyBuffer.pBufferBase || size > ISRCopyBuffer.u4BufferSizeMax)) {
-		pr_warn("%s, size %d, u4BufferSizeMax %d\n", __func__, size, ISRCopyBuffer.u4BufferSizeMax);
+		pr_debug("%s, size %d, u4BufferSizeMax %d\n", __func__, size, ISRCopyBuffer.u4BufferSizeMax);
 		if (!again) {
 			/* realloc memory */
 			kfree(ISRCopyBuffer.pBufferBase);
@@ -659,7 +659,7 @@ retry:
 
 	if (unlikely(mtk_local_audio_copy_from_user(false, ISRCopyBuffer.pBufferBase,
 			(char *)addr, size))) {
-		pr_warn("%s Fail copy from user!! fail:dst 0x%p src 0x%p, size %d, pass:dst 0x%p src 0x%p, size %d\n",
+		pr_debug("%s Fail copy from user!! fail:dst 0x%p src 0x%p, size %d, pass:dst 0x%p src 0x%p, size %d\n",
 			__func__, ISRCopyBuffer.pBufferBase, addr, size, recordDst, recordScr, recordSize);
 		goto exit;
 	} else {
@@ -720,7 +720,7 @@ static int mtk_pcm_dl2_copy(struct snd_pcm_substream *substream,
 			NowTime = sched_clock();
 
 			if ((NowTime - PrevTime) > UnderflowTime) {
-				pr_warn("%s, dl2 underflow, UnderflowTime %d, start %ld, end %ld\n",
+				pr_debug("%s, dl2 underflow, UnderflowTime %d, start %ld, end %ld\n",
 					__func__, UnderflowTime, PrevTime, NowTime);
 				if (get_LowLatencyDebug() & DEBUG_DL2_AEE_UNDERFLOW)
 					AUDIO_AEE("mtk_pcm_dl2_copy - dl2 underflow");
@@ -866,7 +866,7 @@ static int mtk_soc_dl2_probe(struct platform_device *pdev)
 		return -ENODEV;
 	}
 
-	pr_warn("%s: dev name %s\n", __func__, dev_name(&pdev->dev));
+	pr_debug("%s: dev name %s\n", __func__, dev_name(&pdev->dev));
 
 
 	return snd_soc_register_platform(&pdev->dev, &mtk_soc_platform);

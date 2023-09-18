@@ -505,7 +505,7 @@ static int mtk_capture_pcm_copy(struct snd_pcm_substream *substream,
 
 	if (DMA_Read_Ptr + read_size < Vul_Block->u4BufferSize) {
 		if (DMA_Read_Ptr != Vul_Block->u4DMAReadIdx) {
-			pr_warn
+			pr_debug
 			("%s 1, read_size:%zu, DataRemained:%x, DMA_Read_Ptr:%zu, DMAReadIdx:%x \r\n",
 			__func__, read_size, Vul_Block->u4DataRemained, DMA_Read_Ptr, Vul_Block->u4DMAReadIdx);
 		}
@@ -542,7 +542,7 @@ static int mtk_capture_pcm_copy(struct snd_pcm_substream *substream,
 
 		if (DMA_Read_Ptr != Vul_Block->u4DMAReadIdx) {
 
-			pr_warn
+			pr_debug
 			("%s 2, read_size1:0x%x, DataRemained:%x, DMA_Read_Ptr:%zu, DMAReadIdx:%x \r\n",
 			__func__, size_1, Vul_Block->u4DataRemained, DMA_Read_Ptr, Vul_Block->u4DMAReadIdx);
 		}
@@ -571,7 +571,7 @@ static int mtk_capture_pcm_copy(struct snd_pcm_substream *substream,
 
 		if (DMA_Read_Ptr != Vul_Block->u4DMAReadIdx) {
 
-			pr_warn
+			pr_debug
 			("AudDrv_AWB_Read3, read_size2:%x, DataRemained:%x, DMA_Read_Ptr:%zu, DMAReadIdx:%x \r\n",
 			     size_2, Vul_Block->u4DataRemained, DMA_Read_Ptr, Vul_Block->u4DMAReadIdx);
 		}

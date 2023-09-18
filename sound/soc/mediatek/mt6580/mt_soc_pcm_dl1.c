@@ -165,7 +165,7 @@ static struct snd_pcm_hardware mtk_pcm_dl1_hardware = {
 
 static int mtk_pcm_dl1_stop(struct snd_pcm_substream *substream)
 {
-	pr_warn("%s\n", __func__);
+	pr_debug("%s\n", __func__);
 
 	irq_remove_user(substream, Soc_Aud_IRQ_MCU_MODE_IRQ1_MCU_MODE);
 	SetMemoryPathEnable(Soc_Aud_Digital_Block_MEM_DL1, false);
@@ -245,7 +245,7 @@ static void SetDL1Buffer(struct snd_pcm_substream *substream, struct snd_pcm_hw_
 	pblock->u4DataRemained = 0;
 	pblock->u4fsyncflag = false;
 	pblock->uResetFlag = true;
-	pr_warn("SetDL1Buffer u4BufferSize = %d pucVirtBufAddr = %p pucPhysBufAddr = 0x%x\n",
+	pr_debug("SetDL1Buffer u4BufferSize = %d pucVirtBufAddr = %p pucPhysBufAddr = 0x%x\n",
 	       pblock->u4BufferSize, pblock->pucVirtBufAddr, pblock->pucPhysBufAddr);
 	/* set dram address top hardware */
 	Afe_Set_Reg(AFE_DL1_BASE, pblock->pucPhysBufAddr, 0xffffffff);
@@ -318,7 +318,7 @@ static int mtk_pcm_dl1_open(struct snd_pcm_substream *substream)
 	if (mPlaybackSramState == SRAM_STATE_PLAYBACKDRAM)
 		AudDrv_Emi_Clk_On();
 
-	pr_warn("mtk_pcm_dl1_hardware.buffer_bytes_max = %zu mPlaybackSramState = %d\n",
+	pr_debug("mtk_pcm_dl1_hardware.buffer_bytes_max = %zu mPlaybackSramState = %d\n",
 	       mtk_pcm_dl1_hardware.buffer_bytes_max, mPlaybackSramState);
 	runtime->hw = mtk_pcm_dl1_hardware;
 
@@ -334,9 +334,9 @@ static int mtk_pcm_dl1_open(struct snd_pcm_substream *substream)
 		pr_err("snd_pcm_hw_constraint_integer failed\n");
 
 	if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK)
-		pr_warn("SNDRV_PCM_STREAM_PLAYBACK mtkalsa_dl1playback_constraints\n");
+		pr_debug("SNDRV_PCM_STREAM_PLAYBACK mtkalsa_dl1playback_constraints\n");
 	else
-		pr_warn("SNDRV_PCM_STREAM_CAPTURE mtkalsa_dl1playback_constraints\n");
+		pr_debug("SNDRV_PCM_STREAM_CAPTURE mtkalsa_dl1playback_constraints\n");
 
 	if (ret < 0) {
 		pr_err("ret < 0 mtk_soc_pcm_dl1_close\n");
@@ -349,7 +349,7 @@ static int mtk_pcm_dl1_open(struct snd_pcm_substream *substream)
 
 static int mtk_soc_pcm_dl1_close(struct snd_pcm_substream *substream)
 {
-	pr_warn("%s\n", __func__);
+	pr_debug("%s\n", __func__);
 
 	if (mPrepareDone == true) {
 		/* stop DAC output */
@@ -380,7 +380,7 @@ static int mtk_pcm_prepare(struct snd_pcm_substream *substream)
 	struct snd_pcm_runtime *runtime = substream->runtime;
 
 	if (mPrepareDone == false) {
-		pr_warn
+		pr_debug
 		    ("%s format = %d SNDRV_PCM_FORMAT_S32_LE = %d SNDRV_PCM_FORMAT_U32_LE = %d\n",
 		     __func__, runtime->format, SNDRV_PCM_FORMAT_S32_LE, SNDRV_PCM_FORMAT_U32_LE);
 		SetMemifSubStream(Soc_Aud_Digital_Block_MEM_DL1, substream);
@@ -431,7 +431,7 @@ static int mtk_pcm_dl1_start(struct snd_pcm_substream *substream)
 {
 	struct snd_pcm_runtime *runtime = substream->runtime;
 
-	pr_warn("%s\n", __func__);
+	pr_debug("%s\n", __func__);
 	/* here start digital part */
 
 	SetConnection(Soc_Aud_InterCon_Connection, Soc_Aud_InterConnectionInput_I05,
@@ -683,7 +683,7 @@ static int Auddrv_Reg_map_new(void *dev)
 	/*get afe irq num */
 	afe_irq_number = irq_of_parse_and_map(pdev->of_node, 0);
 
-	pr_warn("[ge_mt_soc_pcm_dl1] afe_irq_number=%d\n", afe_irq_number);
+	pr_debug("[ge_mt_soc_pcm_dl1] afe_irq_number=%d\n", afe_irq_number);
 
 	if (!afe_irq_number) {
 		pr_err("[ge_mt_soc_pcm_dl1] get afe_irq_number failed!!!\n");
@@ -693,7 +693,7 @@ static int Auddrv_Reg_map_new(void *dev)
 	if (pdev->of_node) {
 		/* Setup IO addresses */
 		AFE_BASE_ADDRESS = of_iomap(pdev->of_node, 0);
-		pr_warn("[ge_mt_soc_pcm_dl1] AFE_BASE_ADDRESS=0x%p\n", AFE_BASE_ADDRESS);
+		pr_debug("[ge_mt_soc_pcm_dl1] AFE_BASE_ADDRESS=0x%p\n", AFE_BASE_ADDRESS);
 	} else {
 		pr_err("[mt_soc_pcm_dl1] node NULL, can't iomap AFE_BASE!!!\n");
 		BUG();
@@ -703,7 +703,7 @@ static int Auddrv_Reg_map_new(void *dev)
 	if (pdev->of_node) {
 		/* Setup IO addresses */
 		of_property_read_u32(pdev->of_node, "reg", &AFE_BASE_PHY);
-		pr_warn("[ge_mt_soc_pcm_dl1] AFE_BASE_PHY=0x%x\n", AFE_BASE_PHY);
+		pr_debug("[ge_mt_soc_pcm_dl1] AFE_BASE_PHY=0x%x\n", AFE_BASE_PHY);
 	} else {
 		pr_err("[mt_soc_pcm_dl1] node NULL, can't iomap AFE_BASE_PHY!!!\n");
 		BUG();
@@ -816,11 +816,11 @@ static int Auddrv_OF_ParseGPIO(void *dev)
 			pr_err("i2s1ws-gpio get pin_mode fail!!!\n");
 		}
 
-		pr_warn("Auddrv_OF_ParseGPIO pin_audclk=%d, pin_audmiso=%d, pin_audmosi=%d\n",
+		pr_debug("Auddrv_OF_ParseGPIO pin_audclk=%d, pin_audmiso=%d, pin_audmosi=%d\n",
 		       pin_audclk, pin_audmiso, pin_audmosi);
-		pr_warn("Auddrv_OF_ParseGPIO pin_vowclk=%d, pin_extspkamp=%d\n", pin_vowclk,
+		pr_debug("Auddrv_OF_ParseGPIO pin_vowclk=%d, pin_extspkamp=%d\n", pin_vowclk,
 		       pin_extspkamp);
-		pr_warn
+		pr_debug
 		    ("Auddrv_OF_ParseGPIO pin_i2s1clk=%d, pin_i2s1dat=%d, pin_i2s1mclk=%d, pin_i2s1ws=%d\n",
 		     pin_i2s1clk, pin_i2s1dat, pin_i2s1mclk, pin_i2s1ws);
 	} else {
@@ -970,7 +970,7 @@ static int mtk_soc_dl1_probe(struct platform_device *pdev)
 		return -ENODEV;
 	}
 
-	pr_warn("%s: dev name %s\n", __func__, dev_name(&pdev->dev));
+	pr_debug("%s: dev name %s\n", __func__, dev_name(&pdev->dev));
 
 	DL1GlobalVarInit();
 

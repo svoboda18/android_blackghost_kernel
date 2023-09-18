@@ -190,12 +190,12 @@ static int speech_property_get(struct snd_kcontrol *kcontrol,
 	sph_property = (int *)get_sph_property_by_name(&voice_property,
 						       kcontrol->id.name);
 	if (!sph_property) {
-		pr_warn("%s(), sph_property == NULL\n", __func__);
+		pr_debug("%s(), sph_property == NULL\n", __func__);
 		return -EINVAL;
 	}
 	ucontrol->value.integer.value[0] = *sph_property;
 
-	pr_info("%s(), %s = 0x%x\n", __func__,
+	pr_debug("%s(), %s = 0x%x\n", __func__,
 		 kcontrol->id.name, *sph_property);
 	return 0;
 }
@@ -208,12 +208,12 @@ static int speech_property_set(struct snd_kcontrol *kcontrol,
 	sph_property = (int *)get_sph_property_by_name(&voice_property,
 						       kcontrol->id.name);
 	if (!sph_property) {
-		pr_warn("%s(), sph_property == NULL\n", __func__);
+		pr_debug("%s(), sph_property == NULL\n", __func__);
 		return -EINVAL;
 	}
 	*sph_property = ucontrol->value.integer.value[0];
 
-	pr_info("%s(), %s = 0x%x\n", __func__,
+	pr_debug("%s(), %s = 0x%x\n", __func__,
 		 kcontrol->id.name, *sph_property);
 	return 0;
 }
@@ -274,10 +274,10 @@ static int mtk_voice_pcm_open(struct snd_pcm_substream *substream)
 	ret = snd_pcm_hw_constraint_integer(runtime, SNDRV_PCM_HW_PARAM_PERIODS);
 
 	if (ret < 0)
-		pr_warn("snd_pcm_hw_constraint_integer failed\n");
+		pr_debug("snd_pcm_hw_constraint_integer failed\n");
 
 	/* print for hw pcm information */
-	pr_warn("mtk_voice_pcm_open runtime rate = %d channels = %d\n", runtime->rate,
+	pr_debug("mtk_voice_pcm_open runtime rate = %d channels = %d\n", runtime->rate,
 	       runtime->channels);
 
 	runtime->hw.info |= SNDRV_PCM_INFO_INTERLEAVED;
@@ -285,7 +285,7 @@ static int mtk_voice_pcm_open(struct snd_pcm_substream *substream)
 	runtime->rate = 16000;
 
 	if (ret < 0) {
-		pr_warn("mtk_voice_close\n");
+		pr_debug("mtk_voice_close\n");
 		mtk_voice_close(substream);
 		return ret;
 	}
@@ -343,7 +343,7 @@ static int mtk_voice_close(struct snd_pcm_substream *substream)
 
 static int mtk_voice_trigger(struct snd_pcm_substream *substream, int cmd)
 {
-	pr_warn("mtk_voice_trigger cmd = %d\n", cmd);
+	pr_debug("mtk_voice_trigger cmd = %d\n", cmd);
 	switch (cmd) {
 	case SNDRV_PCM_TRIGGER_START:
 	case SNDRV_PCM_TRIGGER_RESUME:
@@ -364,7 +364,7 @@ static int mtk_voice_pcm_copy(struct snd_pcm_substream *substream,
 static int mtk_voice_pcm_silence(struct snd_pcm_substream *substream,
 				 int channel, snd_pcm_uframes_t pos, snd_pcm_uframes_t count)
 {
-	pr_warn("mtk_voice_pcm_silence\n");
+	pr_debug("mtk_voice_pcm_silence\n");
 	return 0;		/* do nothing */
 }
 
@@ -378,7 +378,7 @@ static int mtk_voice1_prepare(struct snd_pcm_substream *substream)
 {
 	struct snd_pcm_runtime *runtimeStream = substream->runtime;
 
-	pr_warn("%s, rate = %d  channels = %d period_size = %lu, substream->stream = %d\n",
+	pr_debug("%s, rate = %d  channels = %d period_size = %lu, substream->stream = %d\n",
 		__func__, runtimeStream->rate, runtimeStream->channels,
 		runtimeStream->period_size, substream->stream);
 
@@ -404,7 +404,7 @@ static int mtk_voice1_prepare(struct snd_pcm_substream *substream)
 	SetI2SDacEnable(true);
 
 #ifdef PMIC_RESET_WORKAROUND
-	pr_warn("%s ,PMIC_RESET_WORKAROUND reset ABB_AFE_CON2/ABB_AFE_CON4\n", __func__);
+	pr_debug("%s ,PMIC_RESET_WORKAROUND reset ABB_AFE_CON2/ABB_AFE_CON4\n", __func__);
 	Ana_Set_Reg(ABB_AFE_CON2, 0x0, 0xffff);	/* reset to default value */
 	Ana_Set_Reg(ABB_AFE_CON4, 0x0, 0xffff);	/* reset to default value */
 #endif
@@ -469,7 +469,7 @@ static int mtk_voice_probe(struct platform_device *pdev)
 	if (pdev->dev.of_node)
 		dev_set_name(&pdev->dev, "%s", MT_SOC_VOICE_MD1);
 
-	pr_warn("%s: dev name %s\n", __func__, dev_name(&pdev->dev));
+	pr_debug("%s: dev name %s\n", __func__, dev_name(&pdev->dev));
 	return snd_soc_register_platform(&pdev->dev, &mtk_soc_voice_platform);
 }
 
@@ -586,7 +586,7 @@ static int __init mtk_soc_voice_platform_init(void)
 {
 	int ret = 0;
 
-	pr_warn("%s\n", __func__);
+	pr_debug("%s\n", __func__);
 #ifndef CONFIG_OF
 	soc_mtk_voice_dev = platform_device_alloc(MT_SOC_VOICE_MD1, -1);
 	if (!soc_mtk_voice_dev)
@@ -608,7 +608,7 @@ module_init(mtk_soc_voice_platform_init);
 static void __exit mtk_soc_voice_platform_exit(void)
 {
 
-	pr_warn("%s\n", __func__);
+	pr_debug("%s\n", __func__);
 	platform_driver_unregister(&mtk_voice_driver);
 }
 module_exit(mtk_soc_voice_platform_exit);

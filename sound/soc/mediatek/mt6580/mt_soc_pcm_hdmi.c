@@ -292,20 +292,20 @@ static void copysinewavetohdmi(unsigned int channels)
 	}
 	if (channels == 0) {
 		memset_io((void *)(Bufferaddr), 0x7f7f7f7f, Hhdmi_Buffer_length);	/* using for observe data */
-		pr_warn("use fix pattern Bufferaddr = %p Hhdmi_Buffer_length = %d\n", Bufferaddr,
+		pr_debug("use fix pattern Bufferaddr = %p Hhdmi_Buffer_length = %d\n", Bufferaddr,
 		       Hhdmi_Buffer_length);
 		return;
 	}
 
-	pr_warn("%s buffer area = %p arraybytes = %d bufferlength = %zu\n", __func__,
+	pr_debug("%s buffer area = %p arraybytes = %d bufferlength = %zu\n", __func__,
 	       HDMI_dma_buf->area , arraybytes, HDMI_dma_buf->bytes);
 	for (i = 0; i < HDMI_dma_buf->bytes; i += arraybytes) {
-		pr_warn("Bufferaddr + i = %p arraybytes = %d\n", Bufferaddr + i, arraybytes);
+		pr_debug("Bufferaddr + i = %p arraybytes = %d\n", Bufferaddr + i, arraybytes);
 		memcpy((void *)(Bufferaddr + i), (void *)SinewaveArr, arraybytes);
 	}
 
 	for (i = 0; i < 512; i++)
-		pr_warn("Bufferaddr[%d] = %x\n", i, *(Bufferaddr + i));
+		pr_debug("Bufferaddr[%d] = %x\n", i, *(Bufferaddr + i));
 
 
 }
@@ -313,11 +313,11 @@ static void copysinewavetohdmi(unsigned int channels)
 static void SetHDMIAddress(void)
 {
 #if 0
-	pr_warn("%s buffer length = %d\n", __func__,    HDMI_dma_buf->bytes);
+	pr_debug("%s buffer length = %d\n", __func__,    HDMI_dma_buf->bytes);
 	Afe_Set_Reg(AFE_HDMI_BASE, HDMI_dma_buf->addr, 0xffffffff);
 	Afe_Set_Reg(AFE_HDMI_END, HDMI_dma_buf->addr + (HDMI_dma_buf->bytes - 1), 0xffffffff);
 #else
-	pr_warn("%s mt6572 not support!!!\n", __func__);
+	pr_debug("%s mt6572 not support!!!\n", __func__);
 #endif
 }
 
@@ -334,7 +334,7 @@ static const struct soc_enum Audio_Hdmi_Enum[] = {
 static int Audio_hdmi_SideGen_Get(struct snd_kcontrol *kcontrol,
 				  struct snd_ctl_elem_value *ucontrol)
 {
-	pr_warn("Audio_hdmi_SideGen_Get = %d\n", mHdmi_sidegen_control);
+	pr_debug("Audio_hdmi_SideGen_Get = %d\n", mHdmi_sidegen_control);
 	ucontrol->value.integer.value[0] = mHdmi_sidegen_control;
 	return 0;
 }
@@ -342,7 +342,7 @@ static int Audio_hdmi_SideGen_Get(struct snd_kcontrol *kcontrol,
 static int Audio_hdmi_SideGen_Set(struct snd_kcontrol *kcontrol,
 				  struct snd_ctl_elem_value *ucontrol)
 {
-	pr_warn("%s()\n", __func__);
+	pr_debug("%s()\n", __func__);
 	if (ucontrol->value.enumerated.item[0] > ARRAY_SIZE(HDMI_SIDEGEN)) {
 		pr_err("return -EINVAL\n");
 		return -EINVAL;
@@ -465,7 +465,7 @@ static int mtk_pcm_hdmi_stop(struct snd_pcm_substream *substream)
 {
 	struct AFE_BLOCK_T *Afe_Block = &(pMemControl->rBlock);
 
-	pr_warn("mtk_pcm_hdmi_stop\n");
+	pr_debug("mtk_pcm_hdmi_stop\n");
 
 	irq_remove_user(substream, Soc_Aud_IRQ_MCU_MODE_IRQ5_MCU_MODE);
 
@@ -905,7 +905,7 @@ static int mtk_pcm_hdmi_start(struct snd_pcm_substream *substream)
 	u4tmpValue2 = Afe_Get_Reg(AFE_IRQ_DEBUG);
 	u4tmpValue2 &= 0x0003ffff;
 
-	pr_warn("AFE_IRQ_MCU_STATUS =0x%x IRQ_MCU_EN= 0x%x, IRQ_CNT5=0x%x, AFE_IRQ_DEBUG =0x%x\n",
+	pr_debug("AFE_IRQ_MCU_STATUS =0x%x IRQ_MCU_EN= 0x%x, IRQ_CNT5=0x%x, AFE_IRQ_DEBUG =0x%x\n",
 	       u4RegValue, u4tmpValue, u4tmpValue1, u4tmpValue2);
 #endif
 	return 0;

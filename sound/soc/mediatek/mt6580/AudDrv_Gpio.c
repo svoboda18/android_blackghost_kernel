@@ -101,7 +101,7 @@ void AudDrv_GPIO_probe(void *dev)
 	int ret;
 	int i = 0;
 
-	pr_warn("%s\n", __func__);
+	pr_debug("%s\n", __func__);
 
 	pinctrlaud = devm_pinctrl_get(dev);
 	if (IS_ERR(pinctrlaud)) {
