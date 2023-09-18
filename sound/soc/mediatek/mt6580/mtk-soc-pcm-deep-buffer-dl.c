@@ -194,7 +194,7 @@ static void set_deep_buffer_data_buffer(struct snd_pcm_substream *substream,
 	pblock->u4DataRemained = 0;
 	pblock->u4fsyncflag = false;
 	pblock->uResetFlag = true;
-	pr_warn("SetDL2Buffer u4BufferSize = %d pucVirtBufAddr = %p pucPhysBufAddr = 0x%x\n",
+	pr_debug("SetDL2Buffer u4BufferSize = %d pucVirtBufAddr = %p pucPhysBufAddr = 0x%x\n",
 	       pblock->u4BufferSize, pblock->pucVirtBufAddr, pblock->pucPhysBufAddr);
 	/* set dram address top hardware */
 	Afe_Set_Reg(AFE_DL2_BASE, pblock->pucPhysBufAddr, 0xffffffff);
@@ -296,7 +296,7 @@ static int mtk_deep_buffer_dl_open(struct snd_pcm_substream *substream)
 	if (mPlaybackSramState == SRAM_STATE_PLAYBACKDRAM)
 		AudDrv_Emi_Clk_On();
 
-	pr_warn("%s(), buffer_bytes_max = %zu mPlaybackSramState = %d\n",
+	pr_debug("%s(), buffer_bytes_max = %zu mPlaybackSramState = %d\n",
 		__func__, mtk_deep_buffer_dl_hardware.buffer_bytes_max,
 		mPlaybackSramState);
 

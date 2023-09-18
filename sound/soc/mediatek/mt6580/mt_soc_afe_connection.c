@@ -408,7 +408,7 @@ static char mConnectionState[Soc_Aud_InterConnectionInput_Num_Input]
 static bool CheckBitsandReg(short regaddr, char bits)
 {
 	if (regaddr <= 0 || bits < 0) {
-		pr_warn("regaddr = %x bits = %d\n", regaddr, bits);
+		pr_debug("regaddr = %x bits = %d\n", regaddr, bits);
 		return false;
 	}
 	return true;
@@ -417,14 +417,14 @@ static bool CheckBitsandReg(short regaddr, char bits)
 bool SetConnectionState(unsigned int ConnectionState, unsigned int Input, unsigned int Output)
 {
 	/*
-	pr_warn("SetinputConnection ConnectionState = %d Input = %d Output = %d\n",
+	pr_debug("SetinputConnection ConnectionState = %d Input = %d Output = %d\n",
 	       ConnectionState, Input, Output);
 	*/
 	if ((mConnectionTable[Input][Output]) < 0) {
-		pr_warn("no connection mpConnectionTable[%d][%d] = %d\n", Input, Output,
+		pr_debug("no connection mpConnectionTable[%d][%d] = %d\n", Input, Output,
 		       mConnectionTable[Input][Output]);
 	} else if ((mConnectionTable[Input][Output]) == 0) {
-		pr_warn("test only !! mpConnectionTable[%d][%d] = %d\n", Input, Output,
+		pr_debug("test only !! mpConnectionTable[%d][%d] = %d\n", Input, Output,
 		       mConnectionTable[Input][Output]);
 	} else {
 		if (mConnectionTable[Input][Output]) {

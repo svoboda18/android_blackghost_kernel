@@ -146,17 +146,17 @@ void AudDrv_Clk_On(void)
 		/* for Infra power */
 		if (enable_clock(MT_CG_AUDIO_SW_CG, "AUDIO"))
 			pr_err("Aud enable_clock MT_CG_AUDIO_SW_CG fail !!!\n");
-		/* pr_warn("is MT_CG_AUDIO_SW_CG on:%x, AUDIO_TOP_CON0=%x\n",clock_is_on(MT_CG_AUDIO_SW_CG),
+		/* pr_debug("is MT_CG_AUDIO_SW_CG on:%x, AUDIO_TOP_CON0=%x\n",clock_is_on(MT_CG_AUDIO_SW_CG),
 			Afe_Get_Reg(AUDIO_TOP_CON0)); */
 
 		if (enable_clock(MT_CG_AUD_PDN_AFE_EN, "AUDIO"))
 			pr_err("Aud enable_clock MT_CG_AUD_PDN_AFE_EN fail !!!\n");
-		/* pr_warn("is MT_CG_AUD_PDN_AFE_EN on:%x, AUDIO_TOP_CON0=%x\n",clock_is_on(MT_CG_AUD_PDN_AFE_EN),
+		/* pr_debug("is MT_CG_AUD_PDN_AFE_EN on:%x, AUDIO_TOP_CON0=%x\n",clock_is_on(MT_CG_AUD_PDN_AFE_EN),
 			Afe_Get_Reg(AUDIO_TOP_CON0)); */
 
 		if (enable_clock(MT_CG_AUD_PDN_DAC_EN, "AUDIO"))
 			pr_err("Aud enable_clock MT_CG_AUD_PDN_DAC_EN fail !!!\n");
-		/* pr_warn("is MT_CG_AUD_PDN_DAC_EN on:%x, AUDIO_TOP_CON0=%x\n",clock_is_on(MT_CG_AUD_PDN_DAC_EN),
+		/* pr_debug("is MT_CG_AUD_PDN_DAC_EN on:%x, AUDIO_TOP_CON0=%x\n",clock_is_on(MT_CG_AUD_PDN_DAC_EN),
 			Afe_Get_Reg(AUDIO_TOP_CON0)); */
 
 		PRINTK_AUD_CLK("AudDrv_Clk_On, in  PM_MANAGER_API\n");
@@ -196,17 +196,17 @@ void AudDrv_Clk_Off(void)
 #ifdef PM_MANAGER_API
 			if (disable_clock(MT_CG_AUD_PDN_AFE_EN, "AUDIO"))
 				pr_err("disable_clock MT_CG_AUD_PDN_AFE_EN fail");
-			/* pr_warn("AudDrv_Clk_Off is MT_CG_AUD_PDN_AFE_EN on:%x, AUDIO_TOP_CON0=%x\n",
+			/* pr_debug("AudDrv_Clk_Off is MT_CG_AUD_PDN_AFE_EN on:%x, AUDIO_TOP_CON0=%x\n",
 				clock_is_on(MT_CG_AUD_PDN_AFE_EN),Afe_Get_Reg(AUDIO_TOP_CON0)); */
 
 			if (disable_clock(MT_CG_AUD_PDN_DAC_EN, "AUDIO"))
 				pr_err("disable_clock MT_CG_AUD_PDN_DAC_EN fail");
-			/* pr_warn("AudDrv_Clk_Off is MT_CG_AUD_PDN_DAC_EN on:%x, AUDIO_TOP_CON0=%x\n",
+			/* pr_debug("AudDrv_Clk_Off is MT_CG_AUD_PDN_DAC_EN on:%x, AUDIO_TOP_CON0=%x\n",
 				clock_is_on(MT_CG_AUD_PDN_DAC_EN),Afe_Get_Reg(AUDIO_TOP_CON0)); */
 			/* for Infra power */
 			if (disable_clock(MT_CG_AUDIO_SW_CG, "AUDIO"))
 				pr_err("disable_clock MT_CG_AUDIO_SW_CG fail !!!\n");
-			/* pr_warn("AudDrv_Clk_Off is MT_CG_AUDIO_SW_CG on:%x, AUDIO_TOP_CON0=%x\n",
+			/* pr_debug("AudDrv_Clk_Off is MT_CG_AUDIO_SW_CG on:%x, AUDIO_TOP_CON0=%x\n",
 				clock_is_on(MT_CG_AUDIO_SW_CG),Afe_Get_Reg(AUDIO_TOP_CON0)); */
 
 			PRINTK_AUD_CLK("AudDrv_Clk_Off, in PM_MANAGER_API\n");

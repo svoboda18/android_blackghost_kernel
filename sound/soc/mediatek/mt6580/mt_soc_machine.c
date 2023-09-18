@@ -152,19 +152,19 @@ static struct snd_soc_ops mtmachine_audio_ops2 = {
 
 static int mt_soc_audio_init(struct snd_soc_pcm_runtime *rtd)
 {
-	pr_warn("mt_soc_audio_init\n");
+	pr_debug("mt_soc_audio_init\n");
 	return 0;
 }
 
 static int mt_soc_audio_init2(struct snd_soc_pcm_runtime *rtd)
 {
-	pr_warn("mt_soc_audio_init2\n");
+	pr_debug("mt_soc_audio_init2\n");
 	return 0;
 }
 
 static int mt_soc_ana_debug_open(struct inode *inode, struct file *file)
 {
-	pr_warn("mt_soc_ana_debug_open\n");
+	pr_debug("mt_soc_ana_debug_open\n");
 	return 0;
 }
 
@@ -174,7 +174,7 @@ static ssize_t mt_soc_ana_debug_read(struct file *file, char __user *buf, size_t
 	char buffer[size];
 	int n = 0;
 
-	pr_warn("mt_soc_ana_debug_read count = %zu\n", count);
+	pr_debug("mt_soc_ana_debug_read count = %zu\n", count);
 	AudDrv_Clk_On();
 	audckbufEnable(true);
 
@@ -236,7 +236,7 @@ static ssize_t mt_soc_ana_debug_read(struct file *file, char __user *buf, size_t
 	n += scnprintf(buffer + n, size - n, "AUDTOP_CON9  = 0x%x\n", Ana_Get_Reg(AUDTOP_CON9));
 	n += scnprintf(buffer + n, size - n, "GPIO_DINV1  = 0x%x\n", Ana_Get_Reg(GPIO_DINV1));
 
-	pr_warn("mt_soc_ana_debug_read len = %d\n", n);
+	pr_debug("mt_soc_ana_debug_read len = %d\n", n);
 
 	audckbufEnable(false);
 	AudDrv_Clk_Off();
@@ -247,7 +247,7 @@ static ssize_t mt_soc_ana_debug_read(struct file *file, char __user *buf, size_t
 
 static int mt_soc_debug_open(struct inode *inode, struct file *file)
 {
-	pr_warn("mt_soc_debug_open\n");
+	pr_debug("mt_soc_debug_open\n");
 	return 0;
 }
 
@@ -259,7 +259,7 @@ static ssize_t mt_soc_debug_read(struct file *file, char __user *buf, size_t cou
 
 	AudDrv_Clk_On();
 
-	pr_warn("mt_soc_debug_read\n");
+	pr_debug("mt_soc_debug_read\n");
 	n = scnprintf(buffer + n, size - n, "AUDIO_TOP_CON0  = 0x%x\n", Afe_Get_Reg(AUDIO_TOP_CON0));
 	n += scnprintf(buffer + n, size - n, "AUDIO_TOP_CON1  = 0x%x\n", Afe_Get_Reg(AUDIO_TOP_CON1));
 	n += scnprintf(buffer + n, size - n, "AUDIO_TOP_CON2  = 0x%x\n", Afe_Get_Reg(AUDIO_TOP_CON2));
@@ -381,7 +381,7 @@ static ssize_t mt_soc_debug_read(struct file *file, char __user *buf, size_t cou
 	n += scnprintf(buffer + n, size - n, "AFE_ASRC_CON20  = 0x%x\n", Afe_Get_Reg(AFE_ASRC_CON20));
 	n += scnprintf(buffer + n, size - n, "AFE_ASRC_CON21  = 0x%x\n", Afe_Get_Reg(AFE_ASRC_CON21));
 
-	pr_warn("mt_soc_debug_read len = %d\n", n);
+	pr_debug("mt_soc_debug_read len = %d\n", n);
 	AudDrv_Clk_Off();
 
 	return  simple_read_from_buffer(buf, count, pos, buffer, n);
@@ -419,72 +419,72 @@ static ssize_t mt_soc_debug_write(struct file *f, const char __user *buf,
 		count = MAX_DEBUG_WRITE_INPUT;
 
 	if (copy_from_user((InputString), buf, count))
-		pr_warn("%s(), copy_from_user fail, mt_soc_debug_write count = %zu, temp = %s\n",
+		pr_debug("%s(), copy_from_user fail, mt_soc_debug_write count = %zu, temp = %s\n",
 			__func__, count, InputString);
 
 	temp = kstrndup(InputString, MAX_DEBUG_WRITE_INPUT, GFP_KERNEL);
 	if (!temp) {
-		pr_warn("%s(), kstrndup fail\n", __func__);
+		pr_debug("%s(), kstrndup fail\n", __func__);
 		goto exit;
 	}
 
-	pr_warn("copy_from_user mt_soc_debug_write count = %zu temp = %s pointer = %p\n",
+	pr_debug("copy_from_user mt_soc_debug_write count = %zu temp = %s pointer = %p\n",
 		count, InputString, InputString);
 	token1 = strsep(&temp, delim);
-	pr_warn("token1\n");
-	pr_warn("token1 = %s\n", token1);
+	pr_debug("token1\n");
+	pr_debug("token1 = %s\n", token1);
 	token2 = strsep(&temp, delim);
-	pr_warn("token2 = %s\n", token2);
+	pr_debug("token2 = %s\n", token2);
 	token3 = strsep(&temp, delim);
-	pr_warn("token3 = %s\n", token3);
+	pr_debug("token3 = %s\n", token3);
 	token4 = strsep(&temp, delim);
-	pr_warn("token4 = %s\n", token4);
+	pr_debug("token4 = %s\n", token4);
 	token5 = strsep(&temp, delim);
-	pr_warn("token5 = %s\n", token5);
+	pr_debug("token5 = %s\n", token5);
 
 	AudDrv_Clk_On();
 	audckbufEnable(true);
 
 	if (strcmp(token1, ParSetkeyAfe) == 0) {
-		pr_warn("strcmp (token1,ParSetkeyAfe)\n");
+		pr_debug("strcmp (token1,ParSetkeyAfe)\n");
 		ret = kstrtoul(token3, 16, &regaddr);
 		ret = kstrtoul(token5, 16, &regvalue);
-		pr_warn("%s regaddr = 0x%lu regvalue = 0x%lu\n", ParSetkeyAfe, regaddr, regvalue);
+		pr_debug("%s regaddr = 0x%lu regvalue = 0x%lu\n", ParSetkeyAfe, regaddr, regvalue);
 		Afe_Set_Reg(regaddr,  regvalue, 0xffffffff);
 		regvalue = Afe_Get_Reg(regaddr);
-		pr_warn("%s regaddr = 0x%lu regvalue = 0x%lu\n", ParSetkeyAfe, regaddr, regvalue);
+		pr_debug("%s regaddr = 0x%lu regvalue = 0x%lu\n", ParSetkeyAfe, regaddr, regvalue);
 	}
 	if (strcmp(token1, ParSetkeyAna) == 0) {
-		pr_warn("strcmp (token1,ParSetkeyAna)\n");
+		pr_debug("strcmp (token1,ParSetkeyAna)\n");
 		ret = kstrtoul(token3, 16, &regaddr);
 		ret =  kstrtoul(token5, 16, &regvalue);
-		pr_warn("%s regaddr = 0x%lu regvalue = 0x%lu\n", ParSetkeyAna, regaddr, regvalue);
+		pr_debug("%s regaddr = 0x%lu regvalue = 0x%lu\n", ParSetkeyAna, regaddr, regvalue);
 		Ana_Set_Reg(regaddr,  regvalue, 0xffffffff);
 		regvalue = Ana_Get_Reg(regaddr);
-		pr_warn("%s regaddr = 0x%lu regvalue = 0x%lu\n", ParSetkeyAna, regaddr, regvalue);
+		pr_debug("%s regaddr = 0x%lu regvalue = 0x%lu\n", ParSetkeyAna, regaddr, regvalue);
 	}
 	if (strcmp(token1, ParSetkeyCfg) == 0) {
-		pr_warn("strcmp (token1,ParSetkeyCfg)\n");
+		pr_debug("strcmp (token1,ParSetkeyCfg)\n");
 		ret =  kstrtoul(token3, 16, &regaddr);
 		ret =  kstrtoul(token5, 16, &regvalue);
-		pr_warn("%s regaddr = 0x%lu regvalue = 0x%lu\n", ParSetkeyCfg, regaddr, regvalue);
+		pr_debug("%s regaddr = 0x%lu regvalue = 0x%lu\n", ParSetkeyCfg, regaddr, regvalue);
 		#if 0
 		SetClkCfg(regaddr,  regvalue, 0xffffffff);
 		regvalue = GetClkCfg(regaddr);
 		#endif
-		pr_warn("%s regaddr = 0x%lu regvalue = 0x%lu\n", ParSetkeyCfg, regaddr, regvalue);
+		pr_debug("%s regaddr = 0x%lu regvalue = 0x%lu\n", ParSetkeyCfg, regaddr, regvalue);
 	}
 	if (strcmp(token1, PareGetkeyAfe) == 0) {
-		pr_warn("strcmp (token1,PareGetkeyAfe)\n");
+		pr_debug("strcmp (token1,PareGetkeyAfe)\n");
 		ret =  kstrtoul(token3, 16, &regaddr);
 		regvalue = Afe_Get_Reg(regaddr);
-		pr_warn("%s regaddr = 0x%lu regvalue = 0x%lu\n", PareGetkeyAfe, regaddr, regvalue);
+		pr_debug("%s regaddr = 0x%lu regvalue = 0x%lu\n", PareGetkeyAfe, regaddr, regvalue);
 	}
 	if (strcmp(token1, PareGetkeyAna) == 0) {
-		pr_warn("strcmp (token1,PareGetkeyAna)\n");
+		pr_debug("strcmp (token1,PareGetkeyAna)\n");
 		ret =  kstrtoul(token3, 16, &regaddr);
 		regvalue = Ana_Get_Reg(regaddr);
-		pr_warn("%s regaddr = 0x%lu regvalue = 0x%lu\n", PareGetkeyAna, regaddr, regvalue);
+		pr_debug("%s regaddr = 0x%lu regvalue = 0x%lu\n", PareGetkeyAna, regaddr, regvalue);
 	}
 	audckbufEnable(false);
 	AudDrv_Clk_Off();
@@ -773,14 +773,14 @@ static const struct soc_enum mt_soc_machine_enum[] = {
 static int mt6595_get_lowjitter(struct snd_kcontrol *kcontrol,
 				struct snd_ctl_elem_value *ucontrol)
 {
-	pr_warn("%s:  mt_soc_lowjitter_control = %d\n", __func__, mt_soc_lowjitter_control);
+	pr_debug("%s:  mt_soc_lowjitter_control = %d\n", __func__, mt_soc_lowjitter_control);
 	ucontrol->value.integer.value[0] = mt_soc_lowjitter_control;
 	return 0;
 }
 
 static int mt6595_set_lowjitter(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_value *ucontrol)
 {
-	pr_warn("%s()\n", __func__);
+	pr_debug("%s()\n", __func__);
 
 	mt_soc_lowjitter_control = ucontrol->value.integer.value[0];
 	return 0;
@@ -806,7 +806,7 @@ static int __init mt_soc_snd_init(void)
 	int ret;
 	struct snd_soc_card *card = &snd_soc_card_mt;
 
-	pr_warn("mt_soc_snd_init card addr = %p\n", card);
+	pr_debug("mt_soc_snd_init card addr = %p\n", card);
 
 	mt_snd_device = platform_device_alloc("soc-audio", -1);
 	if (!mt_snd_device) {
@@ -821,7 +821,7 @@ static int __init mt_soc_snd_init(void)
 		goto put_device;
 	}
 
-	pr_warn("mt_soc_snd_init dai_link = %p\n", snd_soc_card_mt.dai_link);
+	pr_debug("mt_soc_snd_init dai_link = %p\n", snd_soc_card_mt.dai_link);
 
 	/* create debug file */
 	mt_sco_audio_debugfs = debugfs_create_file(DEBUG_FS_NAME,
