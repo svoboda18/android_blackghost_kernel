@@ -79,6 +79,10 @@ struct i2c_msg {
 #define I2C_M_STOP		0x8000	/* if I2C_FUNC_PROTOCOL_MANGLING */
 	__u16 len;		/* msg length				*/
 	__u8 *buf;		/* pointer to msg data			*/
+#ifdef CONFIG_MTK_I2C_EXTENSION
+	__u32 timing;		/* parameters of timings		*/
+	__u32 ext_flag;
+#endif
 };
 
 /* To determine what functionality is present */

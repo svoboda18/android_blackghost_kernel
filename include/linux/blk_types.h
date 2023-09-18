@@ -17,6 +17,18 @@ struct io_context;
 struct cgroup_subsys_state;
 typedef void (bio_end_io_t) (struct bio *);
 
+struct bio_crypt_ctx {
+	unsigned int	bc_flags;
+	unsigned int	bc_key_size;
+	unsigned long	bc_fs_type;
+	struct super_block	*bc_sb;
+	unsigned long	bc_ino;
+	unsigned long   bc_iv;
+	struct key	*bc_keyring_key;
+#ifdef CONFIG_HIE_DUMMY_CRYPT
+	u32			dummy_crypt_key;
+#endif
+};
 #ifdef CONFIG_BLOCK
 /*
  * main unit of I/O for the block layer and lower layers (ie drivers and
@@ -69,6 +81,20 @@ struct bio {
 
 	unsigned short		bi_vcnt;	/* how many bio_vec's */
 
+#ifdef CONFIG_MTK_HW_FDE
+	/*
+	 * MTK PATH:
+	 *
+	 * Indicating this bio request needs encryption or decryption by
+	 * HW FDE (Full Disk Encryption) engine.
+	 *
+	 * Set by DM Crypt.
+	 * Quried by HW FDE engine driver, e.g., eMMC/UFS.
+	 */
+	unsigned int		bi_hw_fde;
+	unsigned int		bi_key_idx;
+#endif
+
 	/*
 	 * Everything starting with bi_max_vecs will be preserved by bio_reset()
 	 */
@@ -80,6 +106,9 @@ struct bio {
 	struct bio_vec		*bi_io_vec;	/* the actual vec list */
 
 	struct bio_set		*bi_pool;
+
+	/* Encryption context. May contain secret key material. */
+	struct bio_crypt_ctx	bi_crypt_ctx;
 
 	/*
 	 * We can inline a number of vecs at the end of the bio, to avoid
@@ -271,5 +300,22 @@ static inline unsigned int blk_qc_t_to_tag(blk_qc_t cookie)
 {
 	return cookie & ((1u << BLK_QC_T_SHIFT) - 1);
 }
+
+/*
+ * block crypt flags
+ */
+enum bc_flags_bits {
+	__BC_CRYPT,        /* marks the request needs crypt */
+	__BC_IV_PAGE_IDX,  /* use page index as iv. */
+	__BC_IV_CTX,       /* use the iv saved in crypt context */
+	__BC_AES_128_XTS,  /* crypt algorithms */
+	__BC_AES_192_XTS,
+	__BC_AES_256_XTS,
+	__BC_AES_128_CBC,
+	__BC_AES_256_CBC,
+	__BC_AES_128_ECB,
+	__BC_AES_256_ECB,
+};
+#define BC_CRYPT	(1UL << __BC_CRYPT)
 
 #endif /* __LINUX_BLK_TYPES_H */
