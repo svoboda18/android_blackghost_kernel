@@ -11,6 +11,8 @@
 # GNU General Public License for more details.
 #
 
+obj-y += auddrv_devtree_parser.o
+
 # platform driver
 snd-soc-mtk-common-objs := mtk-afe-platform-driver.o mtk-afe-fe-dai.o
 obj-$(CONFIG_SND_SOC_MEDIATEK) += snd-soc-mtk-common.o
