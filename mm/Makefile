@@ -2,7 +2,6 @@
 # Makefile for the linux memory manager.
 #
 
-subdir-ccflags-y += -Werror
 ccflags-y += -I$(srctree)/drivers/misc/mediatek/include
 
 ifdef CONFIG_MTK_ION
