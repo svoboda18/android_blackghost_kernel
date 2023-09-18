@@ -256,6 +256,13 @@ config IRQ_MXS
 	select IRQ_DOMAIN
 	select STMP_DEVICE
 
+config MTK_EIC
+	bool
+	select IRQ_DOMAIN
+	help
+	  This option is used to enable external interrupt controller for
+	  MediaTek solutions.
+
 config MVEBU_ODMI
 	bool
 	select GENERIC_MSI_IRQ_DOMAIN
@@ -280,3 +287,31 @@ config EZNPS_GIC
 config STM32_EXTI
 	bool
 	select IRQ_DOMAIN
+
+config MTK_GIC_TARGET_ALL
+	bool
+	help
+	  Support for new interrupt distribution design for MediaTek solutions.
+	  With this feature enabled, the SPI interrupts would be routed to all the
+	  cores rather than cpu0 to achieve better load balance of interrupt handling.
+
+config MTK_IRQ_NEW_DESIGN
+	bool
+	help
+	  Support for MediaTek new interrupt design
+
+config MTK_IRQ_NEW_DESIGN_DEBUG
+	bool
+	select MTK_IRQ_NEW_DESIGN
+	help
+	  Support for debugging feature for MediaTek new interrupt design.
+	  With this feature enabled, system would assert when an error occurs rather than
+	  output warning messages.
+
+config MTK_SYSIRQ
+	bool
+	default y if ARCH_MEDIATEK
+	help
+	  GIC only support IRQ_TYPE_LEVEL_HIGH and IRQ_TYPE_EDGE_RISING, so this driver is designed for
+	  polarity configuration in order to make GIC driver support various trigger type
+	  including IRQ_TYPE_LEVEL_LOW and IRQ_TYPE_EDGE_FALLING.

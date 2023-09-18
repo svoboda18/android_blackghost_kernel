@@ -2513,7 +2513,7 @@ int __i2c_transfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
 	if (static_key_false(&i2c_trace_msg)) {
 		int i;
 		for (i = 0; i < ret; i++)
-			if (msgs[i].flags & I2C_M_RD)
+			if ((msgs[i].flags & I2C_M_RD) && !(msgs[i].ext_flag & I2C_DMA_FLAG))
 				trace_i2c_reply(adap, &msgs[i], i);
 		trace_i2c_result(adap, i, ret);
 	}
@@ -2604,6 +2604,10 @@ int i2c_master_send(const struct i2c_client *client, const char *buf, int count)
 	msg.flags = client->flags & I2C_M_TEN;
 	msg.len = count;
 	msg.buf = (char *)buf;
+#ifdef CONFIG_MTK_I2C_EXTENSION
+	msg.timing = client->timing;
+	msg.ext_flag = client->ext_flag;
+#endif
 
 	ret = i2c_transfer(adap, &msg, 1);
 
@@ -2634,6 +2638,10 @@ int i2c_master_recv(const struct i2c_client *client, char *buf, int count)
 	msg.flags |= I2C_M_RD;
 	msg.len = count;
 	msg.buf = buf;
+#ifdef CONFIG_MTK_I2C_EXTENSION
+	msg.timing = client->timing;
+	msg.ext_flag = client->ext_flag;
+#endif
 
 	ret = i2c_transfer(adap, &msg, 1);
 

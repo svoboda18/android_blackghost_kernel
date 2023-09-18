@@ -172,11 +172,16 @@ static struct fence **get_fences(struct sync_file *sync_file, int *num_fences)
 
 static void add_fence(struct fence **fences, int *i, struct fence *fence)
 {
-	fences[*i] = fence;
-
 	if (!fence_is_signaled(fence)) {
+		fences[*i] = fence;
 		fence_get(fence);
 		(*i)++;
+	} else {
+		if (fences[*i] == NULL)
+			fences[*i] = fence;
+		else if (ktime_to_ns(fence->timestamp) >
+				ktime_to_ns(fences[*i]->timestamp))
+			fences[*i] = fence;
 	}
 }
 
@@ -249,7 +254,7 @@ static struct sync_file *sync_file_merge(const char *name, struct sync_file *a,
 		add_fence(fences, &i, b_fences[i_b]);
 
 	if (i == 0)
-		fences[i++] = fence_get(a_fences[0]);
+		fences[i++] = fence_get(fences[0]);
 
 	if (num_fences > i) {
 		nfences = krealloc(fences, i * sizeof(*fences),
@@ -364,7 +369,7 @@ err_put_fd:
 	return err;
 }
 
-static void sync_fill_fence_info(struct fence *fence,
+static int sync_fill_fence_info(struct fence *fence,
 				 struct sync_fence_info *info)
 {
 	strlcpy(info->obj_name, fence->ops->get_timeline_name(fence),
@@ -373,7 +378,15 @@ static void sync_fill_fence_info(struct fence *fence,
 		sizeof(info->driver_name));
 
 	info->status = fence_get_status(fence);
-	info->timestamp_ns = ktime_to_ns(fence->timestamp);
+	while (test_bit(FENCE_FLAG_SIGNALED_BIT, &fence->flags) &&
+	       !test_bit(FENCE_FLAG_TIMESTAMP_BIT, &fence->flags))
+		cpu_relax();
+	info->timestamp_ns =
+		test_bit(FENCE_FLAG_TIMESTAMP_BIT, &fence->flags) ?
+		ktime_to_ns(fence->timestamp) :
+		ktime_to_ns(ktime_set(0, 0));
+
+	return info->status;
 }
 
 static long sync_file_ioctl_fence_info(struct sync_file *sync_file,
@@ -399,8 +412,12 @@ static long sync_file_ioctl_fence_info(struct sync_file *sync_file,
 	 * sync_fence_info and return the actual number of fences on
 	 * info->num_fences.
 	 */
-	if (!info.num_fences)
-		goto no_fences;
+	if (!info.num_fences) {
+		info.status = fence_is_signaled(sync_file->fence);
+ 		goto no_fences;
+	} else {
+		info.status = 1;
+	}
 
 	if (info.num_fences < num_fences)
 		return -EINVAL;
@@ -410,8 +427,10 @@ static long sync_file_ioctl_fence_info(struct sync_file *sync_file,
 	if (!fence_info)
 		return -ENOMEM;
 
-	for (i = 0; i < num_fences; i++)
-		sync_fill_fence_info(fences[i], &fence_info[i]);
+	for (i = 0; i < num_fences; i++) {
+		int status = sync_fill_fence_info(fences[i], &fence_info[i]);
+		info.status = info.status <= 0 ? info.status : status;
+	}
 
 	if (copy_to_user(u64_to_user_ptr(info.sync_fence_info), fence_info,
 			 size)) {
@@ -421,7 +440,6 @@ static long sync_file_ioctl_fence_info(struct sync_file *sync_file,
 
 no_fences:
 	strlcpy(info.name, sync_file->name, sizeof(info.name));
-	info.status = fence_is_signaled(sync_file->fence);
 	info.num_fences = num_fences;
 
 	if (copy_to_user((void __user *)arg, &info, sizeof(info)))

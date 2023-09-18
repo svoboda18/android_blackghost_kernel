@@ -32,6 +32,11 @@
 #include <linux/kthread.h>
 #include <linux/slab.h>
 
+#if defined(CONFIG_CPU_FREQ_SCHED_ASSIST)
+/* removed : && defined(CONFIG_MTK_ACAO_SUPPORT)*/
+#include <mtk_cpufreq_api.h>
+#endif
+
 #define CREATE_TRACE_POINTS
 #include <trace/events/cpufreq_interactive.h>
 
@@ -184,7 +189,8 @@ static void gov_slack_timer_start(struct interactive_cpu *icpu, int cpu)
 	struct interactive_tunables *tunables = icpu->ipolicy->tunables;
 
 	icpu->slack_timer.expires = jiffies + tunables->timer_slack_delay;
-	add_timer_on(&icpu->slack_timer, cpu);
+	if (!timer_pending(&icpu->slack_timer))
+		add_timer_on(&icpu->slack_timer, cpu);
 }
 
 static void gov_slack_timer_modify(struct interactive_cpu *icpu)
@@ -531,6 +537,17 @@ static void cpufreq_interactive_adjust_cpu(unsigned int cpu,
 		icpu->pol_floor_val_time = fvt;
 	}
 
+#if defined(CONFIG_CPU_FREQ_SCHED_ASSIST)
+/* removed : && defined(CONFIG_MTK_ACAO_SUPPORT)*/
+	mt_cpufreq_set_by_wfi_load_cluster(arch_get_cluster_id(policy->cpu),
+						max_freq);
+	if (max_freq != policy->cur) {
+		for_each_cpu(i, policy->cpus) {
+			icpu = &per_cpu(interactive_cpu, i);
+			icpu->pol_hispeed_val_time = hvt;
+		}
+	}
+#else
 	if (max_freq != policy->cur) {
 		__cpufreq_driver_target(policy, max_freq, CPUFREQ_RELATION_H);
 		for_each_cpu(i, policy->cpus) {
@@ -538,6 +555,7 @@ static void cpufreq_interactive_adjust_cpu(unsigned int cpu,
 			icpu->pol_hispeed_val_time = hvt;
 		}
 	}
+#endif
 
 	trace_cpufreq_interactive_setspeed(cpu, max_freq, policy->cur);
 }
@@ -1042,7 +1060,7 @@ static void irq_work(struct irq_work *irq_work)
 	cpufreq_interactive_update(icpu);
 	icpu->work_in_progress = false;
 }
-
+#if 0
 static void update_util_handler(struct update_util_data *data, u64 time,
 				unsigned int flags)
 {
@@ -1105,6 +1123,7 @@ static void icpu_cancel_work(struct interactive_cpu *icpu)
 	icpu->work_in_progress = false;
 	del_timer_sync(&icpu->slack_timer);
 }
+#endif   /* end of if 0 */
 
 static struct interactive_policy *
 interactive_policy_alloc(struct cpufreq_policy *policy)
@@ -1284,22 +1303,22 @@ int cpufreq_interactive_start(struct cpufreq_policy *policy)
 		slack_timer_resched(icpu, cpu, false);
 	}
 
-	gov_set_update_util(ipolicy);
+	/*gov_set_update_util(ipolicy);*/
 	return 0;
 }
 
 void cpufreq_interactive_stop(struct cpufreq_policy *policy)
 {
-	struct interactive_policy *ipolicy = policy->governor_data;
+	/* struct interactive_policy *ipolicy = policy->governor_data; */
 	struct interactive_cpu *icpu;
 	unsigned int cpu;
 
-	gov_clear_update_util(ipolicy->policy);
+	/* gov_clear_update_util(ipolicy->policy); */
 
 	for_each_cpu(cpu, policy->cpus) {
 		icpu = &per_cpu(interactive_cpu, cpu);
 
-		icpu_cancel_work(icpu);
+		/*icpu_cancel_work(icpu);*/
 
 		down_write(&icpu->enable_sem);
 		icpu->ipolicy = NULL;
