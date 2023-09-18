@@ -205,7 +205,11 @@ int irq_do_set_affinity(struct irq_data *data, const struct cpumask *mask,
 	switch (ret) {
 	case IRQ_SET_MASK_OK:
 	case IRQ_SET_MASK_OK_DONE:
+#ifdef CONFIG_MTK_IRQ_NEW_DESIGN
+		update_affinity_settings(desc, mask, true);
+#else
 		cpumask_copy(desc->irq_common_data.affinity, mask);
+#endif
 	case IRQ_SET_MASK_OK_NOCOPY:
 		irq_set_thread_affinity(desc);
 		ret = 0;
@@ -375,7 +379,12 @@ static int setup_affinity(struct irq_desc *desc, struct cpumask *mask)
 		if (cpumask_intersects(mask, nodemask))
 			cpumask_and(mask, mask, nodemask);
 	}
+
+#ifndef CONFIG_MTK_IRQ_NEW_DESIGN
 	irq_do_set_affinity(&desc->irq_data, mask, false);
+#else
+	irq_do_set_affinity(&desc->irq_data, cpu_possible_mask, true);
+#endif
 	return 0;
 }
 #else

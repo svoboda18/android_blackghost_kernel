@@ -129,6 +129,9 @@ static unsigned long zero_ul;
 static unsigned long one_ul = 1;
 static unsigned long long_max = LONG_MAX;
 static int one_hundred = 100;
+#ifdef CONFIG_MTK_GMO_RAM_OPTIMIZE
+static int two_hundred = 200;
+#endif
 static int one_thousand = 1000;
 #ifdef CONFIG_PRINTK
 static int ten_thousand = 10000;
@@ -316,6 +319,13 @@ static struct ctl_table kern_table[] = {
 		.maxlen		= sizeof(unsigned int),
 		.mode		= 0644,
 		.proc_handler	= proc_dointvec,
+	},
+	{
+		.procname       = "sched_isolation_hint",
+		.data           = &sysctl_sched_isolation_hint_enable,
+		.maxlen         = sizeof(unsigned int),
+		.mode           = 0644,
+		.proc_handler   = proc_dointvec,
 	},
 #ifdef CONFIG_SCHED_WALT
 	{
@@ -1406,7 +1416,11 @@ static struct ctl_table vm_table[] = {
 		.mode		= 0644,
 		.proc_handler	= proc_dointvec_minmax,
 		.extra1		= &zero,
+#ifndef CONFIG_MTK_GMO_RAM_OPTIMIZE
 		.extra2		= &one_hundred,
+#else
+		.extra2		= &two_hundred,
+#endif
 	},
 #ifdef CONFIG_HUGETLB_PAGE
 	{

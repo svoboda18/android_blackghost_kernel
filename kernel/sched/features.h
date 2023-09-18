@@ -70,7 +70,7 @@ SCHED_FEAT(RT_PUSH_IPI, true)
 #endif
 
 SCHED_FEAT(FORCE_SD_OVERLAP, false)
-SCHED_FEAT(RT_RUNTIME_SHARE, true)
+SCHED_FEAT(RT_RUNTIME_SHARE, false)
 SCHED_FEAT(LB_MIN, false)
 SCHED_FEAT(ATTACH_AGE_LOAD, true)
 
@@ -82,6 +82,16 @@ SCHED_FEAT(ATTACH_AGE_LOAD, true)
 SCHED_FEAT(ENERGY_AWARE, true)
 #else
 SCHED_FEAT(ENERGY_AWARE, false)
+#endif
+
+/*
+ * HMP scheduling. Use dynamic threshold depends on system load and
+ * CPU capacity to make schedule decisions.
+ */
+#ifdef CONFIG_SCHED_HMP
+SCHED_FEAT(SCHED_HMP, true)
+#else
+SCHED_FEAT(SCHED_HMP, false)
 #endif
 
 /*
