@@ -70,6 +70,7 @@ out:
 	return res;
 }
 
+
 /*
  * Search the current task's subscribed keyrings for a "logon" key with
  * description prefix:descriptor, and if found acquire a read lock on it and
@@ -80,19 +81,19 @@ find_and_lock_process_key(const char *prefix,
 			  const u8 descriptor[FS_KEY_DESCRIPTOR_SIZE],
 			  unsigned int min_keysize,
 			  const struct fscrypt_key **payload_ret)
-{
-	char *description;
+ {
+ 	char *description;
 	struct key *key;
-	const struct user_key_payload *ukp;
+ 	const struct user_key_payload *ukp;
 	const struct fscrypt_key *payload;
 
-	description = kasprintf(GFP_NOFS, "%s%*phN", prefix,
+ 	description = kasprintf(GFP_NOFS, "%s%*phN", prefix,
 				FS_KEY_DESCRIPTOR_SIZE, descriptor);
-	if (!description)
+ 	if (!description)
 		return ERR_PTR(-ENOMEM);
 
 	key = request_key(&key_type_logon, description, NULL);
-	kfree(description);
+ 	kfree(description);
 	if (IS_ERR(key))
 		return key;
 
@@ -106,18 +107,17 @@ find_and_lock_process_key(const char *prefix,
 
 	if (ukp->datalen != sizeof(struct fscrypt_key) ||
 	    payload->size < 1 || payload->size > FS_MAX_KEY_SIZE) {
-		fscrypt_warn(NULL,
-			     "key with description '%s' has invalid payload",
+		pr_warn_ratelimited("fscrypt: key with description '%s' has invalid payload",
 			     key->description);
 		goto invalid;
-	}
+ 	}
 
-	if (payload->size < min_keysize) {
-		fscrypt_warn(NULL,
-			     "key with description '%s' is too short (got %u bytes, need %u+ bytes)",
+	if (payload->size < min_keysize ||
+	    payload->size % AES_BLOCK_SIZE != 0) {
+		pr_warn_ratelimited("fscrypt: key with description '%s' is too short or is misaligned (got %u bytes, need %u+ bytes)",
 			     key->description, payload->size, min_keysize);
 		goto invalid;
-	}
+ 	}
 
 	*payload_ret = payload;
 	return key;
@@ -166,10 +166,9 @@ static struct fscrypt_mode *
 select_encryption_mode(const struct fscrypt_info *ci, const struct inode *inode)
 {
 	if (!fscrypt_valid_enc_modes(ci->ci_data_mode, ci->ci_filename_mode)) {
-		fscrypt_warn(inode->i_sb,
-			     "inode %lu uses unsupported encryption modes (contents mode %d, filenames mode %d)",
-			     inode->i_ino, ci->ci_data_mode,
-			     ci->ci_filename_mode);
+		pr_warn_ratelimited("fscrypt: inode %lu uses unsupported encryption modes (contents mode %d, filenames mode %d)",
+				inode->i_ino, ci->ci_data_mode,
+				ci->ci_filename_mode);
 		return ERR_PTR(-EINVAL);
 	}
 
@@ -180,7 +179,7 @@ select_encryption_mode(const struct fscrypt_info *ci, const struct inode *inode)
 		return &available_modes[ci->ci_filename_mode];
 
 	WARN_ONCE(1, "fscrypt: filesystem tried to load encryption info for inode %lu, which is not encryptable (file type %d)\n",
-		  inode->i_ino, (inode->i_mode & S_IFMT));
+			inode->i_ino, (inode->i_mode & S_IFMT));
 	return ERR_PTR(-EINVAL);
 }
 
@@ -206,14 +205,12 @@ static int find_and_derive_key(const struct inode *inode,
 
 	if (ctx->flags & FS_POLICY_FLAG_DIRECT_KEY) {
 		if (mode->ivsize < offsetofend(union fscrypt_iv, nonce)) {
-			fscrypt_warn(inode->i_sb,
-				     "direct key mode not allowed with %s",
+			pr_warn_ratelimited("fscrypt: direct key mode not allowed with %s",
 				     mode->friendly_name);
 			err = -EINVAL;
 		} else if (ctx->contents_encryption_mode !=
 			   ctx->filenames_encryption_mode) {
-			fscrypt_warn(inode->i_sb,
-				     "direct key mode not allowed with different contents and filenames modes");
+			pr_warn_ratelimited("fscrypt: direct key mode not allowed with different contents and filenames modes");
 			err = -EINVAL;
 		} else {
 			memcpy(derived_key, payload->raw, mode->keysize);
@@ -238,8 +235,7 @@ allocate_skcipher_for_mode(struct fscrypt_mode *mode, const u8 *raw_key,
 
 	tfm = crypto_alloc_skcipher(mode->cipher_str, 0, 0);
 	if (IS_ERR(tfm)) {
-		fscrypt_warn(inode->i_sb,
-			     "error allocating '%s' transform for inode %lu: %ld",
+		pr_warn_ratelimited("fscrypt: error allocating '%s' transform for inode %lu: %ld",
 			     mode->cipher_str, inode->i_ino, PTR_ERR(tfm));
 		return tfm;
 	}
@@ -516,6 +512,7 @@ int fscrypt_get_encryption_info(struct inode *inode)
 		return res;
 
 	res = inode->i_sb->s_cop->get_context(inode, &ctx, sizeof(ctx));
+
 	if (res < 0) {
 		if (!fscrypt_dummy_context_enabled(inode) ||
 		    IS_ENCRYPTED(inode))

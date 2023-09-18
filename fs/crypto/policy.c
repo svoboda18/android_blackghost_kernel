@@ -21,12 +21,12 @@ static bool is_encryption_context_consistent_with_policy(
 				const struct fscrypt_policy *policy)
 {
 	return memcmp(ctx->master_key_descriptor, policy->master_key_descriptor,
-		      FS_KEY_DESCRIPTOR_SIZE) == 0 &&
-		(ctx->flags == policy->flags) &&
-		(ctx->contents_encryption_mode ==
-		 policy->contents_encryption_mode) &&
-		(ctx->filenames_encryption_mode ==
-		 policy->filenames_encryption_mode);
+			FS_KEY_DESCRIPTOR_SIZE) == 0 &&
+			(ctx->flags == policy->flags) &&
+			(ctx->contents_encryption_mode ==
+			 policy->contents_encryption_mode) &&
+			(ctx->filenames_encryption_mode ==
+			 policy->filenames_encryption_mode);
 }
 
 static int create_encryption_context_from_policy(struct inode *inode,
@@ -203,8 +203,8 @@ int fscrypt_has_permitted_context(struct inode *parent, struct inode *child)
 
 	if (parent_ci && child_ci) {
 		return memcmp(parent_ci->ci_master_key_descriptor,
-			      child_ci->ci_master_key_descriptor,
-			      FS_KEY_DESCRIPTOR_SIZE) == 0 &&
+				child_ci->ci_master_key_descriptor,
+				FS_KEY_DESCRIPTOR_SIZE) == 0 &&
 			(parent_ci->ci_data_mode == child_ci->ci_data_mode) &&
 			(parent_ci->ci_filename_mode ==
 			 child_ci->ci_filename_mode) &&

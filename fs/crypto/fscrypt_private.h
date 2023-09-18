@@ -16,6 +16,7 @@
 #include <crypto/hash.h>
 
 /* Encryption parameters */
+
 #define FS_KEY_DERIVATION_NONCE_SIZE	16
 
 /**
@@ -48,6 +49,7 @@ struct fscrypt_symlink_data {
 	__le16 len;
 	char encrypted_path[1];
 } __packed;
+
 
 /*
  * fscrypt_info - the "encryption key" for an inode
