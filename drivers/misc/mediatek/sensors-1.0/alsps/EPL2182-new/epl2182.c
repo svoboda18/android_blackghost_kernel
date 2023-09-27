@@ -864,7 +864,6 @@ static int als_get_data(int *value, int *status)
 
 	if (epl2182_obj->enable_pflag && isInterrupt)
 	{
-		enable_irq(epl2182_obj->irq);
 		err = elan_epl2182_psensor_enable(epl2182_obj, 1);
 		if (err != 0)
 		{
