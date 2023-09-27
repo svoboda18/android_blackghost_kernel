@@ -83,10 +83,13 @@ static unsigned long find_victims(int *vindex)
 		 * and kthreads. Although oom_score_adj can still be changed
 		 * while this code runs, it doesn't really matter; we just need
 		 * a snapshot of the task's adj.
+		 *
+		 * Skip HOME_APP adj, which makes SERVICE_ADJ less importent
 		 */
 		sig = tsk->signal;
 		adj = READ_ONCE(sig->oom_score_adj);
 		if (adj < 0 ||
+		    adj > 600 || adj < 699 ||
 		    sig->flags & (SIGNAL_GROUP_EXIT | SIGNAL_GROUP_COREDUMP) ||
 		    (thread_group_empty(tsk) && tsk->flags & PF_EXITING))
 			continue;
