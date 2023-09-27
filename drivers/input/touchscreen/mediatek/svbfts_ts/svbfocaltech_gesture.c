@@ -20,7 +20,6 @@
 * 1.Included header files
 *****************************************************************************/
 #include "svbfocaltech_core.h"
-#include "hal_kpd.h"
 
 #if FTS_GESTURE_EN
 /******************************************************************************
@@ -40,7 +39,7 @@
 #define GESTURE_V		0x54
 #define GESTURE_Z		0x41
 
-#define KEY_GESTURE_U 		KEY_U
+#define KEY_GESTURE_DT 		KEY_WAKEUP
 #define KEY_GESTURE_UP 		KEY_UP
 #define KEY_GESTURE_DOWN 	KEY_DOWN
 #define KEY_GESTURE_LEFT 	KEY_LEFT 
@@ -113,7 +112,7 @@ static struct fts_gesture_item fts_gesture_array[] =
     {GESTURE_RIGHT, KEY_GESTURE_RIGHT,	"RIGHT"},
     {GESTURE_UP, 	KEY_GESTURE_UP, 	"UP"},
     {GESTURE_DOWN, 	KEY_GESTURE_DOWN, 	"DOWN"},
-    {GESTURE_DOUBLECLICK, KEY_GESTURE_U,"DOUBLECLICK"},
+    {GESTURE_DOUBLECLICK, KEY_GESTURE_DT,"DOUBLECLICK"},
     {GESTURE_O, 	KEY_GESTURE_O, 		"o"},
     {GESTURE_E, 	KEY_GESTURE_E,		"e"},
     {GESTURE_M, 	KEY_GESTURE_M,		"m"},
@@ -258,11 +257,7 @@ static void fts_gesture_report(struct input_dev *input_dev, int gesture_id)
     for(;items->gesture_id; ++items)
     {
         if (items->gesture_id != gesture_id) continue;
-        
-        /* report event key */
-        kpd_pmic_pwrkey_hal(1);
-        kpd_pmic_pwrkey_hal(0);
-        
+
         fts_gesture_data.name = items->name;
         
         input_report_key(input_dev, items->action_id, 1);
@@ -554,7 +549,7 @@ int fts_gesture_init(struct fts_ts_data *ts_data)
     }
     
     fts_create_gesture_sysfs();
-    fts_gesture_data.mode = DISABLE;
+    fts_gesture_data.mode = ENABLE;
     
     FTS_FUNC_EXIT();
     return 0;
