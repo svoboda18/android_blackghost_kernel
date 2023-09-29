@@ -65,7 +65,7 @@ ccflags-y += -DCMDQ_SPECIAL_ESD_PRIORITY
 ccflags-y += -D_CMDQ_DISABLE_MARKER_
 ccflags-y += -DCMDQ_PROFILE_MMP
 
-ifneq ($(strip $(CONFIG_MTK_GMO_RAM_OPTIMIZE)),y)
+ifneq ($(strip $(CONFIG_MTK_KERNEL_GMO_RAM_OPTIMIZE)),y)
 ccflags-y += -DCMDQ_LARGE_MAX_FIRSTERROR_BUFFER
 endif
 

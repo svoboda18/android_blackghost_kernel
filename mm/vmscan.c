@@ -2147,7 +2147,7 @@ static unsigned long shrink_list(enum lru_list lru, unsigned long nr_to_scan,
 	return shrink_inactive_list(nr_to_scan, lruvec, sc, lru);
 }
 
-#ifdef CONFIG_MTK_GMO_RAM_OPTIMIZE
+#ifdef CONFIG_MTK_KERNEL_GMO_RAM_OPTIMIZE
 /* threshold of swapin and out */
 static int swpinout_threshold = 3000;
 module_param_named(threshold, swpinout_threshold, int, 0644);
@@ -2360,7 +2360,7 @@ static void get_scan_count(struct lruvec *lruvec, struct mem_cgroup *memcg,
 	file  = lruvec_lru_size(lruvec, LRU_ACTIVE_FILE, MAX_NR_ZONES) +
 		lruvec_lru_size(lruvec, LRU_INACTIVE_FILE, MAX_NR_ZONES);
 
-#ifdef CONFIG_MTK_GMO_RAM_OPTIMIZE
+#ifdef CONFIG_MTK_KERNEL_GMO_RAM_OPTIMIZE
 	/* Compute anon_prio adaptively */
 	anon_prio = get_adaptive_anon_prio(swappiness, anon, file, &file_prio);
 #endif
@@ -2571,7 +2571,7 @@ static void shrink_node_memcg(struct pglist_data *pgdat, struct mem_cgroup *memc
 	memcpy(targets, nr, sizeof(nr));
 
 	/* Give a chance to migrate anon pages */
-	if (!IS_ENABLED(CONFIG_MTK_GMO_RAM_OPTIMIZE) &&
+	if (!IS_ENABLED(CONFIG_MTK_KERNEL_GMO_RAM_OPTIMIZE) &&
 	    IS_ENABLED(CONFIG_ZONE_MOVABLE_CMA) && nr[LRU_INACTIVE_ANON] == 0)
 		nr[LRU_INACTIVE_ANON] = 1;
 

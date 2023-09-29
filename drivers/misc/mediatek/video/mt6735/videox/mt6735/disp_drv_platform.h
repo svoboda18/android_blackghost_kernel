@@ -212,7 +212,7 @@ typedef enum {
  * HW_MODE_CAP: Direct-Link, Decouple or Switchable.
  * HW_PASS_MODE: Multi-Pass, Single-Pass.
  */
-#ifdef CONFIG_MTK_GMO_RAM_OPTIMIZE
+#ifdef CONFIG_MTK_KERNEL_GMO_RAM_OPTIMIZE
 	#define DISP_HW_MODE_CAP DISP_OUTPUT_CAP_SWITCHABLE
 	#define DISP_HW_PASS_MODE DISP_OUTPUT_CAP_SINGLE_PASS
 

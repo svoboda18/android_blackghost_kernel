@@ -49,7 +49,7 @@
 #define CMDQ_MAX_ERROR_COUNT (2)
 #define CMDQ_MAX_RETRY_COUNT (1)
 /* ram optimization related configuration */
-#ifdef CONFIG_MTK_GMO_RAM_OPTIMIZE
+#ifdef CONFIG_MTK_KERNEL_GMO_RAM_OPTIMIZE
 #define CMDQ_MAX_RECORD_COUNT (100)
 #else
 #define CMDQ_MAX_RECORD_COUNT (1024)

@@ -605,7 +605,7 @@ CONFIG_MTK_GAMEROTVECHUB,PROJECT,weiqi.fu,new config in this commit 6cf72299191f
 CONFIG_MTK_GAUGE_VERSION,PROJECT,weiching.lin,,,,,,,,,
 CONFIG_MTK_GLGHUB,PROJECT,weiqi.fu,,,,,,,,,
 CONFIG_MTK_GMAGROTVECHUB,PROJECT,weiqi.fu,new config in this commit 6cf72299191fe832dffff96cd9233bcf981b52a0,,,,,,,,
-CONFIG_MTK_GMO_RAM_OPTIMIZE,PROJECT,jack.hsieh,,,,,,,,,
+CONFIG_MTK_KERNEL_GMO_RAM_OPTIMIZE,PROJECT,jack.hsieh,,,,,,,,,
 CONFIG_MTK_GPIOLIB_STAND,PLATFORM,Light.Hsieh,,y,X,X,X,X,X,,
 CONFIG_MTK_GPIO,PLATFORM,,,N,N,N,N,N,N,,
 CONFIG_MTK_GPS_EMI,PROJECT,Heiping.Lei,new config in this commit 89e353c38891333cad5c752eedcd129440a5664b,,,,,,,,

@@ -2787,7 +2787,7 @@ static void tree_events(struct mem_cgroup *memcg, unsigned long *events)
 	}
 }
 
-#ifndef CONFIG_MTK_GMO_RAM_OPTIMIZE
+#ifndef CONFIG_MTK_KERNEL_GMO_RAM_OPTIMIZE
 static unsigned long mem_cgroup_usage(struct mem_cgroup *memcg, bool swap)
 {
 	unsigned long val = 0;
@@ -5869,7 +5869,7 @@ static int __init mem_cgroup_init(void)
 {
 	int cpu, node;
 
-#ifdef CONFIG_MTK_GMO_RAM_OPTIMIZE
+#ifdef CONFIG_MTK_KERNEL_GMO_RAM_OPTIMIZE
 	cgroup_memory_nokmem = true;
 	cgroup_memory_nosocket = true;
 #endif

@@ -690,7 +690,7 @@ static int _disp_primary_path_idle_detect_thread(void *data)
 	static int end_cnt;
 	static int stop_cnt;
 
-#if defined(CONFIG_MTK_GMO_RAM_OPTIMIZE)
+#if defined(CONFIG_MTK_KERNEL_GMO_RAM_OPTIMIZE)
 	idle_time = 2000;
 #else
 	idle_time = 100;
@@ -708,7 +708,7 @@ static int _disp_primary_path_idle_detect_thread(void *data)
 		if (primary_get_state() != DISP_ALIVE || primary_display_is_secure_path(DISP_SESSION_PRIMARY)) {
 			mmprofile_log_ex(ddp_mmp_get_events()->esd_check_t, MMPROFILE_FLAG_PULSE, 1, 0);
 			/* DISPMSG("[ddp_idle]primary display path is slept?? -- skip ddp_idle\n"); */
-#if !defined(CONFIG_MTK_GMO_RAM_OPTIMIZE)
+#if !defined(CONFIG_MTK_KERNEL_GMO_RAM_OPTIMIZE)
 			idle_time = 500;
 #endif
 			_primary_path_unlock(__func__);
@@ -722,7 +722,7 @@ static int _disp_primary_path_idle_detect_thread(void *data)
 
 		_primary_path_unlock(__func__);
 
-#if !defined(CONFIG_MTK_GMO_RAM_OPTIMIZE)
+#if !defined(CONFIG_MTK_KERNEL_GMO_RAM_OPTIMIZE)
 		idle_time = 100;
 #endif
 
@@ -2104,7 +2104,7 @@ static unsigned int _get_switch_dc_buffer(void)
 {
 	if (pgc->freeze_buf)
 		return pgc->freeze_buf;
-#ifdef CONFIG_MTK_GMO_RAM_OPTIMIZE
+#ifdef CONFIG_MTK_KERNEL_GMO_RAM_OPTIMIZE
 	return pgc->dc_buf[0];
 #else
 	if (primary_display_is_secure_path(DISP_SESSION_PRIMARY))

@@ -2140,7 +2140,7 @@ int write_one_page(struct page *page, int wait);
 void task_dirty_inc(struct task_struct *tsk);
 
 /* readahead.c */
-#ifdef CONFIG_MTK_GMO_RAM_OPTIMIZE
+#ifdef CONFIG_MTK_KERNEL_GMO_RAM_OPTIMIZE
 /* reduce readahead size for devices with limited ram */
 #define VM_MAX_READAHEAD	32	/* kbytes */
 #else

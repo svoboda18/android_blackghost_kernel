@@ -14,10 +14,9 @@ config ASHMEM
 	  because it can discard shared memory units when under memory pressure.
 
 
-config MTK_GMO_RAM_OPTIMIZE
+config MTK_KERNEL_GMO_RAM_OPTIMIZE
 	bool "MTK ram optimize"
 	default n
-	select MTK_ENABLE_GMO
 	select MTK_ENABLE_AGO
 	help
 	  Provide for phone to use memory efficiently.

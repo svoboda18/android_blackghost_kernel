@@ -337,7 +337,7 @@ static short lowmem_amr_check(int *to_be_aggressive, int other_file)
 
 	unsigned long swap_pages = 0;
 	short amr_adj = OOM_SCORE_ADJ_MAX + 1;
-#ifndef CONFIG_MTK_GMO_RAM_OPTIMIZE
+#ifndef CONFIG_MTK_KERNEL_GMO_RAM_OPTIMIZE
 	int i;
 #endif 
 
@@ -349,7 +349,7 @@ static short lowmem_amr_check(int *to_be_aggressive, int other_file)
 	if (swap_pages * 4 < total_swap_pages)
 		(*to_be_aggressive)++;
 
-#ifndef CONFIG_MTK_GMO_RAM_OPTIMIZE
+#ifndef CONFIG_MTK_KERNEL_GMO_RAM_OPTIMIZE
 	/* Try to enable AMR when we have enough memory */
 	if (totalram_pages < ENABLE_AMR_RAMSIZE) {
 		*to_be_aggressive = 0;
@@ -639,7 +639,7 @@ static struct shrinker lowmem_shrinker = {
 static int __init lowmem_init(void)
 {
 	if (IS_ENABLED(CONFIG_ZRAM) &&
-	    IS_ENABLED(CONFIG_MTK_GMO_RAM_OPTIMIZE))
+	    IS_ENABLED(CONFIG_MTK_KERNEL_GMO_RAM_OPTIMIZE))
 		vm_swappiness = 100;
 
 	register_shrinker(&lowmem_shrinker);
