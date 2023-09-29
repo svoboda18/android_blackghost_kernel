@@ -50,7 +50,7 @@
 #include "mt_spm_idle.h"
 
 #define IDLE_TAG     "[Power/swap]"
-#define idle_warn(fmt, args...)		pr_warn(IDLE_TAG fmt, ##args)
+#define idle_warn(fmt, args...)		pr_debug(IDLE_TAG fmt, ##args)
 #define idle_dbg(fmt, args...)		pr_debug(IDLE_TAG fmt, ##args)
 
 #define idle_warn_log(fmt, args...) { \
@@ -683,7 +683,7 @@ static unsigned long    dpidle_block_cnt[NR_REASONS] = {0};
 static unsigned long long dpidle_block_prev_time;
 static bool             dpidle_by_pass_cg;
 static bool             dpidle_by_pass_pg;
-static unsigned int     dpidle_dump_log = DEEPIDLE_LOG_REDUCED;
+static unsigned int     dpidle_dump_log = DEEPIDLE_LOG_NONE;
 
 static unsigned int		idle_spm_lock;
 
