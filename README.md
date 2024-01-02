@@ -14,6 +14,7 @@ is reversed from stock kernel.
 | LCM driver #5 | `hct_otm1285a_dsi_vdo_hd_boe` | Yes | Yes |
 | LCM driver #6 | `hct_hx8394d_dsi_vdo_hd_cmi` | Yes | - |
 | LCM driver #7 | `hct_nt35521s_dsi_vdo_hd_boe_50_xld` | Yes | - |
+| LCM driver #8 | `hct_rm68200_dsi_vdo_hd_tm_50_xld` | Yes | Yes |
 | Touch panel | `fts_ts (FT5X05) (i2c 1-0038)`[^1] | Yes | Yes |
 | GPU | `Mali-400 MP2` | Yes | Yes |
 | Camera #1 | `s5k5e2y_mipi_raw` | Yes | Yes |

@@ -43,6 +43,9 @@ struct LCM_DRIVER *lcm_driver_list[] = {
 #if defined(HCT_RM68200_DSI_VDO_HD_CPT)
 	&hct_rm68200_dsi_vdo_hd_cpt,
 #endif
+#if defined(HCT_RM68200_DSI_VDO_HD_TM_50_XLD)
+    &hct_rm68200_dsi_vdo_hd_tm_50_xld,
+#endif
 #if defined(HCT_NT35521S_DSI_VDO_HD_BOE_50_XLD)
 	&hct_nt35521s_dsi_vdo_hd_boe_50_xld,
 #endif
