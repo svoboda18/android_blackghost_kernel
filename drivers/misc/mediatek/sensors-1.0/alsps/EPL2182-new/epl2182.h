@@ -1,18 +1,3 @@
-/* drivers/hwmon/mt6516/amit/epl2182.c - EPL2182 ALS/PS driver
- *
- * Author: MingHsien Hsieh <minghsien.hsieh@mediatek.com>
- *
- * This software is licensed under the terms of the GNU General Public
- * License version 2, as published by the Free Software Foundation, and
- * may be copied, distributed, and modified under those terms.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- */
-
 #ifndef __EPL2182_H__
 #define __EPL2182_H__
 
@@ -104,68 +89,22 @@
 #define EPL_PST_4_TIME		(1 << 2)
 #define EPL_PST_8_TIME		(2 << 2)
 #define EPL_PST_16_TIME		(3 << 2)
-
-/*----------------------------------------------------------------------------*/
-enum EPL2182_NOTIFY_TYPE {
-	EPL2182_NOTIFY_PROXIMITY_CHANGE = 1,
-	EPL2182_NOTIFY_ALS_RAW_DATA,
-	EPL2182_NOTIFY_PS_RAW_DATA,
-	EPL2182_NOTIFY_PROXIMITY_NOT_CHANGE
-};
-/*----------------------------------------------------------------------------*/
-enum EPL2182_CUST_ACTION {
-	EPL2182_CUST_ACTION_SET_CUST = 1,
-	EPL2182_CUST_ACTION_CLR_CALI,
-	EPL2182_CUST_ACTION_SET_CALI,
-	EPL2182_CUST_ACTION_SET_PS_THRESHODL,
-	EPL2182_CUST_ACTION_SET_EINT_INFO,
-	EPL2182_CUST_ACTION_GET_ALS_RAW_DATA,
-	EPL2182_CUST_ACTION_GET_PS_RAW_DATA,
-};
-/*----------------------------------------------------------------------------*/
-struct EPL2182_CUST {
-	uint16_t action;
-};
-/*----------------------------------------------------------------------------*/
-struct EPL2182_SET_CUST {
-	uint16_t action;
-	uint16_t part;
-	int32_t data[0];
-};
-/*----------------------------------------------------------------------------*/
-/*----------------------------------------------------------------------------*/
-struct EPL2182_SET_CALI {
-	uint16_t action;
-	int32_t cali;
-};
-/*----------------------------------------------------------------------------*/
-struct EPL2182_SET_PS_THRESHOLD {
-	uint16_t action;
-	int32_t threshold[2];
-};
-/*----------------------------------------------------------------------------*/
-struct EPL2182_SET_EINT_INFO {
-	uint16_t action;
-	uint32_t gpio_pin;
-	uint32_t gpio_mode;
-	uint32_t eint_num;
-	uint32_t eint_is_deb_en;
-	uint32_t eint_type;
-};
-/*----------------------------------------------------------------------------*/
-/*----------------------------------------------------------------------------*/
-union EPL2182_CUST_DATA {
-	uint32_t data[10];
-	struct EPL2182_CUST cust;
-	struct EPL2182_SET_CUST setCust;
-	struct EPL2182_CUST clearCali;
-	struct EPL2182_SET_CALI setCali;
-	struct EPL2182_SET_PS_THRESHOLD setPSThreshold;
-	struct EPL2182_SET_EINT_INFO setEintInfo;
-	struct EPL2182_CUST getALSRawData;
-	struct EPL2182_CUST getPSRawData;
-};
+#define EPL_INTT_PS_32	    2
+#define EPL_INTT_PS_48		3
+#define EPL_INTT_PS_80		4
+#define EPL_INTT_PS_144		5
+#define EPL_INTT_PS_272		6
+#define EPL_INTT_PS_384		7
+#define EPL_INTT_PS_520		8
+#define EPL_INTT_PS_656		9
+#define EPL_INTT_PS_784	    10
+#define EPL_INTT_PS_1040	11
+#define EPL_INTT_PS_2064	12
+#define EPL_INTT_PS_4112	13
+#define EPL_INTT_PS_6160	14
+#define EPL_INTT_PS_8280	15
 /*----------------------------------------------------------------------------*/
 extern struct platform_device *get_alsps_platformdev(void);
+extern int mt_gpio_set_debounce(unsigned int gpio, unsigned int debounce);
 
 #endif

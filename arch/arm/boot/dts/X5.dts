@@ -120,6 +120,7 @@
 			pinmux = <PINMUX_GPIO6__FUNC_EINT6>;
 			slew-rate = <0>;
 			bias-pull-up = <00>;
+			bias-disable;
 		};
 	};
 	alsps_intpin_default: alspsdefaultcfg {
