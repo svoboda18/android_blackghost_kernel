@@ -104,7 +104,6 @@
 #define EPL_INTT_PS_6160	14
 #define EPL_INTT_PS_8280	15
 /*----------------------------------------------------------------------------*/
-extern struct platform_device *get_alsps_platformdev(void);
 extern int mt_gpio_set_debounce(unsigned int gpio, unsigned int debounce);
 
 #endif

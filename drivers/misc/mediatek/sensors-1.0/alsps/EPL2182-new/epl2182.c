@@ -13,28 +13,12 @@
  *
  */
 
-#include <linux/interrupt.h>
-#include <linux/i2c.h>
-#include <linux/slab.h>
-#include <linux/irq.h>
-#include <linux/uaccess.h>
-#include <linux/delay.h>
-#include <linux/input.h>
-#include <linux/workqueue.h>
-#include <linux/kobject.h>
-#include <linux/platform_device.h>
-#include <linux/atomic.h>
 #include <linux/gpio.h>
 #include <linux/of_irq.h>
-
-#include <alsps.h>
-
+#include "alsps.h"
 #include "epl2182.h"
 
-static long long int_top_time;
-
 /*******************************************************************************/
-#define LUX_PER_COUNT 1100 // 1100 = 1.1 * 1000
 #define PS_DRIVE EPL_DRIVE_120MA
 #define DYN_ENABLE 1
 
@@ -77,15 +61,13 @@ typedef struct _epl2182_raw_data
     u16 ps_dyn_high;
     u16 ps_dyn_low;
 #endif
-    u16 als_ch0_raw;
     u16 als_ch1_raw;
-    u16 als_lux;
 } epl2182_raw_data;
 
 /*----------------------------------------------------------------------------*/
 #define APS_TAG "[ALS/PS] "
 #define APS_FUN(f)
-#define APS_ERR(fmt, args...)
+#define APS_ERR(fmt, args...) pr_err(APS_TAG "[%s:%d] " fmt, __func__, __LINE__, ##args)
 #define APS_LOG(fmt, args...)
 #define APS_DBG(fmt, args...)
 
@@ -102,12 +84,8 @@ static int epl2182_i2c_detect(struct i2c_client *client, struct i2c_board_info *
 static int alsps_local_init(void);
 static int alsps_remove(void);
 /*----------------------------------------------------------------------------*/
-
 static irqreturn_t epl2182_eint_func(int irq, void *desc);
-
 static int set_psensor_intr_threshold(uint16_t low_thd, uint16_t high_thd);
-
-static struct epl2182_priv *g_epl2182_ptr = NULL;
 
 /*----------------------------------------------------------------------------*/
 struct epl2182_i2c_addr /*define a series of i2c slave address*/
@@ -128,10 +106,10 @@ struct epl2182_priv
 
     /*misc*/
     atomic_t trace;
+
     /*data*/
-    u16 lux_per_count;
     bool als_enable;
-	bool ps_enable;
+    bool ps_enable;
     bool pending_intr; /*pending interrupt*/
 
     int ps_cali;
@@ -139,8 +117,6 @@ struct epl2182_priv
     /*data*/
     u16 als_level_num;
     u16 als_value_num;
-    u32 als_level[C_CUST_ALS_LEVEL - 1];
-    u32 als_value[C_CUST_ALS_LEVEL];
 };
 
 #ifdef CONFIG_OF
@@ -184,7 +160,7 @@ static int elan_epl2182_I2C_Write(struct i2c_client *client, uint8_t regaddr, ui
     int ret = 0;
     int retry;
 
-	mutex_lock(&epl2182_mutex);
+    mutex_lock(&epl2182_mutex);
 
     buffer[0] = (regaddr << 3) | bytecount;
     buffer[1] = data;
@@ -339,7 +315,7 @@ static int elan_epl2182_psensor_enable(struct epl2182_priv *epl_data, int enable
             {
                 APS_LOG("[%s]: EPL_INT_ACTIVE_LOW .............\r\n", __func__);
             }
-            
+
             ps_report_interrupt_data(ps_state);
 
             elan_epl2182_I2C_Write(client, REG_9, W_SINGLE_BYTE, 0x02, EPL_INT_ACTIVE_LOW | PS_DRIVE);
@@ -405,27 +381,49 @@ static int elan_epl2182_lsensor_enable(struct epl2182_priv *epl_data, int enable
 
 static int epl2182_get_als_value(struct epl2182_priv *obj, u16 als)
 {
-    int idx;
-    int lux = 0;
+    int idx = 0;
+    int level_high = 0;
+    int level_low = 0;
+    int level_diff = 0;
+    int value_high = 0;
+    int value_low = 0;
+    int value_diff = 0;
+    int value = 0;
 
-    lux = (als * obj->lux_per_count) / 1000;
+    if ((0 == obj->als_level_num) || (0 == obj->als_value_num))
+    {
+        APS_ERR("invalid als_level_num = %d, als_value_num = %d\n", obj->als_level_num, obj->als_value_num);
+        return -1;
+    }
+
     for (idx = 0; idx < obj->als_level_num; idx++)
     {
-        if (lux < obj->hw.als_level[idx])
-        {
+        if (als < obj->hw.als_level[idx])
             break;
-        }
     }
-
-    if (idx >= obj->als_value_num)
+    if (idx >= obj->als_level_num || idx >= obj->als_value_num)
     {
-        APS_ERR("exceed range\n");
-        idx = obj->als_value_num - 1;
+        if (idx < obj->als_value_num)
+            value = obj->hw.als_value[idx - 1];
+        else
+            value = obj->hw.als_value[obj->als_value_num - 1];
+    }
+    else
+    {
+        level_high = obj->hw.als_level[idx];
+        level_low = (idx > 0) ? obj->hw.als_level[idx - 1] : 0;
+        level_diff = level_high - level_low;
+        value_high = obj->hw.als_value[idx];
+        value_low = (idx > 0) ? obj->hw.als_value[idx - 1] : 0;
+        value_diff = value_high - value_low;
+
+        if ((level_low >= level_high) || (value_low >= value_high))
+            value = value_low;
+        else
+            value = (level_diff * value_low + (als - level_low) * value_diff + ((level_diff + 1) >> 1)) / level_diff;
     }
 
-    gRawData.als_lux = obj->hw.als_value[idx];
-    APS_LOG("ALS: %05d => %05d\n", als, obj->hw.als_value[idx]);
-    return gRawData.als_lux;
+    return value;
 }
 
 static int set_psensor_intr_threshold(uint16_t low_thd, uint16_t high_thd)
@@ -519,8 +517,8 @@ int epl2182_read_als(struct i2c_client *client)
     // FIX: mid gain and low gain cannot report ff in auton gain
     if (setting >> 7 == 0 && ch1 == 65535)
     {
-        APS_LOG("setting %d, gain %x, als %d\n", setting, setting >> 7, ch1);
-        APS_LOG("skip FF in auto gain\n\n");
+        APS_ERR("setting %d, gain %x, als %d\n", setting, setting >> 7, ch1);
+        APS_ERR("skip FF in auto gain\n\n");
     }
     else
     {
@@ -546,10 +544,10 @@ long epl2182_read_ps(struct i2c_client *client, u16 *data)
     elan_epl2182_I2C_Read(obj->client);
     gRawData.ps_raw = (gRawData.raw_bytes[1] << 8) | gRawData.raw_bytes[0];
 
-	if (gRawData.ps_raw < obj->ps_cali)
-		*data = 0;
-	else
-		*data = gRawData.ps_raw - obj->ps_cali;
+    if (gRawData.ps_raw < obj->ps_cali)
+        *data = 0;
+    else
+        *data = gRawData.ps_raw - obj->ps_cali;
 
     return 0;
 }
@@ -650,13 +648,13 @@ static int ps_set_delay(u64 ns)
 /*--------------------------------------------------------------------------------*/
 static int ps_get_data(int *value, int *status)
 {
-	int err = 0;
+    int err = 0;
 
-	if (!epl2182_obj)
-	{
-		APS_ERR("epl2182_obj is null!!\n");
-		return -1;
-	}
+    if (!epl2182_obj)
+    {
+        APS_ERR("epl2182_obj is null!!\n");
+        return -1;
+    }
 
 	APS_ERR("get data with no enable, done \n");
 
@@ -667,34 +665,30 @@ static int ps_get_data(int *value, int *status)
 		return -1;
 	}
 
-	err = epl2182_read_ps(epl2182_obj->client, &gRawData.ps_raw);
-	if (err != 0)
-	{
-		APS_ERR("read ps fail: %d\n", err);
-		return -1;
-	}
-	*value = gRawData.ps_raw;
-	*status = SENSOR_STATUS_ACCURACY_HIGH;
+    err = epl2182_read_ps(epl2182_obj->client, &gRawData.ps_raw);
+    if (err != 0)
+    {
+        APS_ERR("read ps fail: %d\n", err);
+        return -1;
+    }
+    *value = gRawData.ps_raw;
+    *status = SENSOR_STATUS_ACCURACY_HIGH;
 
-	return err;
+    return err;
 }
 /*----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------*/
 static irqreturn_t epl2182_eint_func(int irq, void *desc)
 {
-    struct epl2182_priv *obj = g_epl2182_ptr;
-
-    int_top_time = sched_clock();
-
-    if (!obj)
+    if (!epl2182_obj)
     {
         return IRQ_HANDLED;
     }
 
     disable_irq_nosync(epl2182_obj->irq);
 
-    schedule_work(&obj->eint_work);
+    schedule_work(&epl2182_obj->eint_work);
 
     return IRQ_HANDLED;
 }
@@ -702,13 +696,14 @@ static irqreturn_t epl2182_eint_func(int irq, void *desc)
 /*----------------------------------------------------------------------------*/
 static void epl2182_eint_work(struct work_struct *work)
 {
-    struct epl2182_priv *epld = g_epl2182_ptr;
+    struct epl2182_priv *epld = epl2182_obj;
     int err;
     u8 ps_state;
 
     if (epld->ps_enable)
     {
         APS_LOG("xxxxx eint work\n");
+        elan_epl2182_I2C_Write(epld->client, REG_7, W_SINGLE_BYTE, 0x02, EPL_DATA_LOCK);
 
         if ((err = epl2182_check_intr(epld->client)))
         {
@@ -759,17 +754,14 @@ static void epl2182_eint_work(struct work_struct *work)
 /*----------------------------------------------------------------------------*/
 int epl2182_setup_eint(struct i2c_client *client)
 {
-    struct epl2182_priv *obj = i2c_get_clientdata(client);
     int ret;
     u32 ints[2] = {0, 0};
     struct pinctrl *pinctrl;
     struct pinctrl_state *pins_cfg;
-    struct platform_device *alsps_pdev = get_alsps_platformdev();
 
     APS_LOG("epl2182_setup_eint\n");
 
-    g_epl2182_ptr = obj;
-    pinctrl = devm_pinctrl_get(&alsps_pdev->dev);
+    pinctrl = devm_pinctrl_get(&client->dev);
     if (IS_ERR(pinctrl))
     {
         ret = PTR_ERR(pinctrl);
@@ -915,21 +907,21 @@ static int epl2182_als_factory_get_data(int32_t *data)
 
 static int epl2182_als_factory_get_raw_data(int32_t *data)
 {
-	int err = 0;
-	struct epl2182_priv *obj = epl2182_obj;
+    int err = 0;
+    struct epl2182_priv *obj = epl2182_obj;
 
-	if (!obj)
-	{
-		APS_ERR("obj is null!!\n");
-		return -1;
-	}
+    if (!obj)
+    {
+        APS_ERR("obj is null!!\n");
+        return -1;
+    }
 
-	err = epl2182_read_als(obj->client);
-	if (err)
-	{
-		APS_ERR("%s failed\n", __func__);
-		return -1;
-	}
+    err = epl2182_read_als(obj->client);
+    if (err)
+    {
+        APS_ERR("%s failed\n", __func__);
+        return -1;
+    }
     *data = gRawData.als_ch1_raw;
 
     return 0;
@@ -972,25 +964,25 @@ static int epl2182_ps_factory_enable_sensor(bool enable_disable, int64_t sample_
         return -1;
     }
     return err;
-} 
+}
 static int epl2182_ps_factory_get_data(int32_t *data)
 {
-	int err = 0, status = 0;
+    int err = 0, status = 0;
 
-	err = ps_get_data(data, &status);
-	if (err < 0)
-		return -1;
-	return 0;
+    err = ps_get_data(data, &status);
+    if (err < 0)
+        return -1;
+    return 0;
 }
 
 static int epl2182_ps_factory_get_raw_data(int32_t *data)
 {
-	int err = 0, status = 0;
+    int err = 0, status = 0;
 
-	err = ps_get_data(data, &status);
-	if (err < 0)
-		return -1;
-	return 0;
+    err = ps_get_data(data, &status);
+    if (err < 0)
+        return -1;
+    return 0;
 }
 
 static int epl2182_ps_factory_enable_calibration(void)
@@ -1000,29 +992,29 @@ static int epl2182_ps_factory_enable_calibration(void)
 
 static int epl2182_ps_factory_clear_cali(void)
 {
-	struct epl2182_priv *obj = epl2182_obj;
+    struct epl2182_priv *obj = epl2182_obj;
 
-	obj->ps_cali = 0;
-	return 0;
+    obj->ps_cali = 0;
+    return 0;
 }
 static int epl2182_ps_factory_set_cali(int32_t offset)
 {
-	struct epl2182_priv *obj = epl2182_obj;
+    struct epl2182_priv *obj = epl2182_obj;
 
-	obj->ps_cali = offset;
-	return 0;
+    obj->ps_cali = offset;
+    return 0;
 }
 static int epl2182_ps_factory_get_cali(int32_t *offset)
 {
-	struct epl2182_priv *obj = epl2182_obj;
+    struct epl2182_priv *obj = epl2182_obj;
 
-	*offset = obj->ps_cali;
-	return 0;
+    *offset = obj->ps_cali;
+    return 0;
 }
 
 static int epl2182_ps_factory_set_threshold(int32_t threshold[2])
 {
-	struct epl2182_priv *obj = epl2182_obj;
+    struct epl2182_priv *obj = epl2182_obj;
 
     obj->hw.ps_threshold_low = threshold[1] + obj->ps_cali;
     obj->hw.ps_threshold_high = threshold[0] + obj->ps_cali;
@@ -1105,10 +1097,6 @@ static int epl2182_i2c_probe(struct i2c_client *client, const struct i2c_device_
 
     obj->als_level_num = sizeof(obj->hw.als_level) / sizeof(obj->hw.als_level[0]);
     obj->als_value_num = sizeof(obj->hw.als_value) / sizeof(obj->hw.als_value[0]);
-    BUG_ON(sizeof(obj->als_level) != sizeof(obj->hw.als_level));
-    memcpy(obj->als_level, obj->hw.als_level, sizeof(obj->als_level));
-    BUG_ON(sizeof(obj->als_value) != sizeof(obj->hw.als_value));
-    memcpy(obj->als_value, obj->hw.als_value, sizeof(obj->als_value));
 
     INIT_WORK(&obj->eint_work, epl2182_eint_work);
 
@@ -1116,10 +1104,9 @@ static int epl2182_i2c_probe(struct i2c_client *client, const struct i2c_device_
 
     i2c_set_clientdata(client, obj);
 
-    atomic_set(&obj->trace, 0x00);
+    atomic_set(&obj->trace, 0);
 
     obj->irq_node = of_find_compatible_node(NULL, NULL, "mediatek, als-eint");
-    obj->lux_per_count = LUX_PER_COUNT;
     obj->ps_enable = 0;
     obj->als_enable = 0;
     obj->pending_intr = false;
