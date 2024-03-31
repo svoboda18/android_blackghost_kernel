@@ -733,7 +733,7 @@ static int base_ops_mon_mode(struct ptp_det *det)
 
 	ptp_notice("%s(%s) start (ptp_level = 0x%08X).\n", __func__, det->name, ptp_level);
 
-	ts_bank = det->ctrl_id;
+	ts_bank = (thermal_bank_name)det->ctrl_id;
 	get_thermal_slope_intercept(&ts_info, ts_bank);
 	det->MTS = ts_info.ts_MTS;
 	det->BTS = ts_info.ts_BTS;

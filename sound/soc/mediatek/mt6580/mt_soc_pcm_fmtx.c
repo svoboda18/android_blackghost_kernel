@@ -82,7 +82,7 @@ static int mtk_afe_fmtx_probe(struct snd_soc_platform *platform);
 
 static int fmtx_hdoutput_control = true;
 
-static const char const *fmtx_HD_output[] = {"Off", "On"};
+static const char *fmtx_HD_output[] = {"Off", "On"};
 
 static const struct soc_enum Audio_fmtx_Enum[] = {
 	SOC_ENUM_SINGLE_EXT(ARRAY_SIZE(fmtx_HD_output), fmtx_HD_output),

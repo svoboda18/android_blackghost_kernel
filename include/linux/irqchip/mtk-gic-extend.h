@@ -27,7 +27,7 @@
 
 #include <linux/irq.h>
 
-typedef void (*fiq_isr_handler) (void *arg, void *regs, void *svc_sp);
+//typedef void (*fiq_isr_handler) (void *arg, void *regs, void *svc_sp);
 
 enum {
 	IRQ_MASK_HEADER = 0xF1F1F1F1,

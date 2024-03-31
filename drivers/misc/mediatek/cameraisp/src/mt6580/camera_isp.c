@@ -2934,7 +2934,7 @@ static long ISP_REF_CNT_CTRL_FUNC(unsigned long Param)
 			"g_imem_ref_cnt[%d]: %d.",
 			ref_cnt_ctrl.id, imem_ref_cnt);
 
-			if ((imem_ref_cnt == 0)) {
+			if (imem_ref_cnt == 0) {
 				if (ref_cnt_ctrl.ctrl ==
 					ISP_REF_CNT_DEC_AND_RESET_IF_LAST_ONE) {
 /* No user left and ctrl is

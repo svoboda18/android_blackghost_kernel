@@ -112,10 +112,11 @@
 #include "mt_soc_codec_63xx.h"
 
 static int mt_soc_lowjitter_control;
+#ifdef MTK_AUDIO_DEBUG
 static  struct dentry *mt_sco_audio_debugfs;
 #define DEBUG_FS_NAME "mtksocaudio"
 #define DEBUG_ANA_FS_NAME "mtksocanaaudio"
-
+#endif
 static int mtmachine_startup(struct snd_pcm_substream *substream)
 {
 	/* printk("mtmachine_startup\n"); */
@@ -763,7 +764,7 @@ static struct snd_soc_dai_link mt_soc_dai_common[] = {
 	 },
 };
 
-static const char const *I2S_low_jittermode[] = {"Off", "On"};
+static const char *I2S_low_jittermode[] = {"Off", "On"};
 
 static const struct soc_enum mt_soc_machine_enum[] = {
 	SOC_ENUM_SINGLE_EXT(ARRAY_SIZE(I2S_low_jittermode), I2S_low_jittermode),
@@ -822,7 +823,7 @@ static int __init mt_soc_snd_init(void)
 	}
 
 	pr_debug("mt_soc_snd_init dai_link = %p\n", snd_soc_card_mt.dai_link);
-
+#ifdef MTK_AUDIO_DEBUG
 	/* create debug file */
 	mt_sco_audio_debugfs = debugfs_create_file(DEBUG_FS_NAME,
 	   S_IFREG | S_IRUGO, NULL, (void *) DEBUG_FS_NAME, &mtaudio_debug_ops);
@@ -831,7 +832,7 @@ static int __init mt_soc_snd_init(void)
 	/* create analog debug file */
 	mt_sco_audio_debugfs = debugfs_create_file(DEBUG_ANA_FS_NAME,
 	   S_IFREG | S_IRUGO, NULL, (void *) DEBUG_ANA_FS_NAME, &mtaudio_ana_debug_ops);
-
+#endif
 	return 0;
 put_device:
 	platform_device_put(mt_snd_device);

@@ -102,7 +102,7 @@ enum DAL_STATUS DAL_Init(unsigned long layerVA, unsigned long layerPA)
 	if (MFC_STATUS_OK != ret) {
 		DISPMSG("DISP/DAL: Warning: call MFC_XXX function failed in %s(), line: %d, ret: %x\n",
 			__func__, __LINE__, ret);
-		return ret;
+		return (enum DAL_STATUS)ret;
 	}
 
 	DAL_SetScreenColor(DAL_COLOR_RED);
@@ -130,7 +130,7 @@ enum DAL_STATUS DAL_SetColor(unsigned int fgColor, unsigned int bgColor)
 	if (MFC_STATUS_OK != ret) {
 		DISPMSG("DISP/DAL: Warning: call MFC_XXX function failed in %s(), line: %d, ret: %x\n",
 			__func__, __LINE__, ret);
-		return ret;
+		return (enum DAL_STATUS)ret;
 	}
 
 	up(&dal_sem);

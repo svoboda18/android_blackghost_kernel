@@ -1185,7 +1185,7 @@ out:
 		if (((soidle_block_curr_time - soidle_block_prev_time) > soidle_block_time_critera)
 			&& ((soidle_block_curr_time - idle_block_log_prev_time) > idle_block_log_time_criteria)) {
 
-			if ((smp_processor_id() == 0)) {
+			if (smp_processor_id() == 0) {
 				int i = 0;
 
 				/* soidle,rgidle count */
@@ -1395,7 +1395,7 @@ out:
 		if (((dpidle_block_curr_time - dpidle_block_prev_time) > dpidle_block_time_critera)
 			&& ((dpidle_block_curr_time - idle_block_log_prev_time) > idle_block_log_time_criteria)) {
 
-			if ((smp_processor_id() == 0)) {
+			if (smp_processor_id() == 0) {
 				/* dpidle,rgidle count */
 				p = log_buf;
 				p += sprintf(p, "CNT(dpidle,rgidle): ");

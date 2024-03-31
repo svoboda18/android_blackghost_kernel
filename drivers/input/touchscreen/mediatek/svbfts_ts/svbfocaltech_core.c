@@ -347,15 +347,16 @@ static int fts_input_report_b(struct fts_ts_data *data)
         va_reported = true;
         input_mt_slot(tpd->dev, events[i].id);
 
+#if FTS_REPORT_PRESSURE_EN
+        if (events[i].p <= 0) {
+            events[i].p = 0x3f;
+        }
+        input_report_abs(tpd->dev, ABS_MT_PRESSURE, events[i].p);
+#endif
+
         if (EVENT_DOWN(events[i].flag)) {
             input_mt_report_slot_state(tpd->dev, MT_TOOL_FINGER, true);
 
-#if FTS_REPORT_PRESSURE_EN
-            if (events[i].p <= 0) {
-                events[i].p = 0x3f;
-            }
-            input_report_abs(tpd->dev, ABS_MT_PRESSURE, events[i].p);
-#endif
             if (events[i].area <= 0) {
                 events[i].area = 0x09;
             }
@@ -503,8 +504,8 @@ static int fts_read_touchdata(struct fts_ts_data *data)
     }
 
     if (data->point_num > max_touch_num) {
-        FTS_INFO("invalid point_num(%d)", data->point_num);
-        return -EIO;
+        FTS_INFO("invalid point_num(%d) using %d", data->point_num, max_touch_num);
+        data->point_num = max_touch_num;
     }
 
 #if (FTS_DEBUG_EN && (FTS_DEBUG_LEVEL == 2))

@@ -94,7 +94,7 @@ static int Audio_fm_i2s_Volume_Set(struct snd_kcontrol *kcontrol,
 	return 0;
 }
 
-static const char const *wcn_stub_audio_ctr[] = {
+static const char *wcn_stub_audio_ctr[] = {
 	"CMB_STUB_AIF_0", "CMB_STUB_AIF_1", "CMB_STUB_AIF_2", "CMB_STUB_AIF_3"};
 
 static const struct soc_enum wcn_stub_audio_ctr_Enum[] = {

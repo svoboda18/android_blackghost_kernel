@@ -729,7 +729,7 @@ static int _sync_convert_fb_layer_to_ovl_struct(unsigned int session_id,
 		DISPERR("Invalid color format: 0x%x\n", src->src_fmt);
 		return -1;
 	}
-	dst->source = src->buffer_source;
+	dst->source = (enum OVL_LAYER_SOURCE)src->buffer_source;
 
 	dst->vaddr = (unsigned long)src->src_base_addr;
 	dst->security = src->security;

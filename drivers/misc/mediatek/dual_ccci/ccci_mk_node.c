@@ -413,9 +413,7 @@ void release_ccci_dev_node(void)
 		class_destroy((struct class *)dev_class);
 
 	if (ccci_sys_info) {
-		if (&ccci_sys_info->kobj)
-			kobject_put(&ccci_sys_info->kobj);
-
+		kobject_put(&ccci_sys_info->kobj);
 		kfree(ccci_sys_info);
 		ccci_sys_info = NULL;
 	}

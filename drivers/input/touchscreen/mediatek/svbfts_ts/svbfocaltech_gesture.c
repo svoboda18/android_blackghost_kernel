@@ -290,9 +290,10 @@ static int fts_gesture_read_buffer(struct i2c_client *client, u8 *buf, int read_
         for (i = 1; remain_bytes > 0; i++) {
             if (remain_bytes <= I2C_BUFFER_LENGTH_MAXINUM)
                 ret = fts_i2c_read(client, buf, 0, buf + I2C_BUFFER_LENGTH_MAXINUM * i, remain_bytes);
-            else
+            else {
                 ret = fts_i2c_read(client, buf, 0, buf + I2C_BUFFER_LENGTH_MAXINUM * i, I2C_BUFFER_LENGTH_MAXINUM);
                 remain_bytes -= I2C_BUFFER_LENGTH_MAXINUM;
+            }
         }
     }
     

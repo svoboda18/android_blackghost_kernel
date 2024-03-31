@@ -757,13 +757,13 @@ static void set_tc_trigger_hw_protect(int temperature, int temperature2)
 }
 
 
-static int read_tc_raw_and_temp(volatile u32 *tempmsr_name, thermal_sensor_name ts_name,
+static int read_tc_raw_and_temp(volatile u32 *tempmsr_name, ts_e ts_name,
 				int *ts_raw)
 {
 	int temp = 0, raw = 0;
 
 	raw = (tempmsr_name != 0) ? (readl((tempmsr_name)) & 0x0fff) : 0;
-	temp = (tempmsr_name != 0) ? raw_to_temperature_roomt(raw, ts_name) : 0;
+	temp = (tempmsr_name != 0) ? raw_to_temperature_roomt(raw, (thermal_sensor_name)ts_name) : 0;
 
 	*ts_raw = raw;
 	tscpu_dprintk("read_tc_raw_temp,ts_raw=%d,temp=%d\n", *ts_raw, temp * 100);

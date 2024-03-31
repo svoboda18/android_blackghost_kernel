@@ -83,7 +83,7 @@ static unsigned int irq1_cnt;
 
 static struct device *mDev;
 
-static const char const *I2S0dl1_HD_output[] = {"Off", "On"};
+static const char *I2S0dl1_HD_output[] = {"Off", "On"};
 
 static const struct soc_enum Audio_I2S0dl1_Enum[] = {
 	SOC_ENUM_SINGLE_EXT(ARRAY_SIZE(I2S0dl1_HD_output), I2S0dl1_HD_output),

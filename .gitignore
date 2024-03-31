@@ -40,6 +40,11 @@ Module.symvers
 *.su
 *.c.[012]*.*
 
+/out
+/BGH-Out
+gcc
+clang*
+
 #
 # Top-level generic files
 #

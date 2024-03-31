@@ -176,9 +176,6 @@ typedef enum {
 } kal_bool;
 #endif
 
-#ifndef BOOL
-typedef unsigned char  BOOL;
-#endif
 
 #ifndef FALSE
   #define FALSE (0)
