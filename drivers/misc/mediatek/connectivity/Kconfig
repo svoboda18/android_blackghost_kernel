@@ -210,6 +210,12 @@ config MTK_COMBO_ANT
 	help
 	  MTK ANT /dev/stpant driver for ANT
 
+config MTK_COMBO_FM
+	tristate "MediaTek Combo Chip ANT driver"
+	depends on MTK_COMBO
+	help
+	  config fmradio build in kernel
+
 config MTK_COMBO_BT_HCI
 	tristate "MediaTek Combo Chip BlueZ driver"
 	depends on BT && MTK_COMBO
@@ -301,6 +307,7 @@ config MTK_GPS_EMI
 config MTK_FMRADIO
 	tristate "MediaTek FMRadio driver"
 	depends on MTK_COMBO
+	select MTK_COMBO_FM
 	help
 	  This config is used to choose
 	  if need to compile fmradio folder.
@@ -361,3 +368,11 @@ config MTK_CONNSYS_DEDICATED_LOG_PATH
 	     (by EMI or other specific path)
 	  2. The scope may include (but not limited) Wi-Fi firmware log,
 	     BT firmware log, GPS firmware log etc.
+
+config WLAN_DRV_BUILD_IN
+	bool "Build Wlan module in kernel"
+	default y
+	help
+	  This will build the wlan driver and the corresponding componenets
+	  into the kernel.
+	  If unsure say n
