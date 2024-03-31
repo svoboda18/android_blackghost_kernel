@@ -505,9 +505,10 @@ int epl2182_read_als(struct i2c_client *client)
     elan_epl2182_I2C_Write(client, REG_13, R_SINGLE_BYTE, 0x01, 0);
     elan_epl2182_I2C_Read(client);
     setting = gRawData.raw_bytes[0];
-    if ((setting & (3 << 4)) != 0x00)
+    if ((setting & (3 << 4)) != 0)
     {
         APS_ERR("read als data in wrong mode\n");
+        return 0;
     }
 
     elan_epl2182_I2C_Write(obj->client, REG_16, R_TWO_BYTE, 0x01, 0x00);
@@ -610,7 +611,17 @@ static int als_get_data(int *value, int *status)
     *status = SENSOR_STATUS_ACCURACY_MEDIUM;
     APS_LOG("[%s]:*value = %d\n", __func__, *value);
 
-    return err;
+    if (!epl2182_obj->hw.polling_mode_ps &&
+        epl2182_obj->hw.polling_mode_als &&
+        epl2182_obj->ps_enable) {
+        err = elan_epl2182_psensor_enable(epl2182_obj, 1);
+        if (err != 0)
+        {
+            APS_ERR("restore ps state fail: %d\n", err);
+        }
+    }
+
+    return 0;
 }
 /*--------------------------------------------------------------------------------*/
 // if use  this typ of enable , Gsensor should report inputEvent(x, y, z ,stats, div) to HAL
@@ -700,54 +711,57 @@ static void epl2182_eint_work(struct work_struct *work)
     int err;
     u8 ps_state;
 
-    if (epld->ps_enable)
-    {
-        APS_LOG("xxxxx eint work\n");
-        elan_epl2182_I2C_Write(epld->client, REG_7, W_SINGLE_BYTE, 0x02, EPL_DATA_LOCK);
-
-        if ((err = epl2182_check_intr(epld->client)))
-        {
-            APS_ERR("check intrs: %d\n", err);
-        }
-
-        if (epld->pending_intr)
-        {
-            elan_epl2182_I2C_Write(epld->client, REG_13, R_SINGLE_BYTE, 0x01, 0);
-            elan_epl2182_I2C_Read(epld->client);
-            ps_state = !((gRawData.raw_bytes[0] & 0x04) >> 2);
-            APS_LOG("real ps_state = %d\n", ps_state);
-
-            elan_epl2182_I2C_Write(epld->client, REG_16, R_TWO_BYTE, 0x01, 0x00);
-            elan_epl2182_I2C_Read(epld->client);
-            gRawData.ps_raw = (gRawData.raw_bytes[1] << 8) | gRawData.raw_bytes[0];
-            APS_LOG("ps raw_data = %d\n", gRawData.ps_raw);
-
-            if (epld->als_enable)
-            {
-                APS_LOG("ALS+PS mode \r\n");
-                if ((ps_state == 0 && gRawData.ps_raw > epld->hw.ps_threshold_high) ||
-                    (ps_state == 1 && gRawData.ps_raw < epld->hw.ps_threshold_low))
-                {
-                    APS_LOG("change ps_state(ps_state=%d, gRawData.ps_state=%d) \r\n", ps_state, gRawData.ps_state);
-                    gRawData.ps_state = ps_state;
-                }
-            }
-            else
-            {
-                gRawData.ps_state = ps_state;
-                APS_LOG("PS only \r\n");
-            }
-            err = ps_report_interrupt_data(gRawData.ps_state);
-            if (err != 0)
-            {
-                APS_ERR("epl2182_eint_work err: %d\n", err);
-            }
-        }
-
-        elan_epl2182_I2C_Write(epld->client, REG_9, W_SINGLE_BYTE, 0x02, EPL_INT_ACTIVE_LOW | PS_DRIVE);
-        elan_epl2182_I2C_Write(epld->client, REG_7, W_SINGLE_BYTE, 0x02, EPL_DATA_UNLOCK);
+    if (!epld->ps_enable) {
+        goto out;
     }
 
+    APS_ERR("handling intr\n");
+    elan_epl2182_I2C_Write(epld->client, REG_7, W_SINGLE_BYTE, 0x02, EPL_DATA_LOCK);
+
+    if ((err = epl2182_check_intr(epld->client)))
+    {
+        APS_ERR("check intrs: %d\n", err);
+        goto out;
+    }
+
+    if (epld->pending_intr)
+    {
+        elan_epl2182_I2C_Write(epld->client, REG_13, R_SINGLE_BYTE, 0x01, 0);
+        elan_epl2182_I2C_Read(epld->client);
+        ps_state = !((gRawData.raw_bytes[0] & 0x04) >> 2);
+        APS_LOG("real ps_state = %d\n", ps_state);
+
+        elan_epl2182_I2C_Write(epld->client, REG_16, R_TWO_BYTE, 0x01, 0x00);
+        elan_epl2182_I2C_Read(epld->client);
+        gRawData.ps_raw = (gRawData.raw_bytes[1] << 8) | gRawData.raw_bytes[0];
+        APS_LOG("ps raw_data = %d\n", gRawData.ps_raw);
+
+        if (epld->als_enable)
+        {
+            APS_LOG("ALS+PS mode \r\n");
+            if ((ps_state == 0 && gRawData.ps_raw > epld->hw.ps_threshold_high) ||
+                (ps_state == 1 && gRawData.ps_raw < epld->hw.ps_threshold_low))
+            {
+                APS_LOG("change ps_state(ps_state=%d, gRawData.ps_state=%d) \r\n", ps_state, gRawData.ps_state);
+                gRawData.ps_state = ps_state;
+            }
+        }
+        else
+        {
+            gRawData.ps_state = ps_state;
+            APS_LOG("PS only \r\n");
+        }
+        err = ps_report_interrupt_data(gRawData.ps_state);
+        if (err != 0)
+        {
+            APS_ERR("epl2182_eint_work err: %d\n", err);
+        }
+    }
+
+    elan_epl2182_I2C_Write(epld->client, REG_9, W_SINGLE_BYTE, 0x02, EPL_INT_ACTIVE_LOW | PS_DRIVE);
+    elan_epl2182_I2C_Write(epld->client, REG_7, W_SINGLE_BYTE, 0x02, EPL_DATA_UNLOCK);
+
+out:
     enable_irq(epld->irq);
 }
 
