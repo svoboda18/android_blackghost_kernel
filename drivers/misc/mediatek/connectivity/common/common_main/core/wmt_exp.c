@@ -61,7 +61,7 @@ wmt_wlan_is_wifi_drv_own_cb mtk_wcn_wlan_is_wifi_drv_own;
 OSAL_BIT_OP_VAR gBtWifiGpsState;
 OSAL_BIT_OP_VAR gGpsFmState;
 UINT32 gWifiProbed;
-INT32 gWmtDbgLvl = WMT_LOG_INFO;
+INT32 gWmtDbgLvl = WMT_LOG_ERR;
 MTK_WCN_BOOL g_pwr_off_flag = MTK_WCN_BOOL_TRUE;
 
 /*******************************************************************************

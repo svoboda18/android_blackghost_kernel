@@ -31,7 +31,7 @@
 
 #define FM_PROC_FILE		"fm"
 
-unsigned int g_dbg_level = 0xfffffff5;	/* Debug level of FM */
+unsigned int g_dbg_level = 0xfffffff0;	/* Debug level of FM */
 
 /* fm main data structure */
 static struct fm *g_fm;

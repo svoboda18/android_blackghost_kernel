@@ -33,7 +33,7 @@
 #define STP_BTM_LOG_WARN                 1
 #define STP_BTM_LOG_ERR                  0
 
-INT32 gBtmDbgLevel = STP_BTM_LOG_INFO;
+INT32 gBtmDbgLevel = STP_BTM_LOG_ERR;
 
 #define STP_BTM_PR_LOUD(fmt, arg...) \
 do { \

@@ -40,7 +40,7 @@ struct class *pDetectClass;
 struct device *pDetectDev;
 static int gWmtDetectMajor = WMT_DETECT_MAJOR;
 static struct cdev gWmtDetectCdev;
-int gWmtDetectDbgLvl = WMT_DETECT_LOG_INFO;
+int gWmtDetectDbgLvl = WMT_DETECT_LOG_ERR;
 static ENUM_WMT_CHIP_TYPE g_chip_type = WMT_CHIP_TYPE_INVALID;
 
 static int wmt_detect_open(struct inode *inode, struct file *file)

@@ -32,7 +32,7 @@
 #define STP_DEL_SIZE   2	/* STP delimiter length */
 #define STP_MAX_TX_TIMEOUT_LOOP 3
 
-INT32 gStpDbgLvl = STP_LOG_INFO;
+INT32 gStpDbgLvl = STP_LOG_ERR;
 unsigned int chip_reset_only;
 INT32 wmt_dbg_sdio_retry_ctrl = 1;
 

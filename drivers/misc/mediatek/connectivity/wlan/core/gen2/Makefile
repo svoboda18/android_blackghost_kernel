@@ -335,12 +335,12 @@ endif
 # ---------------------------------------------------
 ifeq ($(TARGET_BUILD_VARIANT), eng)
     ccflags-y += -DWLAN_ENG_LOAD
-endif
-ifeq ($(TARGET_BUILD_VARIANT), userdebug)
-    ccflags-y += -DWLAN_USERDEBUG_LOAD
-endif
-ifeq ($(TARGET_BUILD_VARIANT), user)
-    ccflags-y += -DWLAN_USER_LOAD
+else
+    ifeq ($(TARGET_BUILD_VARIANT), userdebug)
+        ccflags-y += -DWLAN_USERDEBUG_LOAD
+    else
+        ccflags-y += -DWLAN_USER_LOAD
+    endif
 endif
 # ---------------------------------------------------
 

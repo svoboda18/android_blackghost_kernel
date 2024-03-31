@@ -4591,11 +4591,13 @@ WLAN_STATUS wlanCheckSystemConfiguration(IN P_ADAPTER_T prAdapter)
 	const UINT_8 aucBCAddr[] = BC_MAC_ADDR;
 	BOOLEAN fgIsConfExist = TRUE;
 	BOOLEAN fgGenErrMsg = FALSE;
-	P_REG_INFO_T prRegInfo = NULL;
 	P_WLAN_BEACON_FRAME_T prBeacon = NULL;
 	P_IE_SSID_T prSsid = NULL;
+#if (CFG_SW_NVRAM_VERSION_CHECK == 1)
+	P_REG_INFO_T prRegInfo = NULL;
 	UINT_32 u4ErrCode = 0;
 	UINT_8 aucErrMsg[32];
+#endif
 	PARAM_SSID_T rSsid;
 	PARAM_802_11_CONFIG_T rConfiguration;
 	PARAM_RATES_EX rSupportedRates;

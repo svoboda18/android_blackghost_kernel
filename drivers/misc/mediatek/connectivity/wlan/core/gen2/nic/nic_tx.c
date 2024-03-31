@@ -1107,7 +1107,9 @@ WLAN_STATUS nicTxMsduQueue(IN P_ADAPTER_T prAdapter, UINT_8 ucPortIdx, P_QUE_T p
 
 			/* record the queue time in driver */
 			STATS_TX_TIME_TO_HIF(prMsduInfo, &rHwTxHeader);
+#if CFG_SUPPORT_EMI_DEBUG
 			wlanFillTimestamp(prAdapter, prMsduInfo->prPacket, PHASE_HIF_TX);
+#endif
 #if CFG_SDIO_TX_AGG
 			/* attach to coalescing buffer */
 			kalMemCopy(pucOutputBuf + u4TotalLength, &rHwTxHeader, u4TxHdrSize);

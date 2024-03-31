@@ -86,7 +86,7 @@ MODULE_LICENSE("GPL");
 
 #endif /* GPS_FWCTL_SUPPORT */
 
-static UINT32 gDbgLevel = GPS_LOG_DBG;
+static UINT32 gDbgLevel = GPS_LOG_ERR;
 
 #define GPS_DBG_FUNC(fmt, arg...)	\
 do { if (gDbgLevel >= GPS_LOG_DBG)	\

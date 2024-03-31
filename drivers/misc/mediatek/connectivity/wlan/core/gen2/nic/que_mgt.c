@@ -986,14 +986,17 @@ P_MSDU_INFO_T qmEnqueueTxPackets(IN P_ADAPTER_T prAdapter, IN P_MSDU_INFO_T prMs
 
 		/* 4 <4> Enqueue the packet to different AC queue (max 5 AC queues) */
 		QUEUE_INSERT_TAIL(prTxQue, (P_QUE_ENTRY_T) prCurrentMsduInfo);
+#if CFG_SUPPORT_EMI_DEBUG
 		wlanFillTimestamp(prAdapter, prCurrentMsduInfo->prPacket, PHASE_ENQ_QM);
-
+#endif
 		if (prTxQue != &rNotEnqueuedQue) {
 			prQM->u4EnqeueuCounter++;
 			prQM->au4ResourceWantedCounter[ucTC]++;
 		}
+#if CFG_ENABLE_PKT_LIFETIME_PROFILE && CFG_ENABLE_PER_STA_STATISTICS
 		if (prStaRec)
 			prStaRec->u4EnqeueuCounter++;
+#endif
 
 #if QM_TC_RESOURCE_EMPTY_COUNTER
 		prTxCtrl = &prAdapter->rTxCtrl;
@@ -1294,7 +1297,9 @@ qmDequeueTxPacketsFromPerStaQueues(IN P_ADAPTER_T prAdapter,
 		}
 
 		QUEUE_REMOVE_HEAD(prCurrQueue, prDequeuedPkt, P_MSDU_INFO_T);
+#if CFG_ENABLE_PKT_LIFETIME_PROFILE && CFG_ENABLE_PER_STA_STATISTICS
 		prStaRec->u4DeqeueuCounter++;
+#endif
 		prQM->u4DequeueCounter++;
 
 #if (CFG_SUPPORT_TDLS_DBG == 1)
@@ -1479,8 +1484,10 @@ qmDequeueTxPacketsFromPerStaQueues(IN P_ADAPTER_T prAdapter,
 				prDequeuedPkt->ucPsForwardingType = PS_FORWARDING_MORE_DATA_ENABLED;
 
 			QUEUE_INSERT_TAIL(prQue, (P_QUE_ENTRY_T) prDequeuedPkt);
+#if CFG_ENABLE_PKT_LIFETIME_PROFILE && CFG_ENABLE_PER_STA_STATISTICS
 			if (prStaRec)
 				prStaRec->u4DeqeueuCounter++;
+#endif
 			prQM->u4DequeueCounter++;
 			u4Resource--;
 			u4ForwardCount++;

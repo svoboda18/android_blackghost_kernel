@@ -112,7 +112,7 @@
 #define CFG_SUPPORT_TDLS			1	/* IEEE802.11z TDLS */
 #define CFG_SUPPORT_TDLS_DBG		0	/* TDLS debug */
 #define CFG_SUPPORT_STATISTICS		1
-#define CFG_SUPPORT_DBG_POWERMODE	1	/* for debugging power always active mode */
+#define CFG_SUPPORT_DBG_POWERMODE	0	/* for debugging power always active mode */
 
 #define CFG_SUPPORT_TXR_ENC			0	/* enhanced tx rate switch */
 
@@ -419,7 +419,7 @@
 #define CFG_ENABLE_WAKEUP_ON_LAN                0
 #if defined(CONFIG_ARCH_MT6755) || defined(CONFIG_ARCH_MT6735) || defined(CONFIG_ARCH_MT6735M) || \
 	defined(CONFIG_ARCH_MT6753) || defined(CONFIG_ARCH_MT6580)
-#define CFG_SUPPORT_WAKEUP_REASON_DEBUG			1	/* debug which packet wake up host */
+#define CFG_SUPPORT_WAKEUP_REASON_DEBUG			0	/* debug which packet wake up host */
 #else
 #define CFG_SUPPORT_WAKEUP_REASON_DEBUG			0	/* debug which packet wake up host */
 #endif
@@ -493,7 +493,7 @@
  * Flags and Parameters for Support EMI DEBUG
  *------------------------------------------------------------------------------
  */
-#define CFG_SUPPORT_EMI_DEBUG                   1
+#define CFG_SUPPORT_EMI_DEBUG                   0
 
 
 /*------------------------------------------------------------------------------
@@ -527,7 +527,7 @@
  * Flags of TX Debug Option. NOTE(Kevin): Confirm with SA before modifying following flags.
  *------------------------------------------------------------------------------
  */
-#define CFG_DBG_MGT_BUF                         1	/*
+#define CFG_DBG_MGT_BUF                         0	/*
 							 * !< 1: Debug statistics usage of MGMT Buffer
 							 * 0: Disable
 							 */
@@ -538,7 +538,7 @@
 
 #define CFG_STARTUP_DEBUG                       0
 
-#define CFG_RX_PKTS_DUMP                        1
+#define CFG_RX_PKTS_DUMP                        0
 
 /*------------------------------------------------------------------------------
  * Flags of Firmware Download Option.
@@ -702,7 +702,7 @@
  */
 #define CFG_SUPPORT_NVRAM                       1
 #define CFG_NVRAM_EXISTENCE_CHECK               1
-#define CFG_SW_NVRAM_VERSION_CHECK              1
+#define CFG_SW_NVRAM_VERSION_CHECK              0
 #define CFG_SUPPORT_NIC_CAPABILITY              1
 
 /*------------------------------------------------------------------------------
@@ -810,10 +810,10 @@
  * Flags of Packet Lifetime Profiling Mechanism
  *------------------------------------------------------------------------------
  */
-#define CFG_ENABLE_PKT_LIFETIME_PROFILE     1
+#define CFG_ENABLE_PKT_LIFETIME_PROFILE     0
 
-#define CFG_ENABLE_PER_STA_STATISTICS       1
-#define CFG_ENABLE_PER_STA_STATISTICS_LOG   1
+#define CFG_ENABLE_PER_STA_STATISTICS       0
+#define CFG_ENABLE_PER_STA_STATISTICS_LOG   0
 
 #define CFG_PRINT_RTP_PROFILE               0	/* If want to enable WFD Debug, please change it to 1. */
 #define CFG_PRINT_RTP_SN_SKIP               0

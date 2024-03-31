@@ -1566,7 +1566,9 @@ int wlanHardStartXmit(struct sk_buff *prSkb, struct net_device *prDev)
 #if CFG_ENABLE_PKT_LIFETIME_PROFILE
 		GLUE_SET_PKT_ARRIVAL_TIME(prSkb, kalGetTimeTick());
 #endif
+#if CFG_SUPPORT_EMI_DEBUG
 		wlanFillTimestamp(prGlueInfo->prAdapter, (PVOID)prSkb, PHASE_XMIT_RCV);
+#endif
 		GLUE_INC_REF_CNT(prGlueInfo->i4TxPendingFrameNum);
 		if (u2QueueIdx < CFG_MAX_TXQ_NUM)
 			GLUE_INC_REF_CNT(prGlueInfo->ai4TxPendingFrameNumPerQueue[NETWORK_TYPE_AIS_INDEX][u2QueueIdx]);

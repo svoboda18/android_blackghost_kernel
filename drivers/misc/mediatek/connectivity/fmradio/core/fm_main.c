@@ -2247,7 +2247,7 @@ out:
 	g_fm_struct->wholechiprst = true;
 
 	FM_UNLOCK(fm_ops_lock);
-	g_dbg_level = 0xfffffff5;
+	g_dbg_level = 0xfffffff0;
 }
 
 void fm_pwroff_work_func(unsigned long data)
