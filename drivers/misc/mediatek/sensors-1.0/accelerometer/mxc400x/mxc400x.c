@@ -25,7 +25,7 @@
 #include "mxc400x.h"
 
 #define DRIVER_VERSION "V60.97.05.01"
-#define GSE_DEBUG_ON 1
+#define GSE_DEBUG_ON 0
 #define GSE_DEBUG_FUNC_ON 0
 /* Log define */
 #define GSE_INFO(fmt, arg...) pr_warn("<<-GSE INFO->> " fmt "\n", ##arg)
@@ -460,7 +460,7 @@ static int mxc400x_batch(int flag, int64_t samplingPeriodNs, int64_t maxBatchRep
 
     value = (int)samplingPeriodNs / 1000 / 1000;
     /*Fix Me*/
-    GSE_INFO("mxc400x set delay = (%d) OK!\n", value);
+    GSE_DEBUG("mxc400x set delay = (%d) OK!\n", value);
 
     return 0;
 }
