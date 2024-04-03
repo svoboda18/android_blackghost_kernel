@@ -55,9 +55,6 @@ obj-$(CONFIG_MTK_COMBO_GPS) += $(MODULE_NAME).o
 
 WMT_SRC_FOLDER := $(srctree)/drivers/misc/mediatek/connectivity/common
 
-ifeq ($(CONFIG_MTK_COMBO_CHIP),)
-    $(error CONFIG_MTK_COMBO_CHIP not defined)
-endif
 
 ifneq ($(filter "CONSYS_%",$(CONFIG_MTK_COMBO_CHIP)),)
         ccflags-y += -DSOC_CO_CLOCK_FLAG=1

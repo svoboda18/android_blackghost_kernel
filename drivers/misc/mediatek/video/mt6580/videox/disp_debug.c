@@ -68,7 +68,7 @@
 #include "mtkfb_debug.h"
 #include "primary_display.h"
 
-#pragma GCC optimize("O0")
+#pragma clang optimize off
 
 /* --------------------------------------------------------------------------- */
 /* Global variable declarations */

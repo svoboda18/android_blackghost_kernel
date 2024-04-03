@@ -69,7 +69,7 @@
 #include "disp_recovery.h"
 #endif
 
-#pragma GCC optimize("O0")
+#pragma clang optimize off
 
 /* --------------------------------------------------------------------------- */
 /* Global variable declarations */

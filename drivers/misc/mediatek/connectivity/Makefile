@@ -15,55 +15,53 @@
 # If KERNELRELEASE is defined, we've been invoked from the
 # kernel build system and can use its language.
 ifneq ($(KERNELRELEASE),)
-    subdir-ccflags-y += -I$(srctree)/
-    subdir-ccflags-y += -I$(srctree)/drivers/misc/mediatek/base/power/include
-    subdir-ccflags-y += -I$(srctree)/drivers/misc/mediatek/base/power/include/clkbuf_v1
-    subdir-ccflags-y += -I$(srctree)/drivers/misc/mediatek/base/power/include/clkbuf_v1/$(MTK_PLATFORM)
-    subdir-ccflags-y += -Werror -I$(srctree)/drivers/misc/mediatek/include/mt-plat/$(MTK_PLATFORM)/include
-    subdir-ccflags-y += -Werror -I$(srctree)/drivers/misc/mediatek/include/mt-plat
-    subdir-ccflags-y += -I$(srctree)/drivers/mmc/core
-    subdir-ccflags-y += -I$(srctree)/drivers/misc/mediatek/eccci/$(MTK_PLATFORM)
-    subdir-ccflags-y += -I$(srctree)/drivers/misc/mediatek/eccci/
+	subdir-ccflags-y += -I$(srctree)/
+	subdir-ccflags-y += -I$(srctree)/drivers/misc/mediatek/base/power/include
+	subdir-ccflags-y += -I$(srctree)/drivers/misc/mediatek/base/power/include/clkbuf_v1
+	subdir-ccflags-y += -I$(srctree)/drivers/misc/mediatek/base/power/include/clkbuf_v1/$(MTK_PLATFORM)
+	subdir-ccflags-y += -Werror -I$(srctree)/drivers/misc/mediatek/include/mt-plat/$(MTK_PLATFORM)/include
+	subdir-ccflags-y += -Werror -I$(srctree)/drivers/misc/mediatek/include/mt-plat
+	subdir-ccflags-y += -I$(srctree)/drivers/mmc/core
+	subdir-ccflags-y += -I$(srctree)/drivers/misc/mediatek/eccci/$(MTK_PLATFORM)
+	subdir-ccflags-y += -I$(srctree)/drivers/misc/mediatek/eccci/
 
-    # Do Nothing, move to standalone repo
-    MODULE_NAME := connadp
-    obj-y += $(MODULE_NAME).o
-    $(MODULE_NAME)-objs += common/connectivity_build_in_adapter.o
-    $(MODULE_NAME)-objs += common/wmt_build_in_adapter.o
+	# Do Nothing, move to standalone repo
+	MODULE_NAME := connadp
+	obj-y += $(MODULE_NAME).o
+	$(MODULE_NAME)-objs += common/connectivity_build_in_adapter.o
+	$(MODULE_NAME)-objs += common/wmt_build_in_adapter.o
 
-    subdir-ccflags-y += -D CFG_ENABLE_KEYWORD_EXCEPTION_MECHANISM
-    subdir-ccflags-y += -D MTK_WCN_REMOVE_KERNEL_MODULE
-    subdir-ccflags-y += -D MTK_WCN_BUILT_IN_DRIVER
+	subdir-ccflags-y += -D CFG_ENABLE_KEYWORD_EXCEPTION_MECHANISM
+	subdir-ccflags-y += -D MTK_WCN_REMOVE_KERNEL_MODULE
+	subdir-ccflags-y += -D MTK_WCN_BUILT_IN_DRIVER
 
-    obj-y += common/
+	obj-y += common/
 
-    ifeq ($(CONFIG_WLAN_DRV_BUILD_IN),y)
-        $(info $$CONFIG_MTK_COMBO_CHIP is [${CONFIG_MTK_COMBO_CHIP}])
-        MTK_PLATFORM_ID := $(patsubst CONSYS_%,%,$(subst ",,$(CONFIG_MTK_COMBO_CHIP)))
-        $(info MTK_PLATFORM_ID is [${MTK_PLATFORM_ID}])
+	ifeq ($(CONFIG_WLAN_DRV_BUILD_IN),y)
+		MTK_PLATFORM_ID := $(patsubst CONSYS_%,%,$(subst ",,$(CONFIG_MTK_COMBO_CHIP)))
 
-        # Do build-in for xxx.c checking
-        obj-y += wlan/adaptor/
-        obj-y += wlan/core/gen2/
-    endif
+		# Do build-in for xxx.c checking
+		obj-y += wlan/adaptor/
+		obj-y += wlan/core/gen2/
+	endif
 
-    obj-y += bt/mt66xx/legacy/
-    obj-y += gps/
+	obj-y += bt/mt66xx/legacy/
+	obj-y += gps/
 
-    # For FM built-in mode
-    FM_CHIP_ID :=$(patsubst CONSYS_%,%,$(subst ",,$(CONFIG_MTK_COMBO_CHIP)))
-    FM_CHIP := soc
-    export CFG_BUILD_CONNAC2=false
-    export CFG_FM_CHIP_ID=$(FM_CHIP_ID)
-    export CFG_FM_CHIP=$(FM_CHIP)
+	# For FM built-in mode
+	FM_CHIP_ID :=$(patsubst CONSYS_%,%,$(subst ",,$(CONFIG_MTK_COMBO_CHIP)))
+	FM_CHIP := soc
+	export CFG_BUILD_CONNAC2=false
+	export CFG_FM_CHIP_ID=$(FM_CHIP_ID)
+	export CFG_FM_CHIP=$(FM_CHIP)
 
-    obj-y += fmradio/
+	obj-y += fmradio/
 
 # Otherwise we were called directly from the command line;
 # invoke the kernel build system.
 else
-    KERNELDIR ?= /lib/modules/$(shell uname -r)/build
-    PWD  := $(shell pwd)
+	KERNELDIR ?= /lib/modules/$(shell uname -r)/build
+	PWD  := $(shell pwd)
 default:
-    $(MAKE) -C $(KERNELDIR) M=$(PWD) modules
+	$(MAKE) -C $(KERNELDIR) M=$(PWD) modules
 endif

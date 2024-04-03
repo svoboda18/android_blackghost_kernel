@@ -18,6 +18,7 @@ config MTK_KERNEL_GMO_RAM_OPTIMIZE
 	bool "MTK ram optimize"
 	default n
 	select MTK_ENABLE_AGO
+	select MTK_ENABLE_GMO
 	help
 	  Provide for phone to use memory efficiently.
 

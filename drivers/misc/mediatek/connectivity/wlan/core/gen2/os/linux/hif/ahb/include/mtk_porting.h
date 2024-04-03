@@ -71,8 +71,8 @@
 #define BITS(m, n)                       (~(BIT(m)-1) & ((BIT(n) - 1) | BIT(n)))
 #endif /* BIT */
 
-typedef int MTK_WCN_BOOL;
 #ifndef MTK_WCN_BOOL_TRUE
+typedef int MTK_WCN_BOOL;
 #define MTK_WCN_BOOL_FALSE               ((MTK_WCN_BOOL) 0)
 #define MTK_WCN_BOOL_TRUE                ((MTK_WCN_BOOL) 1)
 #endif

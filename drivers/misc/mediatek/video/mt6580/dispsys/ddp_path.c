@@ -28,7 +28,7 @@
 #include "m4u.h"
 #include "ddp_drv.h"
 
-#pragma GCC optimize("O0")
+#pragma clang optimize off
 
 struct module_map_t{
 	enum DISP_MODULE_ENUM module;
