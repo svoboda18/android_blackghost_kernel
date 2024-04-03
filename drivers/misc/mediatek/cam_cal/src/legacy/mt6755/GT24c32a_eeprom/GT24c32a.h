@@ -1,0 +1,34 @@
+//SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright (C) 2020 MediaTek Inc.
+ */
+/*****************************************************************************
+ *
+ * Filename:
+ * ---------
+ *   S-24CS64A.h
+ *
+ * Project:
+ * --------
+ *   ALPS
+ *
+ * Description:
+ * ------------
+ *   Header file of EEPROM driver
+ *
+ *
+ * Author:
+ * -------
+ *   Ronnie Lai (MTK01420)
+ *
+ *============================================================================*/
+#ifndef __GT24C32A_H
+#define __GT24C32A_H
+
+extern int iReadRegI2C(u8 *a_pSendData , u16 a_sizeSendData, u8 *a_pRecvData, u16 a_sizeRecvData, u16 i2cId);
+extern int iBurstReadRegI2C(u8 *a_pSendData , u16 a_sizeSendData, u8 *a_pRecvData, u16 a_sizeRecvData, u16 i2cId);
+extern int iWriteRegI2C(u8 *a_pSendData , u16 a_sizeSendData, u16 i2cId);
+extern int iReadReg(u16 a_u2Addr , u8 *a_puBuff , u16 i2cId);
+
+#endif /* __EEPROM_H */
+
