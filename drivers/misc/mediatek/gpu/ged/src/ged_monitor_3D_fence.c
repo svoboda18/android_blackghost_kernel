@@ -122,7 +122,7 @@ static void ged_monitor_3D_fence_work_cb(struct work_struct *psWork)
 	ged_free(psMonitor, sizeof(GED_MONITOR_3D_FENCE));
 }
 
-unsigned long ged_monitor_3D_fence_done_time()
+unsigned long ged_monitor_3D_fence_done_time(void)
 {
 	return g_ul3DFenceDoneTime;
 }

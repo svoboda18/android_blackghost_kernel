@@ -350,7 +350,7 @@ CPP		= $(CC) -E
 ifneq ($(LLVM),)
 AS		= llvm-as
 CC		= clang
-LD		= ld.lld
+LD		= $(CROSS_COMPILE)ld
 AR		= llvm-ar
 NM		= llvm-nm
 OBJCOPY		= llvm-objcopy

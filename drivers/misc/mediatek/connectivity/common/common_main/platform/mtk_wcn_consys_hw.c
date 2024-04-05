@@ -459,7 +459,7 @@ UINT32 mtk_wcn_consys_soc_chipid(VOID)
 		return 0;
 }
 
-struct pinctrl *mtk_wcn_consys_get_pinctrl()
+struct pinctrl *mtk_wcn_consys_get_pinctrl(void)
 {
 	return consys_pinctrl;
 }

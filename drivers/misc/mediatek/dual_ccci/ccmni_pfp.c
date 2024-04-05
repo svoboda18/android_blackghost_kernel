@@ -47,7 +47,7 @@ struct complete_ippkt_t complete_ippkt_pool[SUPPORT_PKT_NUM];
 #endif
 
 #ifndef __SUPPORT_DYNAMIC_MULTIPLE_FRAME__
-struct complete_ippkt_t *get_one_available_complete_ippkt_entry()
+struct complete_ippkt_t *get_one_available_complete_ippkt_entry(void)
 {
 	int i = 0;
 

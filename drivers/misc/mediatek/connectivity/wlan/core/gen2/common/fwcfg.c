@@ -30,7 +30,7 @@ struct _FW_CFG __weak fwCfgArray[] = {
 *                              F U N C T I O N S
 *********************************************************************************
 */
-INT_32 __weak getFwCfgItemNum()
+INT_32 __weak getFwCfgItemNum(void)
 {
 	return ARRAY_SIZE(fwCfgArray);
 }

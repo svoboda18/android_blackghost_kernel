@@ -118,7 +118,7 @@ long ged_get_pid(void)
 #endif
 }
 
-unsigned long long ged_get_time()
+unsigned long long ged_get_time(void)
 {
 	unsigned long long temp;
 
