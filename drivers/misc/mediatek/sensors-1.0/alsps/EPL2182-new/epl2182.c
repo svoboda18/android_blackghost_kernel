@@ -1197,9 +1197,6 @@ static int epl2182_i2c_probe(struct i2c_client *client, const struct i2c_device_
         goto exit_register_path;
     }
 
-    if (obj->hw.polling_mode_ps == 0 || obj->hw.polling_mode_als == 0)
-        epl2182_setup_eint(client);
-
     alsps_init_flag = 0;
     APS_ERR("%s: OK\n", __func__);
     return 0;
