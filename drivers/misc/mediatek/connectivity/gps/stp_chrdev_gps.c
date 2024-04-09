@@ -125,8 +125,8 @@ static struct cdev GPS_cdev;
 static struct wakeup_source *gps_wake_lock_ptr;
 static unsigned char wake_lock_acquired;   /* default: 0 */
 
-#if (defined(CONFIG_MTK_GMO_RAM_OPTIMIZE) && !defined(CONFIG_MTK_ENG_BUILD))
-#define STP_GPS_BUFFER_SIZE 2048
+#if (defined(CONFIG_MTK_KERNEL_GMO_RAM_OPTIMIZE) && !defined(CONFIG_MTK_ENG_BUILD))
+#define STP_GPS_BUFFER_SIZE 1024
 #else
 #define STP_GPS_BUFFER_SIZE MTKSTP_BUFFER_SIZE
 #endif

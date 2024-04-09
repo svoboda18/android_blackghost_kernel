@@ -43,7 +43,7 @@
 #define OSAL_OP_BUF_SIZE    64
 
 
-#if (defined(CONFIG_MTK_GMO_RAM_OPTIMIZE) && !defined(CONFIG_MTK_ENG_BUILD))
+#if (defined(CONFIG_MTK_KERNEL_GMO_RAM_OPTIMIZE) && !defined(CONFIG_MTK_ENG_BUILD))
 #define OSAL_OP_DATA_SIZE   8
 #else
 #define OSAL_OP_DATA_SIZE   32

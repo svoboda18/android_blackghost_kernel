@@ -57,7 +57,7 @@
 #define MTKSTP_MAX_TASK_NUM	(8)
 #endif
 
-#define MTKSTP_BUFFER_SIZE  (16384)	/* Size of RX Queue */
+#define MTKSTP_BUFFER_SIZE  (4096)	/* Size of RX Queue */
 
 #define STP_EXP_HID_API_EXPORT 0
 

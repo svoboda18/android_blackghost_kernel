@@ -44,8 +44,8 @@
 
 #define BUF_LEN_MAX 384
 
-#if (defined(CONFIG_MTK_GMO_RAM_OPTIMIZE) && !defined(CONFIG_MTK_ENG_BUILD))
-#define WMT_EMI_DEBUG_BUF_SIZE (8*1024)
+#if (defined(CONFIG_MTK_KERNEL_GMO_RAM_OPTIMIZE) && !defined(CONFIG_MTK_ENG_BUILD))
+#define WMT_EMI_DEBUG_BUF_SIZE (1024)
 #else
 #define WMT_EMI_DEBUG_BUF_SIZE (32*1024)
 #endif
