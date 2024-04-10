@@ -228,7 +228,7 @@ int fts_create_gesture_sysfs(void)
     fts_gesture_kobj = kobject_create_and_add(FTS_DRIVER_NAME, kernel_kobj);
     
     if (!fts_gesture_kobj)
-	return -ENOMEM;
+	    return -ENOMEM;
     
     ret = sysfs_create_group(fts_gesture_kobj, &svbfts_gesture_group);
     if ( ret != 0) {
@@ -255,16 +255,15 @@ static void fts_gesture_report(struct input_dev *input_dev, int gesture_id)
     if (fts_gesture_data.mode != ENABLE) return;
     
     for(;items->gesture_id; ++items)
-    {
-        if (items->gesture_id != gesture_id) continue;
+        if (items->gesture_id == gesture_id)
+            break;
 
-        fts_gesture_data.name = items->name;
-        
-        input_report_key(input_dev, items->action_id, 1);
-        input_sync(input_dev);
-        input_report_key(input_dev, items->action_id, 0);
-        input_sync(input_dev);
-    }
+    fts_gesture_data.name = items->name;
+    
+    input_report_key(input_dev, items->action_id, 1);
+    input_sync(input_dev);
+    input_report_key(input_dev, items->action_id, 0);
+    input_sync(input_dev);
     
     FTS_FUNC_EXIT();
 }
@@ -311,7 +310,6 @@ int fts_gesture_readdata(struct fts_ts_data *ts_data)
 {   
     struct i2c_client *client = ts_data->client;
     struct input_dev *input_dev = ts_data->input_dev;
-    struct fts_gesture_item* items = fts_gesture_array;
     
     u8 buf[FTS_GESTRUE_POINTS * 4] = { 0 };
     u8 pointnum;
@@ -321,7 +319,6 @@ int fts_gesture_readdata(struct fts_ts_data *ts_data)
     int i = 0;
     int gesture_id = 0;
     int read_bytes = 0;
-    int is_valid = 0;
     
     FTS_FUNC_ENTER();
     
@@ -358,11 +355,9 @@ int fts_gesture_readdata(struct fts_ts_data *ts_data)
     if(gesture_id != 0xfe) {
         goto report_gesture;
     }
-    
-    FTS_DEBUG("[%d] gesture_id: %d, pointnum: %d", __LINE__, gesture_id, pointnum);
+
     buf[0] = FTS_REG_GESTURE_OUTPUT_ADDRESS;
-    
-    ret = fts_gesture_read_buffer(client, buf, read_bytes);
+    ret = fts_gesture_read_buffer(client, buf, read_bytes + 6);
     if (ret < 0) {
         FTS_ERROR("[GESTURE]Read gesture touch data failed!!");
         FTS_FUNC_EXIT();
@@ -370,31 +365,15 @@ int fts_gesture_readdata(struct fts_ts_data *ts_data)
     }
     
     gesture_id = fetch_object_sample(buf, pointnum);
-    
-    for(;items->gesture_id; ++items)
-    {
-        if (items->gesture_id != gesture_id) continue;
-        is_valid = 1;
+    if (gesture_id) {
+        goto report_gesture;
     }
-    
-    FTS_DEBUG("[%d] gesture_id: %d, pointnum: %d, is_valid: %d", __LINE__, gesture_id, pointnum, is_valid);
-    
-    if (is_valid) {
-        goto report_gesture;  
-    } else {
-        buf[0] = FTS_REG_GESTURE_OUTPUT_ADDRESS;
-        ret = fts_gesture_read_buffer(client, buf, read_bytes + 6);
-        if (ret < 0) {
-            FTS_ERROR("[GESTURE]Read gesture touch data failed!!");
-            FTS_FUNC_EXIT();
-            return ret;
-        }
-    }
-    
-    gesture_id = fetch_object_sample(buf, pointnum);
- 
+
+    FTS_ERROR("[GESTURE]Read gesture touch data failed!!");
+    return -1;
+
 report_gesture:
-    FTS_DEBUG("[%d] gesture_id: %d, pointnum: %d, is_valid: %d", __LINE__, gesture_id, pointnum, is_valid);
+    FTS_DEBUG("[%d] gesture_id: %d, pointnum: %d", __LINE__, gesture_id, pointnum);
     
     fts_gesture_report(input_dev, gesture_id);
     
