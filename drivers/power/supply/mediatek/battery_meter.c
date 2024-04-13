@@ -944,27 +944,36 @@ int BattThermistorConverTemp(int Res)
 	int i = 0;
 	int RES1 = 0, RES2 = 0;
 	int TBatt_Value = -200, TMP1 = 0, TMP2 = 0;
+	int table_size=0;
+	table_size=sizeof(Batt_Temperature_Table)/sizeof(BATT_TEMPERATURE);
+	if(Res>=Batt_Temperature_Table[0].TemperatureR)
+	{
+		TBatt_Value = Batt_Temperature_Table[0].BatteryTemp;
+	}
+	else if(Res<=Batt_Temperature_Table[table_size-1].TemperatureR)
+	{
+		TBatt_Value = Batt_Temperature_Table[table_size-1].BatteryTemp;;
+	}
+	else
+	{
+		RES1=Batt_Temperature_Table[0].TemperatureR;
+		TMP1=Batt_Temperature_Table[0].BatteryTemp;
 
-	if (Res >= Batt_Temperature_Table[0].TemperatureR) {
-		TBatt_Value = -20;
-	} else if (Res <= Batt_Temperature_Table[16].TemperatureR) {
-		TBatt_Value = 60;
-	} else {
-		RES1 = Batt_Temperature_Table[0].TemperatureR;
-		TMP1 = Batt_Temperature_Table[0].BatteryTemp;
-
-		for (i = 0; i <= 16; i++) {
-			if (Res <  Batt_Temperature_Table[i].TemperatureR) {
-				RES1 = Batt_Temperature_Table[i].TemperatureR;
-				TMP1 = Batt_Temperature_Table[i].BatteryTemp;
-
-			} else {
-				RES2 = Batt_Temperature_Table[i].TemperatureR;
-				TMP2 = Batt_Temperature_Table[i].BatteryTemp;
+		for(i=0;i<table_size;i++)
+		{
+			if(Res>=Batt_Temperature_Table[i].TemperatureR)
+			{
+				RES2=Batt_Temperature_Table[i].TemperatureR;
+				TMP2=Batt_Temperature_Table[i].BatteryTemp;
 				break;
 			}
+			else
+			{
+				RES1=Batt_Temperature_Table[i].TemperatureR;
+				TMP1=Batt_Temperature_Table[i].BatteryTemp;
+			}
 		}
-
+		
 		TBatt_Value = (((Res - RES2) * TMP1) + ((RES1 - Res) * TMP2)) / (RES1 - RES2);
 	}
 
@@ -2284,23 +2293,41 @@ void oam_run(void)
 	d5_count = d5_count + delta_time;
 	if (d5_count >= d5_count_time) {
 		if (gFG_Is_Charging == KAL_FALSE) {
-			if (oam_d_3 > oam_d_5)
-				oam_d_5 = oam_d_5 + 1;
-			else
-				if (oam_d_4 > oam_d_5)
-					oam_d_5 = oam_d_5 + 1;
-
-
+			if (oam_d_3 > oam_d_5) {
+              if(!bat_spm_timeout)
+                oam_d_5 = oam_d_5 + 1;
+              else {
+                if(oam_d_3 - oam_d_5 <= 4)
+                    oam_d_5 = oam_d_5 + 1;
+                else
+                    oam_d_5 = oam_d_3;
+              }
+			} else {
+				if (oam_d_4 > oam_d_5) {
+				  if(!bat_spm_timeout)
+				    oam_d_5 = oam_d_5 + 1;
+				  else {
+				    if(oam_d_4 - oam_d_5 <= 4)
+				      oam_d_5 = oam_d_5 + 1;
+				    else
+				      oam_d_5 = oam_d_4;
+				  }
+				}
+			}
 		} else {
-			if (oam_d_5 > oam_d_3)
+			if (oam_d_5 > oam_d_3) {
 				oam_d_5 = oam_d_5 - 1;
-			else
-				if (oam_d_4 < oam_d_5)
+			} else {
+				if (oam_d_4 < oam_d_5) {
 					oam_d_5 = oam_d_5 - 1;
-
-
+				}
+			}
 		}
 		d5_count = 0;
+		if(bat_spm_timeout) {
+			if(oam_d_3 - oam_d_5 <= 3)
+			d5_count = 50;
+		}
 		oam_d_3_pre = oam_d_3;
 		oam_d_4_pre = oam_d_4;
 	}
