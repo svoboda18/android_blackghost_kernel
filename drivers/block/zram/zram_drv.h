@@ -40,7 +40,7 @@
  * The lower ZRAM_FLAG_SHIFT bits is for object size (excluding header),
  * the higher bits is for zram_pageflags.
  */
-#define ZRAM_FLAG_SHIFT 24
+#define ZRAM_FLAG_SHIFT 16
 
 /* Flags for zram pages (table[page_no].flags) */
 enum zram_pageflags {
