@@ -162,7 +162,7 @@
  */
 
 #define rtc_xinfo(fmt, args...)		\
-	pr_notice(fmt, ##args)
+	pr_debug(fmt, ##args)
 
 #define rtc_xerror(fmt, args...)	\
 	pr_err(fmt, ##args)

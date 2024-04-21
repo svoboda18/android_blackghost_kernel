@@ -184,15 +184,13 @@ $(warning "You want to support DEVFREQ but kernel didn't support DEVFREQ.")
 endif
 endif
 
-ifneq ($(BUILD),release)
-# Debug
-export CONFIG_MALI400_DEBUG=y
-else
+ifneq ($(BUILD),eng)
 # Release
-ifeq ($(MALI_QUIET),1)
 export CONFIG_MALI_QUIET=y
 export EXTRA_DEFINES += -DCONFIG_MALI_QUIET
-endif
+else
+# Debug
+export CONFIG_MALI400_DEBUG=y
 endif
 
 ifeq ($(MALI_SKIP_JOBS),1)
@@ -205,7 +203,7 @@ endif
 
 all: $(UMP_SYMVERS_FILE)
 	$(MAKE) ARCH=$(ARCH) -C $(KDIR) M=$(CURDIR) modules
-	@rm $(FILES_PREFIX)__malidrv_build_info.c $(FILES_PREFIX)__malidrv_build_info.o
+	#@rm $(FILES_PREFIX)__malidrv_build_info.c $(FILES_PREFIX)__malidrv_build_info.o
 
 clean:
 	$(MAKE) ARCH=$(ARCH) -C $(KDIR) M=$(CURDIR) clean

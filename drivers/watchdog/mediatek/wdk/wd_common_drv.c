@@ -507,10 +507,7 @@ static void kwdt_process_kick(int local_bit, int cpu, char msg_buf[])
 	 * [wdt-k]: kick watchdog actaully, this log is more important thus
 	 *	    using printk_deferred to ensure being printed.
 	 */
-	if (msg_buf[5] != 'k')
-		pr_info("%s", msg_buf);
-	else
-		printk_deferred("%s", msg_buf);
+	pr_debug("%s", msg_buf);
 
 #ifdef CONFIG_LOCAL_WDT
 	printk_deferred("[wdk] cpu:%d, kick local wdt,RT[%lld]\n",

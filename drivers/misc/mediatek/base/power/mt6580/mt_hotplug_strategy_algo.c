@@ -985,7 +985,7 @@ void hps_algo_smp(void)
 	 * algo - end
 	 */
 ALGO_END_WITH_ACTION:
-	hps_warn(
+	hps_debug(
 		"(%04lx)(%u)action end(%u)(%u)(%u)(%u) (%u)(%u)(%u)(%u)(%u) (%u)(%u)(%u) (%u)(%u)(%u) (%u)(%u)(%u)(%u)(%u)\n",
 		hps_ctxt.action, little_num_online,
 		hps_ctxt.cur_loads, hps_ctxt.cur_tlp, hps_ctxt.cur_iowait,

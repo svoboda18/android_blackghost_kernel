@@ -100,7 +100,7 @@ int __cpuinit mt_smp_boot_secondary(unsigned int cpu, struct task_struct *idle)
 
 	static void __iomem *infracfg_ao_base;
 
-	pr_crit("Boot slave CPU\n");
+	//pr_crit("Boot slave CPU\n");
 
 	infracfg_ao_base = ioremap(MT6580_INFRACFG_AO, 0x1000);
 

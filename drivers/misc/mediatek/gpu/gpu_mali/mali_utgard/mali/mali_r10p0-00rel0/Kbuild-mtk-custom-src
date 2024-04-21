@@ -2,7 +2,7 @@
 
 
 #Debug version (BUILD := debug not eatten by kbuild)
-ccflags-y += -DDEBUG
+#ccflags-y += -DDEBUG
 
 #Move user ump include to kernel source code
 ccflags-y += -I$(DRIVER_DIR)/../ump_include/ump

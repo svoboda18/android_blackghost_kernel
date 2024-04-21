@@ -184,15 +184,13 @@ $(warning "You want to support DEVFREQ but kernel didn't support DEVFREQ.")
 endif
 endif
 
-ifneq ($(BUILD),release)
-# Debug
-export CONFIG_MALI400_DEBUG=y
-else
+ifneq ($(BUILD),eng)
 # Release
-ifeq ($(MALI_QUIET),1)
 export CONFIG_MALI_QUIET=y
 export EXTRA_DEFINES += -DCONFIG_MALI_QUIET
-endif
+else
+# Debug
+export CONFIG_MALI400_DEBUG=y
 endif
 
 ifeq ($(MALI_SKIP_JOBS),1)

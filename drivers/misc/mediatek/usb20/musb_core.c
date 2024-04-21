@@ -182,9 +182,9 @@ module_param(isoc_ep_gpd_count, int, 0644);
 #endif
 
 DEFINE_SPINLOCK(usb_io_lock);
-unsigned int musb_debug;
+unsigned int musb_debug = 10;
 unsigned int musb_debug_limit = 1;
-unsigned int musb_uart_debug = 1;
+unsigned int musb_uart_debug = 0;
 struct musb *mtk_musb;
 unsigned int musb_speed = 1;
 bool mtk_usb_power;
