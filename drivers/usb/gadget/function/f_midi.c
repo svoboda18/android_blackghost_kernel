@@ -203,11 +203,6 @@ static struct usb_ms_endpoint_descriptor_16 ms_in_desc = {
 	/* .baAssocJackID =	DYNAMIC */
 };
 
-static struct usb_ss_ep_comp_descriptor midi_ss_comp_desc = {
-	.bLength =      sizeof(midi_ss_comp_desc),
-	.bDescriptorType =  USB_DT_SS_ENDPOINT_COMP,
-};
-
 /* string IDs are assigned dynamically */
 
 #define STRING_FUNC_IDX			0
