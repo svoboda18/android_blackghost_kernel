@@ -686,7 +686,7 @@ static u32 msdc_max_busy_timeout_ms(struct msdc_host *host)
 
 	return (u32)timeout;
 }
-
+#ifndef MSDC_HW_NO_BUSY_CHECK
 static void msdc_set_busy_timeout_ms(struct msdc_host *host, u32 ms)
 {
 	void __iomem *base = host->base;
@@ -718,6 +718,7 @@ static void msdc_set_busy_timeout_ms(struct msdc_host *host, u32 ms)
 		ms,
 		(u32)timeout + 1, (host->sclk / 1000));
 }
+#endif
 
 static void msdc_set_timeout(struct msdc_host *host, u32 ns, u32 clks)
 {

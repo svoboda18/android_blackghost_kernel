@@ -107,6 +107,7 @@ skip_reinit2:
 	return ret;
 }
 
+#ifdef CONFIG_PWR_LOSS_MTK_TEST
 static int sd_ioctl_reinit(struct msdc_ioctl *msdc_ctl)
 {
 	struct msdc_host *host = mtk_msdc_host[1];
@@ -381,6 +382,7 @@ rw_end_without_release:
 	return msdc_ctl->result;
 
 }
+#endif
 
 static int simple_sd_ioctl_get_cid(struct msdc_ioctl *msdc_ctl)
 {
@@ -412,6 +414,7 @@ static int simple_sd_ioctl_get_cid(struct msdc_ioctl *msdc_ctl)
 
 }
 
+#ifdef CONFIG_PWR_LOSS_MTK_TEST
 static int simple_sd_ioctl_get_csd(struct msdc_ioctl *msdc_ctl)
 {
 	struct msdc_host *host_ctl;
@@ -495,6 +498,7 @@ end:
 
 	return ret;
 }
+#endif
 
 static int simple_sd_ioctl_set_bootpart(struct msdc_ioctl *msdc_ctl)
 {
@@ -564,6 +568,7 @@ end:
 	return ret;
 }
 
+#ifdef CONFIG_PWR_LOSS_MTK_TEST
 static int simple_sd_ioctl_get_partition_size(struct msdc_ioctl *msdc_ctl)
 {
 	int ret = 0;
@@ -856,6 +861,7 @@ static int simple_mmc_erase_partition_wrap(struct msdc_ioctl *msdc_ctl)
 
 	return simple_mmc_erase_partition(name);
 }
+#endif
 
 static long simple_sd_ioctl(struct file *file, unsigned int cmd,
 	unsigned long arg)
