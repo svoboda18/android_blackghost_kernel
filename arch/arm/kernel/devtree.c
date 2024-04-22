@@ -221,12 +221,20 @@ const struct machine_desc * __init setup_machine_fdt(unsigned int dt_phys)
 	const struct machine_desc *mdesc, *mdesc_best = NULL;
 
 #if defined(CONFIG_ARCH_MULTIPLATFORM) || defined(CONFIG_ARM_SINGLE_ARMV7M)
+#if defined(CONFIG_MACH_MT6580)
+	DT_MACHINE_START(mt6580, "MediaTek MT6580")
+#else
 	DT_MACHINE_START(GENERIC_DT, "Generic DT based system")
+#endif
 		.l2c_aux_val = 0x0,
 		.l2c_aux_mask = ~0x0,
 	MACHINE_END
 
+#if defined(CONFIG_MACH_MT6580)
+	mdesc_best = &__mach_desc_mt6580;
+#else
 	mdesc_best = &__mach_desc_GENERIC_DT;
+#endif
 #endif
 
 	if (!dt_phys || !early_init_dt_verify(phys_to_virt(dt_phys)))
