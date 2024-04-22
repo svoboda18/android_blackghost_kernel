@@ -2441,7 +2441,7 @@ static int mt_cpuidle_debugfs_init(void)
 	return 0;
 }
 
-void __init mt_cpuidle_framework_init(void)
+void mt_cpuidle_framework_init(void)
 {
 	int err = 0;
 #if !defined(CONFIG_ARCH_MT6570) && !defined(CONFIG_MACH_MT6580)
