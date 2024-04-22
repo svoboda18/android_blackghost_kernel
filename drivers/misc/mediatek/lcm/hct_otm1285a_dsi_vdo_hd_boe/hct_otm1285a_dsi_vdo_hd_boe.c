@@ -120,8 +120,6 @@ static struct LCM_UTIL_FUNCS lcm_util = {0};
 #define UDELAY(n)                                           (lcm_util.udelay(n))
 #define MDELAY(n)                                           (lcm_util.mdelay(n))
 
-static unsigned int lcm_esd_test = FALSE;      ///only for ESD test
-
 // ---------------------------------------------------------------------------
 //  Local Functions
 // ---------------------------------------------------------------------------
@@ -447,18 +445,6 @@ static struct LCM_setting_table lcm_deep_sleep_mode_in_setting[] = {
     {REGFLAG_END_OF_TABLE, 0x00, {}}
 };
 
-static struct LCM_setting_table lcm_compare_id_setting[] = {
-    // Display off sequence
-    {0xf0, 5, {0x55, 0xaa, 0x52, 0x08, 0x01}},
-    {REGFLAG_DELAY, 10, {}},
-    {REGFLAG_END_OF_TABLE, 0x00, {}}
-};
-
-static struct LCM_setting_table lcm_backlight_level_setting[] = {
-    {0x51, 1, {0xFF}},
-    {REGFLAG_END_OF_TABLE, 0x00, {}}
-};
-
 //static int vcom=0x40;
 static void push_table(struct LCM_setting_table *table, unsigned int count, unsigned char force_update)
 {
@@ -540,15 +526,8 @@ static void lcm_get_params(struct LCM_PARAMS *params)
     params->dsi.horizontal_frontporch               = 64;
     params->dsi.horizontal_blanking_pixel              = 60;
     params->dsi.horizontal_active_pixel            = FRAME_WIDTH;
-    // Bit rate calculation
-#if 0
-    params->dsi.pll_div1=1;     // div1=0,1,2,3;div1_real=1,2,4,4
-    params->dsi.pll_div2=1;     // div2=0,1,2,3;div2_real=1,2,4,4
-    params->dsi.fbk_sel=1;       // fbk_sel=0,1,2,3;fbk_sel_real=1,2,4,4
-    params->dsi.fbk_div =30;        // fref=26MHz, fvco=fref*(fbk_div+1)*2/(div1_real*div2_real)    
-#else
+
     params->dsi.PLL_CLOCK=230;//227;//254;//254//247
-#endif
 }
 
 static void lcm_init(void)
@@ -632,81 +611,6 @@ static void lcm_update(unsigned int x, unsigned int y,
     dsi_set_cmdq(data_array, 1, 0);
 }
 #endif
-
-#if 0   //wqtao.        
-static void lcm_setbacklight(unsigned int level)
-{
-    unsigned int default_level = 145;
-    unsigned int mapped_level = 0;
-
-    //for LGE backlight IC mapping table
-    if(level > 255) 
-            level = 255;
-
-    if(level >0) 
-            mapped_level = default_level+(level)*(255-default_level)/(255);
-    else
-            mapped_level=0;
-
-    // Refresh value of backlight level.
-    lcm_backlight_level_setting[0].para_list[0] = mapped_level;
-
-    push_table(lcm_backlight_level_setting, sizeof(lcm_backlight_level_setting) / sizeof(struct LCM_setting_table), 1);
-}
-#endif
-
-static unsigned int lcm_esd_check(void)
-{
-#ifndef BUILD_LK
-    if(lcm_esd_test)
-    {
-        lcm_esd_test = FALSE;
-        return TRUE;
-    }
-
-    /// please notice: the max return packet size is 1
-    /// if you want to change it, you can refer to the following marked code
-    /// but read_reg currently only support read no more than 4 bytes....
-    /// if you need to read more, please let BinHan knows.
-    /*
-            unsigned int data_array[16];
-            unsigned int max_return_size = 1;
-            
-            data_array[0]= 0x00003700 | (max_return_size << 16);    
-            
-            dsi_set_cmdq(&data_array, 1, 1);
-    */
-
-    if(read_reg(0x0a) == 0x9c)
-    {
-        return FALSE;
-    }
-    else
-    {            
-        return TRUE;
-    }
-#endif
-}
-
-static unsigned int lcm_esd_recover(void)
-{
-    unsigned char para = 0;
-
-    SET_RESET_PIN(1);
-    SET_RESET_PIN(0);
-    MDELAY(1);
-    SET_RESET_PIN(1);
-    MDELAY(120);
-      push_table(lcm_initialization_setting, sizeof(lcm_initialization_setting) / sizeof(struct LCM_setting_table), 1);
-    MDELAY(10);
-      push_table(lcm_sleep_out_setting, sizeof(lcm_sleep_out_setting) / sizeof(struct LCM_setting_table), 1);
-    MDELAY(10);
-    dsi_set_cmdq_V2(0x35, 1, &para, 1);     ///enable TE
-    MDELAY(10);
-
-    return TRUE;
-}
-
 
 static unsigned int lcm_compare_id(void)
 {

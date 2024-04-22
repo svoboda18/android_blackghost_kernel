@@ -351,7 +351,6 @@ static unsigned int lcm_compare_id(void)
         char id_high=0;
         char id_midd=0;
         char id_low=0;
-        int id=0;
 
         SET_RESET_PIN(1);
         SET_RESET_PIN(0);
@@ -374,14 +373,14 @@ static unsigned int lcm_compare_id(void)
         read_reg_v2(0x02, buffer,1);
         id_low = buffer[2];
 
-	if((0x98 == id_high)&&(0x81 == id_midd))
-	{
-		return 1;
-	}
-	else
-	{
-		return 0;
-	}
+		if((0x98 == id_high)&&(0x81 == id_midd))
+		{
+			return 1;
+		}
+		else
+		{
+			return 0;
+		}
 }
 
 
