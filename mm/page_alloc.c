@@ -4359,7 +4359,7 @@ out:
 }
 
 #define K(x) ((x) << (PAGE_SHIFT-10))
-
+#ifdef CONFIG_DEBUG_FREE_AREAS
 static void show_migration_types(unsigned char type)
 {
 	static const char types[MIGRATE_TYPES] = {
@@ -4588,6 +4588,9 @@ void show_free_areas(unsigned int filter)
 
 	show_swap_cache_info();
 }
+#else
+void inline show_free_areas(unsigned int filter) {}
+#endif
 
 static void zoneref_set_zone(struct zone *zone, struct zoneref *zoneref)
 {
