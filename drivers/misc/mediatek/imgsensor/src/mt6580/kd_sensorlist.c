@@ -921,7 +921,7 @@ int iWriteRegI2C(u8 *a_pSendData, u16 a_sizeSendData, u16 i2cId)
 		} else {
 			break;
 		}
-		uDELAY(50);
+		uDELAY(200);
 	} while ((retry--) > 0);
 	/* KD_IMGSENSOR_PROFILE("iWriteRegI2C"); */
 	return 0;
