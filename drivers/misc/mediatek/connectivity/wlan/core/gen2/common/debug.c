@@ -1428,7 +1428,7 @@ VOID wlanDebugCommandRecodDump(VOID)
 
 VOID wlanDbgLogLevelInit(VOID)
 {
-#if DBG
+#if 0
 	/* Adjust log level to extreme in DBG mode */
 	u4DriverLogLevel = ENUM_WIFI_LOG_LEVEL_EXTREME;
 	u4FwLogLevel = ENUM_WIFI_LOG_LEVEL_EXTREME;
