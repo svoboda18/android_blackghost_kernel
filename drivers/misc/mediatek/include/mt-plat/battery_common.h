@@ -50,7 +50,7 @@
 #ifdef BAT_TASK_PERIOD_SECOND
 	#define BAT_TASK_PERIOD                     (BAT_TASK_PERIOD_SECOND)
 #else
-	#define BAT_TASK_PERIOD                     (10)
+	#define BAT_TASK_PERIOD                     (3)
 #endif
 #define g_free_bat_temp					(100)0	/* 1 s */
 extern bool gDisableGM;
