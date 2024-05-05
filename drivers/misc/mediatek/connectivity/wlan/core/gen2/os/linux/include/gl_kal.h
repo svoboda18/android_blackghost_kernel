@@ -74,7 +74,9 @@ extern BOOLEAN fgIsUnderSuspend;
 
 /* for built-in WMT */
 extern void connectivity_export_show_stack(struct task_struct *tsk, unsigned long *sp);
+#ifdef CONFIG_TRACING
 extern void connectivity_export_tracing_record_cmdline(struct task_struct *tsk);
+#endif
 /*******************************************************************************
 *                              C O N S T A N T S
 ********************************************************************************

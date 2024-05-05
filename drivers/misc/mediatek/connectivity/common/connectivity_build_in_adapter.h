@@ -142,7 +142,11 @@ void connectivity_export_mt6306_set_gpio_dir(unsigned long pin,
 #define KERNEL_slp_get_wake_reason connectivity_export_slp_get_wake_reason
 #define KERNEL_spm_get_last_wakeup_src connectivity_export_spm_get_last_wakeup_src
 #define KERNEL_show_stack connectivity_export_show_stack
+#ifdef CONFIG_TRACING
 #define KERNEL_tracing_record_cmdline connectivity_export_tracing_record_cmdline
+#else
+#define KERNEL_tracing_record_cmdline
+#endif
 #define KERNEL_dump_thread_state connectivity_export_dump_thread_state
 
 #ifdef CPU_BOOST
@@ -181,7 +185,9 @@ extern bool spm_resource_req(unsigned int user, unsigned int req_mask);
 
 void connectivity_export_show_stack(struct task_struct *tsk, unsigned long *sp);
 void connectivity_export_dump_thread_state(const char *name);
+#ifdef CONFIG_TRACING
 void connectivity_export_tracing_record_cmdline(struct task_struct *tsk);
+#endif
 #ifdef CPU_BOOST
 void connectivity_export_mt_ppm_sysboost_freq(enum ppm_sysboost_user user,
 					      unsigned int freq);

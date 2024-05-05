@@ -27,6 +27,8 @@
 #ifdef CONFIG_TRACING
 #include <linux/kallsyms.h>
 #include <linux/trace_events.h>
+#else
+#include <linux/uaccess.h>
 #endif
 
 #ifdef CONFIG_CPU_FREQ
@@ -109,6 +111,8 @@ void trace_cpu_loading_log(char *module, const char *fmt, ...)
 	va_end(args);
 	cpu_loading_trace(module, log);
 }
+#else
+inline void trace_cpu_loading_log(char *module, const char *fmt, ...) {}
 #endif
 
 /*hrtimer trigger*/
