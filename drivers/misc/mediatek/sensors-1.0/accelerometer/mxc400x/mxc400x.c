@@ -49,7 +49,7 @@
 
 #define MXC400X_AXES_NUM 3
 #define MXC400X_DATA_LEN 6
-#define MXC400X_AXIS_Z_PAD 120
+#define MXC400X_AXIS_Z_PAD 124
 
 #define USE_DELAY
 
@@ -211,7 +211,7 @@ static int MXC400X_ReadCalibrationEx(struct i2c_client *client, int dat[MXC400X_
 static int MXC400X_WriteCalibration(struct i2c_client *client, int dat[MXC400X_AXES_NUM])
 {
     struct mxc400x_i2c_data *obj = i2c_get_clientdata(client);
-    int err = 0;
+    GSE_ERR("mxc400x_WriteCalibration start!!!!!\n");
 
     GSE_DEBUG("UPDATE: (%+3d %+3d %+3d)\n",
               dat[MXC400X_AXIS_X], dat[MXC400X_AXIS_Y], dat[MXC400X_AXIS_Z]);
@@ -220,7 +220,7 @@ static int MXC400X_WriteCalibration(struct i2c_client *client, int dat[MXC400X_A
     obj->cali_sw[MXC400X_AXIS_Y] = obj->cvt.sign[MXC400X_AXIS_Y] * dat[obj->cvt.map[MXC400X_AXIS_Y]];
     obj->cali_sw[MXC400X_AXIS_Z] = obj->cvt.sign[MXC400X_AXIS_Z] * dat[obj->cvt.map[MXC400X_AXIS_Z]];
 
-    return err;
+    return 0;
 }
 
 static int MXC400X_CheckDeviceID(struct i2c_client *client)
@@ -470,6 +470,22 @@ static int mxc400x_flush(void)
     return acc_flush_report();
 }
 
+static int mxc400x_set_cali(uint8_t *buf, uint8_t count) {
+    int32_t data[3];
+
+    GSE_ERR("mxc400x_set_cali: count %u\n", count);
+
+    data[0] = buf[MXC400X_AXIS_X];
+    data[1] = buf[MXC400X_AXIS_Y];
+    data[2] = buf[MXC400X_AXIS_Z];
+
+    GSE_ERR("mxc400x_set_cali: %ld | %ld | %ld \n", data[MXC400X_AXIS_X], data[MXC400X_AXIS_Y], data[MXC400X_AXIS_Z]);
+
+    MXC400X_WriteCalibration(mxc400x_i2c_client, data);
+    return 0;
+}
+
+
 static int mxc400x_set_delay(u64 ns)
 {
     return 0;
@@ -560,6 +576,7 @@ static int mxc400x_factory_set_cali(int32_t data[3])
     }
     return 0;
 }
+
 static int mxc400x_factory_get_cali(int32_t data[3])
 {
     int cali[MXC400X_AXES_NUM];
@@ -574,6 +591,7 @@ static int mxc400x_factory_get_cali(int32_t data[3])
     data[2] = cali[MXC400X_AXIS_Z];
     return 0;
 }
+
 static int mxc400x_factory_do_self_test(void)
 {
     return 0;
@@ -650,6 +668,7 @@ static int mxc400x_i2c_probe(struct i2c_client *client, const struct i2c_device_
     ctl.open_report_data = mxc400x_open_report_data;
     ctl.enable_nodata = mxc400x_enable_nodata;
     ctl.set_delay = mxc400x_set_delay;
+    ctl.set_cali = mxc400x_set_cali;
     ctl.batch = mxc400x_batch;
     ctl.flush = mxc400x_flush;
     ctl.is_report_input_direct = false;
