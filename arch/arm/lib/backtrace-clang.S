@@ -142,7 +142,7 @@ for_each_frame:	tst	frame, mask		@ Check for address exceptions
  */
 1003:		ldr	sv_lr, [sv_fp, #4]	@ get saved lr from next frame
 
-		ldr	r0, [sv_lr, #-4]	@ get call instruction
+1004:		ldr	r0, [sv_lr, #-4]	@ get call instruction
 		ldr	r3, .Lopcode+4
 		and	r2, r3, r0		@ is this a bl call
 		teq	r2, r3
@@ -162,7 +162,7 @@ finished_setup:
 /*
  * Print the function (sv_pc) and where it was called from (sv_lr).
  */
-1004:		mov	r0, sv_pc
+		mov	r0, sv_pc
 
 		mov	r1, sv_lr
 		mov	r2, frame
@@ -205,7 +205,7 @@ ENDPROC(c_backtrace)
 		.long	1001b, 1006b
 		.long	1002b, 1006b
 		.long	1003b, 1006b
-		.long	1004b, 1006b
+		.long	1004b, finished_setup
 		.long   1005b, 1006b
 		.popsection
 
