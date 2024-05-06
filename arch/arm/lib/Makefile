@@ -7,7 +7,7 @@
 lib-y		:= changebit.o csumipv6.o csumpartial.o   \
 		   csumpartialcopy.o csumpartialcopyuser.o clearbit.o \
 		   delay.o delay-loop.o findbit.o memchr.o memcpy.o   \
-		   memmove.o memset.o memzero.o setbit.o              \
+		   memmove.o memset.o setbit.o                        \
 		   strchr.o strrchr.o                                 \
 		   testchangebit.o testclearbit.o testsetbit.o        \
 		   ashldi3.o ashrdi3.o lshrdi3.o muldi3.o             \
@@ -37,6 +37,10 @@ endif
 
 ifeq ($(CONFIG_ARCH_RPC),y)
   lib-y				+= ecard.o io-acorn.o floppydma.o
+  AFLAGS_delay-loop.o		+= -march=armv4
+endif
+
+ifeq ($(CONFIG_ARCH_RPC),y)
   AFLAGS_delay-loop.o		+= -march=armv4
 endif
 

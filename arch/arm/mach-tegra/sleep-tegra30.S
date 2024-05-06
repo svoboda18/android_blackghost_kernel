@@ -80,6 +80,8 @@
 
 #define TEGRA30_POWER_HOTPLUG_SHUTDOWN	(1 << 27) /* Hotplug shutdown */
 
+.arch armv7-a
+
 .macro emc_device_mask, rd, base
 	ldr	\rd, [\base, #EMC_ADR_CFG]
 	tst	\rd, #0x1

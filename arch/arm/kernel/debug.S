@@ -87,7 +87,7 @@ ENTRY(printascii)
 		moveq	r1, #'\r'
 		beq	1b
 2:		teq	r0, #0
-		ldrneb	r1, [r0], #1
+		ldrbne	r1, [r0], #1
 		teqne	r1, #0
 		bne	1b
 		ret	lr

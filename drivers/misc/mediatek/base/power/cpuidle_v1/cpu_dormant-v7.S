@@ -24,67 +24,52 @@
 
 	.global write_cntpctl
 write_cntpctl:
-	.func
 	mcr	p15, 0, r0, c14, c2, 1
 	bx	lr
-	.endfunc
 
 	.global read_cntpctl
 read_cntpctl:
-	.func
 	mrc	p15, 0, r0, c14, c2, 1
 	bx	lr
-	.endfunc
 
 	.global read_cpu_id
 read_cpu_id:
-	.func
 	mrc	p15, 0, r0, c0, c0, 5
 	ands	r0, r0, #0xff
 	bx	lr
-	.endfunc
 
 	.global read_cluster_id
 read_cluster_id:
-	.func
 	mrc	p15, 0, r0, c0, c0, 5
 	lsr	r0, r0, #0x8
 	ands	r0, r0, #0xff
 	bx	lr
-	.endfunc
 
 	.global mt_save_generic_timer
 mt_save_generic_timer:
-	.func
 	mrc	p15, 0, r2, c14, c2, 1	@ read CNTP_CTL
 	mrc	p15, 0, r3, c14, c2, 0	@ read CNTP_TVAL
 	mrc	p15, 0, r12, c14, c1, 0	@ read CNTKCTL
 	stm	r0!, {r2, r3, r12}
 	bx	lr
-	.endfunc
 
 	.global mt_restore_generic_timer
 mt_restore_generic_timer:
-	.func
 	ldm	r0!, {r2, r3, r12}
 	mcr	p15, 0, r3, c14, c2, 0	@ write CNTP_TVAL
 	mcr	p15, 0, r12, c14, c1, 0	@ write CNTKCTL
 	mcr	p15, 0, r2, c14, c2, 1	@ write CNTP_CTL
 	bx	lr
-	.endfunc
 
 	.global mt_save_l2ctlr
 mt_save_l2ctlr:
-	.func
 	mrc	p15, 1, r0, c9, c0, 2
 	isb
 	dsb
 	bx	lr
-	.endfunc
 
 	.global mt_restore_l2ctlr
 mt_restore_l2ctlr:
-	.func
 	isb
 	dsb
 	mrc	p15, 1, r1, c9, c0, 2
@@ -96,11 +81,9 @@ mt_restore_l2ctlr:
 	dsb
 	isb
 	bx	lr
-	.endfunc
 
 	.global mt_goto_cpu_resume
 mt_goto_cpu_resume:
-	.func
 	adr	r1, 1f
 	ldr	r2, [r1]
 	sub	r2, r0, r2
@@ -109,11 +92,9 @@ mt_goto_cpu_resume:
 	bx	r3
 1:	.long
 	bx	lr
-	.endfunc
 
 	.global mt_get_data_nommu
 mt_get_data_nommu:
-	.func
 	adr	r2, 1f
 	ldr	r3, [r2]
 	sub	r3, r1, r2
@@ -122,11 +103,9 @@ mt_get_data_nommu:
 	b	3f
 1:	.long
 3:	bx	lr
-	.endfunc
 
 	.global smp
 smp:
-	.func
 	isb
 	dsb
 	mrc	p15, 0, r0, c1, c0, 1
@@ -137,11 +116,9 @@ smp:
 	isb
 	dsb
 	bx	lr
-	.endfunc
 
 	.global amp
 amp:
-	.func
 	clrex
 	isb
 	dsb
@@ -153,11 +130,9 @@ amp:
 	isb
 	dsb
 	bx	lr
-	.endfunc
 
 	.global disable_dcache_safe
 disable_dcache_safe:
-	.func
 	stmfd	sp!, {r1 - r11}
 	mrc	p15, 0, r1, c1, c0, 0
 	dsb
@@ -272,11 +247,9 @@ L2_cl_finished:
 
 	ldmfd	sp!, {r1 - r11}
 	bx	lr
-	.endfunc
 
 	.global cpu_wake_up_errata_802022
 cpu_wake_up_errata_802022:
-	.func
 @ Before Slave CPU goes to Errata WFI, we turn off GIC CPU interface to the CPU first.
 	ldr	r0, =0x10212000
 	mov	r1, #0
@@ -286,7 +259,6 @@ cpu_wake_up_errata_802022:
 	dsb
 	wfi
 	b	1b
-        .endfunc
 
 @ This function takes three arguments
 @ r0: Destination start address (must be word aligned)
@@ -296,7 +268,6 @@ cpu_wake_up_errata_802022:
 
         .global copy_words
 copy_words:
-        .func
         push    {r3}
         cmp     r2, #0
         beq     1f
@@ -309,12 +280,8 @@ copy_words:
         pop     {r3}
         bx      lr
 
-        .endfunc
-
         .global mt_save_banked_registers
 mt_save_banked_registers:
-        .func
-
         mrs    r2, CPSR             @ save current mode
 
         cps    #MODE_SYS            @ switch to System mode
@@ -343,11 +310,8 @@ mt_save_banked_registers:
         dsb
 
         bx     lr
-        .endfunc
-
         .global mt_restore_banked_registers
 mt_restore_banked_registers:
-        .func
         mrs    r2, CPSR         @ save current mode
 
         cps    #MODE_SYS        @ switch to System mode
@@ -377,4 +341,3 @@ mt_restore_banked_registers:
         dsb
 0:
         bx     lr
-        .endfunc

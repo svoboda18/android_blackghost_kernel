@@ -15,6 +15,14 @@
 #include <linux/clk/at91_pmc.h>
 #include "pm.h"
 
+#ifdef CONFIG_CPU_V7
+.arch armv7-a
+#endif
+
+#ifdef CONFIG_CPU_V7
+.arch armv7-a
+#endif
+
 #define	SRAMC_SELF_FRESH_ACTIVE		0x01
 #define	SRAMC_SELF_FRESH_EXIT		0x00
 
