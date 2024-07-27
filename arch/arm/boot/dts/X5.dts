@@ -281,12 +281,16 @@
 
 /* AUDIO GPIO standardization */
 &audgpio {
-	pinctrl-names = "default", "audpmicclk-mode0", "audpmicclk-mode1", "extamp-pullhigh", "extamp-pulllow";
+	pinctrl-names = "default", "audpmicclk-mode0", "audpmicclk-mode1",
+			"extamp-pullhigh", "extamp-pulllow",
+			"extamp2-pullhigh", "extamp2-pulllow";
 	pinctrl-0 = <&AUD_pins_default>;
 	pinctrl-1 = <&AUD_pins_pmicclk_mode0>;
 	pinctrl-2 = <&AUD_pins_pmicclk_mode1>;
-	pinctrl-3 = <&aud_pins_extamp_high>;
-    pinctrl-4 = <&aud_pins_extamp_low>;
+	pinctrl-3 = <&AUD_pins_extamp_pullhigh>;
+	pinctrl-4 = <&AUD_pins_extamp_pulllow>;
+	pinctrl-5 = <&AUD_pins_extamp2_pullhigh>;
+	pinctrl-6 = <&AUD_pins_extamp2_pulllow>;
 	status = "okay";
 };
 &pio {
@@ -297,10 +301,10 @@
 			pinmux = <PINMUX_GPIO26__FUNC_GPIO26>;
 		};
 		pins_cmd1_dat {
-			pinmux = <PINMUX_GPIO28__FUNC_GPIO28>;
+			pinmux = <PINMUX_GPIO27__FUNC_GPIO27>;
 		};
 		pins_cmd2_dat {
-			pinmux = <PINMUX_GPIO27__FUNC_GPIO27>;
+			pinmux = <PINMUX_GPIO28__FUNC_GPIO28>;
 		};
 	};
 	AUD_pins_pmicclk_mode1: pmicclkmode1 {
@@ -308,25 +312,35 @@
 			pinmux = <PINMUX_GPIO26__FUNC_AUD_CLK_MOSI>;
 		};
 		pins_cmd1_dat {
-			pinmux = <PINMUX_GPIO28__FUNC_AUD_DAT_MISO>;
-		};
-		pins_cmd2_dat {
 			pinmux = <PINMUX_GPIO27__FUNC_AUD_DAT_MOSI>;
 		};
+		pins_cmd2_dat {
+			pinmux = <PINMUX_GPIO28__FUNC_AUD_DAT_MISO>;
+		};
 	};
-	aud_pins_extamp_high: audexamphigh {
-			pins_cmd_dat {
-					pinmux = <PINMUX_GPIO18__FUNC_GPIO18>;
-					slew-rate = <1>;
-					output-high;
-			};
+
+	AUD_pins_extamp_pullhigh: audexamphigh {
+
+		pins_cmd_dat {
+			pinmux = <PINMUX_GPIO4__FUNC_GPIO4>;
+			slew-rate = <1>;
+			output-high;
+		};
 	};
-	aud_pins_extamp_low: audexamplow {
-			pins_cmd_dat {
-					pinmux = <PINMUX_GPIO18__FUNC_GPIO18>;
-					slew-rate = <1>;
-					output-low;
-			};
+
+	AUD_pins_extamp_pulllow: audexamplow {
+
+		pins_cmd_dat {
+			pinmux = <PINMUX_GPIO4__FUNC_GPIO4>;
+			slew-rate = <1>;
+			output-low;
+		};
+	};
+
+	AUD_pins_extamp2_pullhigh: extamp2pullhigh {
+	};
+
+	AUD_pins_extamp2_pulllow: extamp2pulllow {
 	};
 };
 /* AUDIO end */
