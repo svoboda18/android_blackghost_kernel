@@ -1,0 +1,16 @@
+#
+# Touchscreen driver configuration
+#
+
+config TOUCHSCREEN_MTK_SVB_FOCALTECH_TS
+	bool "svbfts_ts for Mediatek package"
+	default n
+	help
+	  Say Y here if you have FTS touch panel.
+	  If unsure, say N.
+	  
+	  If you say Y there you have svbfts_ts touch panel driver.
+	  If unsure, say N.
+
+	  To compile this dirver as a module, choose M here: the
+	  module will be called.

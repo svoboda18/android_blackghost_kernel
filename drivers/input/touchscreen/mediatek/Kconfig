@@ -115,4 +115,5 @@ config TOUCHSCREEN_MTK_TLSC6X
 	  module will be called.
 
 source "drivers/input/touchscreen/mediatek/tlsc6x/Kconfig"
+source "drivers/input/touchscreen/mediatek/svbfts_ts/Kconfig"
 endif
