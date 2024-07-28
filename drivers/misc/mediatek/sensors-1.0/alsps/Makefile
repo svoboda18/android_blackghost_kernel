@@ -7,3 +7,4 @@ obj-y   +=  aal_control.o
 obj-$(CONFIG_MTK_ALSPSHUB)      +=  alspshub/
 obj-$(CONFIG_MTK_CM36652)	+=  cm36652/
 obj-$(CONFIG_MTK_STK3X3X)	+=  stk3x3x/
+obj-$(CONFIG_MTK_EPL2182_NEW)   +=  EPL2182-new/

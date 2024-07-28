@@ -11,3 +11,4 @@ obj-$(CONFIG_MTK_MXC400X_NEW)   +=  mxc400x-new/
 obj-$(CONFIG_MTK_STK8BAXX_NEW)	+= stk8baxx-new/
 obj-$(CONFIG_MTK_MIR3DA)	+= mir3da/
 obj-$(CONFIG_MTK_MXC6655)	+= mxc6655/
+obj-$(CONFIG_MTK_MXC400X)	+= mxc400x/

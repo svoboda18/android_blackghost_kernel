@@ -84,59 +84,17 @@
 
 &i2c2 {
 /* start sensor */
-	gsensor@18 {
+	gsensor@15 {
 		i2c_num = <2>;
-		i2c_addr = <0x18 0 0 0>;
+		i2c_addr = <0x15 0 0 0>;
 		direction = <0>;
 		power_id = <0xffff>;
 		power_vol = <0>;
 		firlen = <0>;
 		is_batch_supported = <0>;
 	};
-#ifdef CONFIG_MTK_MIR3DA
-	gsensor@26 {
-		i2c_num = <2>;
-		i2c_addr = <0x26 0 0 0>;
-		direction = <3>;
-		power_id = <0xffff>;
-		power_vol = <0>;
-		firlen = <0>;
-		is_batch_supported = <0>;
-	};
-#endif
 
-#ifdef CONFIG_MTK_MXC6655
-        mxc6655@15 {
-                i2c_num = <2>;
-                i2c_addr = <0x15 0 0 0>;
-                direction = <0>;
-                power_id = <0xffff>;
-                power_vol = <0>;
-                firlen = <0>;
-                is_batch_supported = <0>;
-        };
-#endif
-
-	msensor@0d {
-		i2c_num = <2>;
-		i2c_addr = <0x0D 0 0 0>;
-		direction = <4>;
-		power_id = <0xffff>;
-		power_vol = <0>;
-		is_batch_supported = <0>;
-	};
-
-	gyro@68 {
-		i2c_num = <2>;
-		i2c_addr = <0x68 0 0 0>;
-		direction = <1>;
-		power_id = <0xffff>;
-		power_vol = <0>;
-		firlen = <0>;
-		is_batch_supported = <0>;
-	};
-
-	alsps@60 {
+	alsps@49 {
 		pinctrl-names = "pin_default", "pin_cfg";
 		pinctrl-0 = <&alsps_intpin_default>;
 		pinctrl-1 = <&alsps_intpin_cfg>;
@@ -146,17 +104,17 @@
 		status = "okay";
 		/* customization */
 		i2c_num = <2>;
-		i2c_addr = <0x60 0 0 0>;
+		i2c_addr = <0x49 0 0 0>;
 		polling_mode_ps = <0>;
 		polling_mode_als = <1>;
 		power_id = <0xffff>;
 		power_vol = <0>;
-		als_level = <0 125 319 525 1091 2480 3058 5115 8589 10769 12857 17807 22091 65535 65535>;
-		als_value = <0 133 303 504 1002 2003 3006 5003 8002 10000 12000 16000 20000 20000 20000 20000>;
-		ps_threshold_high =  <26>;
-		ps_threshold_low =  <21>;
-		is_batch_supported_ps = <0>;
-		is_batch_supported_als = <0>;
+		als_level = <0 328 861 1377 3125 7721 7767 12685 23254 28430 33274 47116 57630 57630 65535>;
+		als_value = <0 133 304 502 1004 2005 3058 5005 8040 10010 12032 15936 20032 20032 20032 20032>;
+		ps_threshold_high = <500>;
+		ps_threshold_low = <400>;
+		is_batch_supported_ps = <0x0>;
+		is_batch_supported_als	= <0x0>;
 	};
 };
 
@@ -166,30 +124,16 @@
 			pinmux = <PINMUX_GPIO6__FUNC_EINT6>;
 			slew-rate = <0>;
 			bias-pull-up = <00>;
+			bias-disable;
 		};
 	};
 	alsps_intpin_default: alspsdefaultcfg {
 	};
-	gyro_intpin_cfg: gyropincfg {
-	    pins_cmd_dat {
-			pinmux = <PINMUX_GPIO1__FUNC_GPIO1>;
-			slew-rate = <0>;
-			bias-pull-down = <00>;
-		};
-	};
-	gyro_intpin_default: gyrodefaultcfg {
-	};
-};
-&gyro {
-	pinctrl-names = "pin_default", "pin_cfg";
-	pinctrl-0 = <&gyro_intpin_default>;
-	pinctrl-1 = <&gyro_intpin_cfg>;
-	status = "okay";
 };
 
 &accdet {
 	accdet-mic-vol = <7>;
-	headset-mode-setting = <0x500 0x200 1 0x1F0 0x800 0x1400 0x20>;
+	headset-mode-setting = <0x500 0x200 1 0x1F0 0x800 0x800 0x20>;
 	accdet-plugout-debounce = <20>;
 	/*1:ACC mode, 2:low cost without in bias, 6:low cost with in bias*/
 	accdet-mic-mode = <1>;
@@ -208,7 +152,7 @@
 	};
 	ACCDET_pins_eint_as_int: eint@0 {
 		pins_cmd_dat {
-			pinmux = <PINMUX_GPIO15__FUNC_EINT15>;
+			pinmux = <PINMUX_GPIO0__FUNC_EINT0>;
 			slew-rate = <0>;
 			bias-disable;
 		};
@@ -400,6 +344,7 @@
 	status = "okay";
 };
 /* DISPSYS GPIO standardization end */
+
 /* CAMERA GPIO standardization */
 &pio {
 	camera_pins_cam0_rst0: cam0@0 {
@@ -578,21 +523,9 @@
 	};
 	
 	camera_pins_pin_fl_sb0: cam0flashlightsb0@0 {
-	pins_cmd_dat {
-			pinmux = <PINMUX_GPIO7__FUNC_GPIO7>;
-			slew-rate = <1>;
-			bias-disable;
-			output-low;
-		};
 	};
 	
 	camera_pins_pin_fl_sb1: cam0flashlightsb1@1 {
-		pins_cmd_dat {
-			pinmux = <PINMUX_GPIO7__FUNC_GPIO7>;
-			slew-rate = <1>;
-			bias-disable;
-			output-high;
-		};
 	};
 };
 
@@ -612,21 +545,9 @@
        };
 
        flashlights_pins_gpio_sub_low: gpio_sub_low@0 {
-               pins_cmd_dat {
-                       pinmux = <PINMUX_GPIO67__FUNC_GPIO67>;
-                       slew-rate = <1>;
-                       bias-disable;
-                       output-low;
-               };
        };
  
        flashlights_pins_gpio_sub_high: gpio_sub_high@0 {
-               pins_cmd_dat {
-                       pinmux = <PINMUX_GPIO67__FUNC_GPIO67>;
-                       slew-rate = <1>;
-                       bias-disable;
-                       output-high;
-               };
        };
 };
 
@@ -637,8 +558,8 @@
        pinctrl-2 = <&flashlights_pins_gpio_sub_high>;
        status = "okay";
 };
-
 /* CAMERA flashlight GPIO END */
+
 /* CONSYS GPIO standardization */
 &pio {
 	consys_pins_default: consys_default {
@@ -648,7 +569,7 @@
 	gpslna_pins_init: gpslna@0 {
 
 		pins_cmd_dat {
-			pinmux = <PINMUX_GPIO69__FUNC_GPIO69>;
+			pinmux = <PINMUX_GPIO3__FUNC_GPIO3>;
 			slew-rate = <0>;
 			bias-disable;
 			output-low;
@@ -658,7 +579,7 @@
 	gpslna_pins_oh: gpslna@1 {
 
 		pins_cmd_dat {
-			pinmux = <PINMUX_GPIO69__FUNC_GPIO69>;
+			pinmux = <PINMUX_GPIO3__FUNC_GPIO3>;
 			slew-rate = <1>;
 			output-high;
 		};
@@ -667,7 +588,7 @@
 	gpslna_pins_ol: gpslna@2 {
 
 		pins_cmd_dat {
-			pinmux = <PINMUX_GPIO69__FUNC_GPIO69>;
+			pinmux = <PINMUX_GPIO3__FUNC_GPIO3>;
 			slew-rate = <1>;
 			output-low;
 		};
@@ -684,16 +605,6 @@
 	status = "okay";
 
 };
-
-#ifdef CONFIG_TOUCHSCREEN_MTK_GSLX680
-&i2c1 {
-        cap_touch_mtk2:cap_touch2@40 {
-                compatible = "mediatek,cap_touch_gsl";
-                reg = <0x40>;
-                status = "okay";
-        };
-};
-#endif
 
 /* CONSYS end */
 

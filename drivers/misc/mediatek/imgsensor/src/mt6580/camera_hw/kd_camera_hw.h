@@ -81,7 +81,9 @@ typedef enum {
 	CAM1PDN,
 	CAM1RST,
 	CAM2PDN,
-	CAMLDO
+	CAMLDO,
+	CAMLDO1,
+	VCMPND
 } CAMPowerType;
 
 extern void ISP_MCLK1_EN(BOOL En);

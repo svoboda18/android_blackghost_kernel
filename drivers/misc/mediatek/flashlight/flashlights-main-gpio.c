@@ -109,13 +109,11 @@ static int flmain_pinctrl_init(struct platform_device *pdev)
 	gpio_torch_high = pinctrl_lookup_state(flmain_pinctrl, FLMAIN_PINCTRL_STATE_GPIO_TORCH_HIGH);
 	if (IS_ERR(gpio_torch_high)) {
 		LOG_INFO("Failed to init (%s)\n", FLMAIN_PINCTRL_STATE_GPIO_TORCH_HIGH);
-		ret = PTR_ERR(gpio_torch_high);
 	}
 
 	gpio_torch_low = pinctrl_lookup_state(flmain_pinctrl, FLMAIN_PINCTRL_STATE_GPIO_TORCH_LOW);
 	if (IS_ERR(gpio_torch_low)) {
 		LOG_INFO("Failed to init (%s)\n", FLMAIN_PINCTRL_STATE_GPIO_TORCH_LOW);
-		ret = PTR_ERR(gpio_torch_low);
 	}
 
 	LOG_INFO("flmain pinctrl init end.\n");
