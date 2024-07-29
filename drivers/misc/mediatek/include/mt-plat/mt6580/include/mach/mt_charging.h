@@ -1,6 +1,14 @@
-/* SPDX-License-Identifier: GPL-2.0 */
 /*
  * Copyright (C) 2015 MediaTek Inc.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
  */
 
 #ifndef _CUST_BAT_H_
@@ -13,10 +21,10 @@
 
 /* Battery Temperature Protection */
 #define MTK_TEMPERATURE_RECHARGE_SUPPORT
-#define MAX_CHARGE_TEMPERATURE  50
-#define MAX_CHARGE_TEMPERATURE_MINUS_X_DEGREE	47
-#define MIN_CHARGE_TEMPERATURE  0
-#define MIN_CHARGE_TEMPERATURE_PLUS_X_DEGREE	6
+#define MAX_CHARGE_TEMPERATURE  55
+#define MAX_CHARGE_TEMPERATURE_MINUS_X_DEGREE	50
+#define MIN_CHARGE_TEMPERATURE  -10
+#define MIN_CHARGE_TEMPERATURE_PLUS_X_DEGREE	-8
 #define ERR_CHARGE_TEMPERATURE  0xFF
 
 /* Linear Charging Threshold */
@@ -32,13 +40,7 @@
 #define USB_CHARGER_CURRENT_CONFIGURED	CHARGE_CURRENT_500_00_MA	/* 500mA*/
 
 #define USB_CHARGER_CURRENT	CHARGE_CURRENT_500_00_MA	/*500mA*/
-/*#define AC_CHARGER_CURRENT					CHARGE_CURRENT_650_00_MA*/
-#if defined(MTK_REF_CHARGER)
-#define AC_CHARGER_CURRENT	CHARGE_CURRENT_1200_00_MA
-#define AC_CHARGER_INPUT_CURRENT	CHARGE_CURRENT_1200_00_MA
-#else
-#define AC_CHARGER_CURRENT	CHARGE_CURRENT_1000_00_MA
-#endif
+#define AC_CHARGER_CURRENT CHARGE_CURRENT_700_00_MA
 #define NON_STD_AC_CHARGER_CURRENT	CHARGE_CURRENT_500_00_MA
 #define CHARGING_HOST_CHARGER_CURRENT	CHARGE_CURRENT_650_00_MA
 #define APPLE_0_5A_CHARGER_CURRENT	CHARGE_CURRENT_500_00_MA
@@ -51,7 +53,7 @@
 #define BATTERY_AVERAGE_SIZE	30
 
 /* charger error check */
-/*#define BAT_LOW_TEMP_PROTECT_ENABLE          stop charging if temp < MIN_CHARGE_TEMPERATURE*/
+#define BAT_LOW_TEMP_PROTECT_ENABLE
 #define V_CHARGER_ENABLE	0	/* 1:ON , 0:OFF	*/
 #define V_CHARGER_MAX	6500	/* 6.5 V*/
 #define V_CHARGER_MIN	4400	/* 4.4 V*/
