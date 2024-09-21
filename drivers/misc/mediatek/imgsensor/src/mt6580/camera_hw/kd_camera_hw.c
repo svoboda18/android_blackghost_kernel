@@ -98,28 +98,28 @@ int mtkcam_gpio_init(struct platform_device *pdev)
 	if (IS_ERR(cam0_pnd_h))
 	{
 		ret = PTR_ERR(cam0_pnd_h);
-		pr_debug("%s : pinctrl err, cam0_pnd_h\n", __func__);
+		PK_ERR("%s : pinctrl err, cam0_pnd_h\n", __func__);
 	}
 
 	cam0_pnd_l = pinctrl_lookup_state(camctrl, "cam0_pnd0");
 	if (IS_ERR(cam0_pnd_l))
 	{
 		ret = PTR_ERR(cam0_pnd_l);
-		pr_debug("%s : pinctrl err, cam0_pnd_l\n", __func__);
+		PK_ERR("%s : pinctrl err, cam0_pnd_l\n", __func__);
 	}
 
 	cam0_rst_h = pinctrl_lookup_state(camctrl, "cam0_rst1");
 	if (IS_ERR(cam0_rst_h))
 	{
 		ret = PTR_ERR(cam0_rst_h);
-		pr_debug("%s : pinctrl err, cam0_rst_h\n", __func__);
+		PK_ERR("%s : pinctrl err, cam0_rst_h\n", __func__);
 	}
 
 	cam0_rst_l = pinctrl_lookup_state(camctrl, "cam0_rst0");
 	if (IS_ERR(cam0_rst_l))
 	{
 		ret = PTR_ERR(cam0_rst_l);
-		pr_debug("%s : pinctrl err, cam0_rst_l\n", __func__);
+		PK_ERR("%s : pinctrl err, cam0_rst_l\n", __func__);
 	}
 
 	/*Cam1 Power/Rst Ping initialization */
@@ -127,70 +127,70 @@ int mtkcam_gpio_init(struct platform_device *pdev)
 	if (IS_ERR(cam1_pnd_h))
 	{
 		ret = PTR_ERR(cam1_pnd_h);
-		pr_debug("%s : pinctrl err, cam1_pnd_h\n", __func__);
+		PK_ERR("%s : pinctrl err, cam1_pnd_h\n", __func__);
 	}
 
 	cam1_pnd_l = pinctrl_lookup_state(camctrl, "cam1_pnd0");
 	if (IS_ERR(cam1_pnd_l))
 	{
 		ret = PTR_ERR(cam1_pnd_l);
-		pr_debug("%s : pinctrl err, cam1_pnd_l\n", __func__);
+		PK_ERR("%s : pinctrl err, cam1_pnd_l\n", __func__);
 	}
 
 	cam1_rst_h = pinctrl_lookup_state(camctrl, "cam1_rst1");
 	if (IS_ERR(cam1_rst_h))
 	{
 		ret = PTR_ERR(cam1_rst_h);
-		pr_debug("%s : pinctrl err, cam1_rst_h\n", __func__);
+		PK_ERR("%s : pinctrl err, cam1_rst_h\n", __func__);
 	}
 
 	cam1_rst_l = pinctrl_lookup_state(camctrl, "cam1_rst0");
 	if (IS_ERR(cam1_rst_l))
 	{
 		ret = PTR_ERR(cam1_rst_l);
-		pr_debug("%s : pinctrl err, cam1_rst_l\n", __func__);
+		PK_ERR("%s : pinctrl err, cam1_rst_l\n", __func__);
 	}
 	/*externel LDO enable */
 	cam_ldo0_h = pinctrl_lookup_state(camctrl, "cam_ldo0_1");
 	if (IS_ERR(cam_ldo0_h))
 	{
 		ret = PTR_ERR(cam_ldo0_h);
-		pr_debug("%s : pinctrl err, cam_ldo0_h\n", __func__);
+		PK_ERR("%s : pinctrl err, cam_ldo0_h\n", __func__);
 	}
 
 	cam_ldo0_l = pinctrl_lookup_state(camctrl, "cam_ldo0_0");
 	if (IS_ERR(cam_ldo0_l))
 	{
 		ret = PTR_ERR(cam_ldo0_l);
-		pr_debug("%s : pinctrl err, cam_ldo0_l\n", __func__);
+		PK_ERR("%s : pinctrl err, cam_ldo0_l\n", __func__);
 	}
 
 	cam_ldo1_h = pinctrl_lookup_state(camctrl, "cam_ldo1_1");
 	if (IS_ERR(cam_ldo1_h))
 	{
 		ret = PTR_ERR(cam_ldo1_h);
-		pr_debug("%s : pinctrl err, cam_ldo1_h\n", __func__);
+		PK_ERR("%s : pinctrl err, cam_ldo1_h\n", __func__);
 	}
 
 	cam_ldo1_l = pinctrl_lookup_state(camctrl, "cam_ldo1_0");
 	if (IS_ERR(cam_ldo1_l))
 	{
 		ret = PTR_ERR(cam_ldo1_l);
-		pr_debug("%s : pinctrl err, cam_ldo0_l\n", __func__);
+		PK_ERR("%s : pinctrl err, cam_ldo0_l\n", __func__);
 	}
 
 	vcm_pnd_h = pinctrl_lookup_state(camctrl, "cam_vcm_pnd_1");
 	if (IS_ERR(vcm_pnd_h))
 	{
 		ret = PTR_ERR(vcm_pnd_h);
-		pr_debug("%s : pinctrl err, vcm_pnd_h\n", __func__);
+		PK_ERR("%s : pinctrl err, vcm_pnd_h\n", __func__);
 	}
 
 	vcm_pnd_l = pinctrl_lookup_state(camctrl, "cam_vcm_pnd_0");
 	if (IS_ERR(vcm_pnd_l))
 	{
 		ret = PTR_ERR(vcm_pnd_l);
-		pr_debug("%s : pinctrl err, vcm_pnd_l\n", __func__);
+		PK_ERR("%s : pinctrl err, vcm_pnd_l\n", __func__);
 	}
 	return ret;
 }
@@ -340,9 +340,6 @@ int kdCISModulePowerOn(enum CAMERA_DUAL_CAMERA_SENSOR_ENUM SensorIdx,
 		printk("[PowerON]pinSetIdx:%d, currSensorName: %s\n", pinSetIdx, currSensorName);
 		if (currSensorName && (0 == strcmp(SENSOR_DRVNAME_GC2355_MIPI_RAW, currSensorName)))
 		{
-			mtkcam_gpio_set(pinSetIdx, CAMLDO, 1);
-			mtkcam_gpio_set(pinSetIdx, CAMLDO1, 1);
-
 			/* First Power Pin low and Reset Pin Low */
 			if (GPIO_CAMERA_INVALID != pinSet[pinSetIdx][IDX_PS_CMPDN])
 				mtkcam_gpio_set(pinSetIdx, CAMPDN,
@@ -975,9 +972,6 @@ int kdCISModulePowerOn(enum CAMERA_DUAL_CAMERA_SENSOR_ENUM SensorIdx,
 		if (currSensorName &&
 			(0 == strcmp(SENSOR_DRVNAME_GC2355_MIPI_RAW, currSensorName)))
 		{
-			mtkcam_gpio_set(pinSetIdx, CAMLDO, 0);
-			mtkcam_gpio_set(pinSetIdx, CAMLDO1, 0);
-
 			/* Set Power Pin low and Reset Pin Low */
 			if (GPIO_CAMERA_INVALID != pinSet[pinSetIdx][IDX_PS_CMPDN])
 				mtkcam_gpio_set(pinSetIdx, CAMPDN,
